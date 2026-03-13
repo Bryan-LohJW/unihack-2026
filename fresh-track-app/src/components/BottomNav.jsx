@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Home, Refrigerator, Plus, History, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "../utils/cn";
 
 const OPTIONS = [
   { id: "fridge", label: "Fridge", icon: "❄️" },
@@ -32,14 +31,6 @@ export const BottomNav = ({ onAddClick, onChange }) => {
   };
 
   const MotionDiv = motion.div;
-
-  const tabs = [
-    { id: "fridge", icon: <Refrigerator size={24} />, label: "Fridge" },
-    { id: "search", icon: <History size={24} />, label: "History" },
-    { id: "placeholder", icon: null, label: "" }, // Space for the floating button
-    { id: "history", icon: <History size={24} />, label: "History" },
-    { id: "profile", icon: <User size={24} />, label: "Profile" },
-  ];
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-50">
