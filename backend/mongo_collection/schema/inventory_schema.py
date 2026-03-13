@@ -1,5 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from bson import ObjectId
+
+from constant.enum import Section
 
 
 class InventorySchema:
@@ -10,20 +12,18 @@ class InventorySchema:
         section: str = "fridge",
         expiry_days: int = 7,
         nutrition=None,
-        status: str = "in_fridge",
         _id=None,
     ):
         self._id = _id or ObjectId()
         self.name = name
         self.calories = calories
-        self.section = section
-        self.expiry_date = datetime.utcnow() + timedelta(days=expiry_days)
-        self.added_at = datetime.utcnow()
-        self.status = status
+        self.section = section if isinstance(section, Section) else Section(section)
+        self.expiry_date = datetime.now(timezone.utc) + timedelta(days=expiry_days)
+        self.added_at = datetime.now(timezone.utc)
         self.nutrition = nutrition or {
-            "protein": 0,
-            "carbs": 0,
-            "fat": 0,
+            "protein": 10,
+            "carbs": 20,
+            "fat": 30,
         }
 
     @staticmethod
@@ -34,7 +34,6 @@ class InventorySchema:
             section=data.get("section", "fridge"),
             expiry_days=data.get("expiry_days", 7),
             nutrition=data.get("nutrition"),
-            status=data.get("status", "in_fridge"),
         )
 
     def to_document(self) -> dict:
@@ -45,7 +44,6 @@ class InventorySchema:
             "section": self.section,
             "expiry_date": self.expiry_date,
             "added_at": self.added_at,
-            "status": self.status,
             "nutrition": self.nutrition,
         }
 

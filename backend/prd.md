@@ -30,3 +30,11 @@ Design: I want a gamify kinda of design for the frontend. Repsonsiveness on mobi
 - Fridge Utilization
 - Fridge Size
 - Authentication
+
+
+# Section:
+Pantry
+Fridge
+Frezer
+
+# Status
