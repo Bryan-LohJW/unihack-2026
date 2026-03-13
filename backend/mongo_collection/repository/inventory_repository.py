@@ -14,7 +14,7 @@ class InventoryRepository:
         return self.collection.insert_many(docs)
 
     def find_in_fridge(self):
-        return list(self.collection.find({"status": "in_fridge"}))
+        return list(self.collection.find({}))
 
     def find_one(self, object_id):
         return self.collection.find_one({"_id": object_id})

@@ -17,7 +17,8 @@ class InventorySchema:
         self._id = _id or ObjectId()
         self.name = name
         self.calories = calories
-        self.section = section if isinstance(section, Section) else Section(section)
+        self.section = section if isinstance(
+            section, Section) else Section(section).value,
         self.expiry_date = datetime.now(timezone.utc) + timedelta(days=expiry_days)
         self.added_at = datetime.now(timezone.utc)
         self.nutrition = nutrition or {

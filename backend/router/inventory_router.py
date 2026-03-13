@@ -42,12 +42,11 @@ def init_inventory_routes(db):
 
     @inventory_bp.route("/<item_id>", methods=["DELETE"])
     def delete_item(item_id):
-        # Accept either ?reason=Consumed/Wasted (enum values) or ?reason=consumed/wasted
         reason_str = request.args.get("reason", DeleteReason.CONSUMED.value)
         deleted = service.delete_item(item_id, reason=reason_str)
         if not deleted:
             return jsonify({"message": "not found"}), 404
-        return jsonify({"message": "deleted"}), 200
+        return jsonify({"message": "deleted", "reason": reason_str}), 200
 
     @inventory_bp.route("/<item_id>", methods=["GET"])
     def get_item(item_id):

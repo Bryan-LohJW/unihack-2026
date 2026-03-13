@@ -1,11 +1,11 @@
 from enum import Enum
 
 class DeleteReason(Enum):
-    CONSUMED = "Consumed"
-    WASTED = "Wasted"
+    CONSUMED = "consumed"
+    WASTED = "wasted"
 
 class Section(Enum):
-    PANTRY = "Pantry"
-    FRIDGE = "Fridge"
-    FREEZER = "Freezer"
+    PANTRY = "pantry"
+    FRIDGE = "fridge"
+    FREEZER = "freezer"
     
