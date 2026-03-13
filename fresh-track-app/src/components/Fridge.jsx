@@ -24,7 +24,7 @@ const Fridge = () => {
     setItems(items.filter((_, i) => i !== index));
   };
 
-  return <div className="fridge bg-white shadow-sm rounded-2xl p-4"></div>;
+  return <div className="fridge bg-[var(--color-white)] shadow-sm rounded-2xl p-4"></div>;
 };
 
 export default Fridge;

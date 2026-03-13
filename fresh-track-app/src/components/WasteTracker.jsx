@@ -19,18 +19,18 @@ const WasteTracker = () => {
   };
 
   return (
-    <div className="waste-tracker bg-white shadow-sm rounded-2xl p-4">
-      <h2 className="text-xl font-semibold text-slate-900 mb-3">Not Wasted Food</h2>
+    <div className="waste-tracker bg-[var(--color-white)] shadow-sm rounded-2xl p-4">
+      <h2 className="text-xl font-semibold text-[var(--color-black)] mb-3">Not Wasted Food</h2>
       <div className="flex gap-2 mb-4">
         <input
-          className="flex-1 rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          className="flex-1 rounded-lg border border-[var(--color-brown)] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)]"
           type="text"
           value={newLog}
           onChange={(e) => setNewLog(e.target.value)}
           placeholder="Log used item"
         />
         <button
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+          className="rounded-lg bg-[var(--color-brown)] px-4 py-2 text-[var(--color-white)] hover:bg-[var(--color-brown)]/80"
           onClick={addLog}
         >
           Log
@@ -40,7 +40,7 @@ const WasteTracker = () => {
         {logs.map((log, index) => (
           <li
             key={index}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+            className="rounded-lg border border-[var(--color-brown)] px-3 py-2 text-sm text-[var(--color-black)]"
           >
             {log.item} • {log.date}
           </li>

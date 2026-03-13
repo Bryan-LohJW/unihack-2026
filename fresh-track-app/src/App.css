@@ -12,8 +12,8 @@ button {
 }
 
 nav {
-  background-color: var(--color-black);
-  border-bottom: 1px solid var(--color-blue);
+  background-color: var(--color-blue);
+  /* border-bottom: 1px solid var(--color-blue); */
 }
 
 .app {
@@ -28,18 +28,7 @@ nav {
 }
 
 
-nav a {
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #f0f0f0;
-}
 
-nav a:hover {
-  background-color: #ddd;
-}
 
 .home-page,
 .waste-track-page {
