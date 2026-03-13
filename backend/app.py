@@ -4,8 +4,8 @@ from flask import Flask
 from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from router.inventory import init_inventory_routes as init_inventory, inventory_bp
-from router.health import init_health_routes, health_bp
+from router.inventory_router import init_inventory_routes as init_inventory, inventory_bp
+from router.health_router import init_health_routes, health_bp
 
 load_dotenv()
 
