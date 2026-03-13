@@ -2,6 +2,7 @@ import React, { useState, useRef, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, ContactShadows, Environment, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
+import FridgeInventory from "./FridgeInventory";
 
 const WIDTH = 6;
 const HEIGHT = 11;
@@ -11,7 +12,7 @@ const WALL_THICKNESS = 0.2;
 const FrenchDoorFridgeModel = ({ isOpen, onClick }) => {
   const leftDoorRef = useRef();
   const rightDoorRef = useRef();
-  
+
   useFrame(() => {
     const targetRotation = isOpen ? Math.PI / 1.6 : 0;
     leftDoorRef.current.rotation.y = THREE.MathUtils.lerp(leftDoorRef.current.rotation.y, -targetRotation, 0.1);
@@ -20,7 +21,6 @@ const FrenchDoorFridgeModel = ({ isOpen, onClick }) => {
 
   return (
     <group onClick={(e) => (e.stopPropagation(), onClick())} position={[0, -(HEIGHT / 2), 0]}>
-      
       {/* --- HOLLOW CABINET CONSTRUCTION --- */}
       <group position={[0, HEIGHT / 2, 0]}>
         {/* Back Wall */}
@@ -56,9 +56,7 @@ const FrenchDoorFridgeModel = ({ isOpen, onClick }) => {
       </group>
 
       {/* --- INTERIOR LIGHT --- */}
-      {isOpen && (
-        <pointLight position={[0, HEIGHT * 0.8, 0]} intensity={1.5} distance={10} color="#ffffff" />
-      )}
+      {isOpen && <pointLight position={[0, HEIGHT * 0.8, 0]} intensity={1.5} distance={10} color="#ffffff" />}
 
       {/* --- SHELVES (Now floating inside the cavity) --- */}
       <group position={[0, HEIGHT * 0.7, 0]}>
@@ -72,7 +70,7 @@ const FrenchDoorFridgeModel = ({ isOpen, onClick }) => {
 
       {/* --- DOORS --- */}
       {/* Left Door */}
-      <group ref={leftDoorRef} position={[-WIDTH / 2, HEIGHT * 0.65, DEPTH / 2]}> 
+      <group ref={leftDoorRef} position={[-WIDTH / 2, HEIGHT * 0.65, DEPTH / 2]}>
         <mesh position={[WIDTH / 4, 0, 0.1]}>
           <boxGeometry args={[WIDTH / 2, HEIGHT * 0.7, 0.2]} />
           <meshStandardMaterial color="#ffffff" />
@@ -83,9 +81,9 @@ const FrenchDoorFridgeModel = ({ isOpen, onClick }) => {
           </mesh>
         </mesh>
       </group>
-      
+
       {/* Right Door */}
-      <group ref={rightDoorRef} position={[WIDTH / 2, HEIGHT * 0.65, DEPTH / 2]}> 
+      <group ref={rightDoorRef} position={[WIDTH / 2, HEIGHT * 0.65, DEPTH / 2]}>
         <mesh position={[-WIDTH / 4, 0, 0.1]}>
           <boxGeometry args={[WIDTH / 2, HEIGHT * 0.7, 0.2]} />
           <meshStandardMaterial color="#ffffff" />
@@ -101,6 +99,7 @@ const FrenchDoorFridgeModel = ({ isOpen, onClick }) => {
           </mesh>
         ))}
       </group>
+      
     </group>
   );
 };
@@ -112,18 +111,14 @@ const Fridge = () => {
     <div className="w-full h-screen bg-white">
       <Canvas shadows dpr={[1, 2]}>
         <Suspense fallback={null}>
-          <PerspectiveCamera makeDefault position={[10, 10,15]} fov={70} />
-          <OrbitControls 
-            enableZoom={false} 
-            minPolarAngle={Math.PI / 2.2} 
-            maxPolarAngle={Math.PI / 1.8} 
-          />
-          <Environment preset="city" />
+          <PerspectiveCamera makeDefault position={[0, 0, 15]} fov={80} />
+          <OrbitControls enableZoom={false} minPolarAngle={Math.PI / 2.2} maxPolarAngle={Math.PI / 1.8} />
+          <Environment preset="apartment" />
           <ambientLight intensity={0.4} />
           <pointLight position={[10, 10, 10]} intensity={1} />
-          
+
           <FrenchDoorFridgeModel isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
-          
+
           <ContactShadows position={[0, -5.6, 0]} opacity={0.4} scale={20} blur={2.5} far={10} />
         </Suspense>
       </Canvas>

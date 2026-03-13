@@ -1,71 +1,31 @@
-import React, { useState } from "react";
-import { Home, Refrigerator, Plus, History, User } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React from "react";
+import { List, Search, DollarSign, ChefHat, Plus } from "lucide-react";
 
-const OPTIONS = [
-  { id: "fridge", label: "Fridge", icon: "❄️" },
-  { id: "freezer", label: "Freezer", icon: "🧊" },
-  { id: "pantry", label: "Pantry", icon: "📦" },
-  { id: "status", label: "My Status", icon: "📊" },
-];
-
-export const BottomNav = ({ onAddClick, onChange }) => {
-  //const [activeTab, setActiveTab] = useState("home");
-  const [index, setIndex] = useState(0);
-
-  const [direction, setDirection] = useState(1);
-
-  const next = () => {
-    setDirection(1);
-    const newIdx = (index + 1) % OPTIONS.length;
-    setIndex(newIdx);
-    onChange?.(OPTIONS[newIdx].id);
-  };
-
-  const prev = () => {
-    setDirection(-1);
-    const newIdx = (index - 1 + OPTIONS.length) % OPTIONS.length;
-    setIndex(newIdx);
-    onChange?.(OPTIONS[newIdx].id);
-  };
-
-  const MotionDiv = motion.div;
+const BottomNav = ({ onAddClick, onChange }) => {
+  const navItems = [
+    { id: "fridge", icon: <List size={20} />, label: "Items" },
+    { id: "search", icon: <Search size={20} />, label: "Search" },
+    { id: "waste", icon: <DollarSign size={20} />, label: "Savings" },
+    { id: "recipes", icon: <ChefHat size={20} />, label: "Recipes" },
+  ];
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-50">
       {/* Centered Floating Action Button */}
-      <div className="absolute left-1/2 -top-6 -translate-x-1/2 z-[60]">
-        <button onClick={onAddClick} className="w-14 h-14 bg-gradient-to-br from-[var(--color-blue)] to-[var(--color-white)] rounded-full flex items-center justify-center text-[var(--color-black)] shadow-lg shadow-[var(--color-brown)]/40 active:scale-90 transition-transform border-4 border-[var(--color-brown)]">
-          <Plus size={32} strokeWidth={3} />
-        </button>
-      </div>
 
-      {/* Main Nav Bar */}
-      <div className="relative w-full h-32 flex items-center justify-center overflow-hidden py-4">
-        {/* Navigation Arrows */}
-        <button onClick={next} className="absolute left-4 z-20 p-2 rounded-full bg-gradient-to-br from-[var(--color-blue)] to-[var(--color-white)] border border-[var(--color-brown)]/30 text-[var(--color-black)] w-auto min-w-[40px] max-w-[40px] active:scale-90 transition-all">
-          <ChevronLeft size={24} />
-        </button>
-
-        <div className="flex items-center justify-center gap-8 w-full max-w-[300px]">
-          <AnimatePresence mode="popLayout">
-            {/* We render a slice of the array to show the "Center" item clearly */}
-            <MotionDiv key={index} initial={{ opacity: 0, x: 50 * direction, scale: 0.8 }} animate={{ opacity: 1, x: 0, scale: 1.1 }} exit={{ opacity: 0, x: -50 * direction, scale: 0.8 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="flex flex-col items-center justify-center">
-              {/* <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30 flex items-center justify-center text-4xl shadow-2xl shadow-purple-500/10 mb-2">{OPTIONS[index].icon}</div> */}
-              <span className="text-[var(--color-black)] font-bold text-sm tracking-widest uppercase">{OPTIONS[index].label}</span>
-            </MotionDiv>
-          </AnimatePresence>
+      {/* Bottom Navigation Bar */}
+      <div className="bg-[var(--color-white)] border-[var(--color-brown)]/20 shadow-lg">
+        <div className="grid grid-cols-4 h-16">
+          {navItems.map((item) => (
+            <button key={item.id} onClick={() => onChange(item.id)} className="flex flex-col items-center justify-center gap-1 text-[var(--color-brown)] hover:text-[var(--color-black)] hover:bg-[var(--color-blue)]/10 transition-colors" style={{ border: "none" }}>
+              {item.icon}
+              <span className="text-xs font-medium">{item.label}</span>
+            </button>
+          ))}
         </div>
-
-        <button onClick={prev} className="absolute right-4 z-20 p-2 rounded-full bg-gradient-to-br from-[var(--color-blue)] to-[var(--color-white)] border border-[var(--color-brown)]/30 text-[var(--color-black)] w-auto min-w-[40px] max-w-[40px] active:scale-90 transition-all">
-          <ChevronRight size={24} />
-        </button>
-
-        {/* Subtle background glow for the active item */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-[var(--color-brown)]/20 blur-[60px] pointer-events-none rounded-full" />
       </div>
     </div>
   );
 };
+
 export default BottomNav;
