@@ -37,3 +37,30 @@ def parse_image_to_inventory_items(image_bytes: bytes, media_type: str = "image/
             item["image_url"] = icon_mapping.get(item["name"], "unknown.png")
 
     return items
+
+
+def suggest_recipes_from_inventory(inventory_items: list[dict]) -> list[dict]:
+    """
+    Suggest recipes based on current inventory. LLM should prioritize by expiry.
+
+    TODO: Integrate with LLM; pass inventory_items (with name, qty, expiry_date, etc.)
+    and return list of RecipeSuggestion-shaped dicts.
+
+    Args:
+        inventory_items: List of inventory docs (name, qty, expiry_date, section, ...).
+
+    Returns:
+        List of dicts with keys: menu, headcount, cuisine_type, nutrition_per_person,
+        ingredients (list of {name, qty}), ingredients_to_buy (list of {name, qty}).
+    """
+    # Hardcoded placeholder until LLM integration.
+    return [
+        {
+            "menu": "Milk & Egg Scramble",
+            "headcount": 2,
+            "cuisine_type": "Western",
+            "nutrition_per_person": {"calories": 250, "protein": 18, "carbs": 8, "fat": 16},
+            "ingredients": [{"name": "Milk", "qty": 1}, {"name": "Eggs", "qty": 2}],
+            "ingredients_to_buy": [{"name": "Butter", "qty": 1}],
+        },
+    ]
