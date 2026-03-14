@@ -12,32 +12,37 @@ def init_notifications_routes(db):
     @notifications_bp.route("/latest", methods=["GET"])
     def get_latest_notifications():
         """
-        Return latest notifications for frontend polling.
-        Currently includes recipe suggestions; more types can be added later.
+        Return the latest batch of recipe suggestions for frontend polling.
+        Only the most recent batch (identified by suggestion_id) is returned.
         """
-        limit = min(int(request.args.get("limit", 20)), 50)
-        suggestions = recipe_suggestion_repo.find_recent(limit=limit)
+        limit = min(int(request.args.get("limit", 50)), 100)
+        docs = recipe_suggestion_repo.find_recent(limit=limit)
+        if not docs:
+            return jsonify({"suggestion": None}), 200
 
-        notifications = [
+        latest_suggestion_id = docs[0].get("suggestion_id")
+        batch_docs = [d for d in docs if d.get("suggestion_id") == latest_suggestion_id]
+
+        created_at = batch_docs[0].get("created_at") if batch_docs else None
+        recipes = [
             {
                 "id": str(d["_id"]),
-                "type": "recipe_suggestion",
-                "created_at": d["created_at"].isoformat() if hasattr(d.get("created_at"), "isoformat") else d.get("created_at"),
-                "data": {
-                    "menu": d.get("menu"),
-                    "headcount": d.get("headcount"),
-                    "cuisine_type": d.get("cuisine_type"),
-                    "nutrition_per_person": d.get("nutrition_per_person"),
-                    "ingredients": d.get("ingredients"),
-                    "ingredients_to_buy": d.get("ingredients_to_buy"),
-                },
+                "menu": d.get("menu"),
+                "headcount": d.get("headcount"),
+                "cuisine_type": d.get("cuisine_type"),
+                "nutrition_per_person": d.get("nutrition_per_person"),
+                "ingredients": d.get("ingredients"),
+                "ingredients_to_buy": d.get("ingredients_to_buy"),
             }
-            for d in suggestions
+            for d in batch_docs
         ]
 
-        return jsonify({
-            "notifications": notifications,
-            "count": len(notifications),
-        }), 200
+        suggestion = {
+            "suggestion_id": latest_suggestion_id,
+            "created_at": created_at.isoformat() if hasattr(created_at, "isoformat") else created_at,
+            "recipes": recipes,
+        }
+
+        return jsonify({"suggestion": suggestion}), 200
 
     return notifications_bp

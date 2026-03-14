@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { useNotificationPolling } from "./hooks/useNotificationPolling";
 import WasteTrackPage from "./pages/WasteTrackPage";
 import PantryPage from "./pages/PantryPage";
 import PointsPage from "./pages/PointsPage";
@@ -14,11 +15,46 @@ import Navbar from "./components/navigations/Navbar";
 import AddButton from "./components/ActionButtons/AddButton";
 import CookButton from "./components/ActionButtons/CookButton";
 import HomePage from "./pages/HomePage";
+import CookPage from "./pages/CookPage";
+import PreAddIngredients from "./pages/PreAddIngredients";
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const [currentView, setCurrentView] = useState("home");
+  const [navPayload, setNavPayload] = useState(null);
+
+  const handleNavigate = (view, payload = null) => {
+    setNavPayload(payload);
+    setCurrentView(view);
+    if (view === "cook") {
+      const url = new URL(window.location.href);
+      if (payload?.suggestion_id) {
+        url.searchParams.set("suggestion_id", payload.suggestion_id);
+      } else {
+        url.searchParams.delete("suggestion_id");
+      }
+      window.history.replaceState({}, "", url);
+    }
+  };
+
+  useNotificationPolling((suggestionId) => {
+    if (suggestionId) {
+      handleNavigate("cook", { suggestion_id: suggestionId });
+    } else {
+      handleNavigate("cook");
+    }
+  });
+
+  useEffect(() => {
+    const handleSWMessage = (event) => {
+      if (event.data?.type === "navigate" && event.data?.view === "cook") {
+        handleNavigate("cook", event.data.suggestionId ? { suggestion_id: event.data.suggestionId } : null);
+      }
+    };
+    navigator.serviceWorker?.addEventListener("message", handleSWMessage);
+    return () => navigator.serviceWorker?.removeEventListener("message", handleSWMessage);
+  }, []);
 
   const handleAddItem = (item) => {
     if (item.category === "fridge") {
@@ -47,7 +83,8 @@ function App() {
             {currentView === "waste" && <WasteTrackPage />}
             {currentView === "points" && <PointsPage />}
             {currentView === "search" && <div>Search - Coming Soon</div>}
-            {currentView === "cook" && <div>Recipes - Coming Soon</div>}
+            {currentView === "cook" && <CookPage />}
+            {currentView === "pre-add" && <PreAddIngredients onNavigate={handleNavigate} data={navPayload} />}
           </div>
         </div>
 
@@ -56,7 +93,7 @@ function App() {
           <CookButton onClick={() => setCurrentView("cook")} />
         </div>
 
-        <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} />
+        <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} onNavigate={handleNavigate} />
       </div>
     </Router>
   );

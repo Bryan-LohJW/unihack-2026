@@ -18,10 +18,12 @@ class RecipeSuggestionSchema:
         nutrition_per_person: dict[str, Any],
         ingredients: list[dict[str, Any]],
         ingredients_to_buy: list[dict[str, Any]],
+        suggestion_id: str | None = None,
         _id: Any = None,
         created_at: datetime | None = None,
     ):
         self._id = _id or ObjectId()
+        self.suggestion_id = suggestion_id
         self.menu = menu
         self.headcount = headcount
         self.cuisine_type = cuisine_type
@@ -31,9 +33,10 @@ class RecipeSuggestionSchema:
         self.created_at = created_at or datetime.now(timezone.utc)
 
     @staticmethod
-    def from_llm_response(data: dict) -> "RecipeSuggestionSchema":
+    def from_llm_response(data: dict, suggestion_id: str | None = None) -> "RecipeSuggestionSchema":
         data = data or {}
         return RecipeSuggestionSchema(
+            suggestion_id=suggestion_id,
             menu=data.get("menu", ""),
             headcount=int(data.get("headcount", 1) or 1),
             cuisine_type=data.get("cuisine_type", ""),
@@ -43,7 +46,7 @@ class RecipeSuggestionSchema:
         )
 
     def to_document(self) -> dict:
-        return {
+        doc = {
             "_id": self._id,
             "menu": self.menu,
             "headcount": self.headcount,
@@ -53,6 +56,9 @@ class RecipeSuggestionSchema:
             "ingredients_to_buy": self.ingredients_to_buy,
             "created_at": self.created_at,
         }
+        if self.suggestion_id is not None:
+            doc["suggestion_id"] = self.suggestion_id
+        return doc
 
     def to_json_friendly(self) -> dict:
         d = self.to_document()

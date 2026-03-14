@@ -22,6 +22,8 @@ def init_inventory_routes(db):
             payload = service.create_items_batch(data)
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
+        if "items" in payload:
+            payload = {**payload, "items": [reponse_serializer(item) for item in payload["items"]]}
         status = 201 if payload.get("inserted_count", 0) > 0 else 200
         return jsonify(payload), status
 
