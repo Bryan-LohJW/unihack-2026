@@ -14,6 +14,7 @@ import Navbar from "./components/navigations/Navbar";
 import AddButton from "./components/ActionButtons/AddButton";
 import CookButton from "./components/ActionButtons/CookButton";
 import HomePage from "./pages/HomePage";
+import CookPage from "./pages/CookPage";
 import PreAddIngredients from "./pages/PreAddIngredients";
 
 function App() {
@@ -54,7 +55,7 @@ function App() {
             {currentView === "waste" && <WasteTrackPage />}
             {currentView === "points" && <PointsPage />}
             {currentView === "search" && <div>Search - Coming Soon</div>}
-            {currentView === "cook" && <div>Recipes - Coming Soon</div>}
+            {currentView === "cook" && <CookPage />}
             {currentView === "pre-add" && <PreAddIngredients onNavigate={handleNavigate} data={navPayload} />}
           </div>
         </div>
