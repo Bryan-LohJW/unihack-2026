@@ -17,7 +17,6 @@ def _serialize_suggestion(doc):
 
 
 def init_cron_routes(db):
-    recipe_suggestion_repo = RecipeSuggestionRepository(db)
     recipe_suggestion_service = RecipeSuggestionService(db)
 
     @cron_bp.route("/recipe-suggestions", methods=["POST"])
@@ -33,11 +32,5 @@ def init_cron_routes(db):
             "suggestions": suggestions,
         }), 200
 
-    @cron_bp.route("/recipe-suggestions", methods=["GET"])
-    def get_recent_recipe_suggestions():
-        """Return recent stored suggestions (for web app notifications)."""
-        limit = 50
-        docs = recipe_suggestion_repo.find_recent(limit=limit)
-        return jsonify({"suggestions": [_serialize_suggestion(d) for d in docs]}), 200
 
     return cron_bp
