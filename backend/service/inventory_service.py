@@ -61,8 +61,10 @@ class InventoryService:
             new_qty = int(updates["qty"]) if updates["qty"] is not None else current_qty
             if new_qty < current_qty:
                 consumed_qty = current_qty - new_qty
-                self.karma_service.increment_consumed(consumed_qty)
-                karma_delta = consumed_qty * 10
+                unit = existing.get("unit").strip()
+                karma_delta = self.karma_service.add_karma(
+                    consumed_qty, unit, DeleteReason.CONSUMED.value
+                )
 
         self.repo.update_one(oid, updates)
         updated = self.repo.find_one(oid)
@@ -76,6 +78,7 @@ class InventoryService:
         Increments kitchen karma consumed. Returns total_consumed_qty.
         """
         total_consumed_qty = 0
+        total_karma_delta = 0
         for entry in updates:
             item_id = entry.get("item_id")
             to_consume = int(entry.get("qty", 0) or 0)
@@ -93,7 +96,10 @@ class InventoryService:
             if consumed_qty <= 0:
                 continue
             total_consumed_qty += consumed_qty
-            self.karma_service.increment_consumed(consumed_qty)
+            unit = existing.get("unit").strip()
+            total_karma_delta += self.karma_service.add_karma(
+                consumed_qty, unit, DeleteReason.CONSUMED.value
+            )
             new_qty = current_qty - consumed_qty
             if new_qty <= 0:
                 self.repo.delete_one(oid)
@@ -101,7 +107,7 @@ class InventoryService:
                 self.repo.update_one(oid, {"qty": new_qty})
         return {
             "total_consumed_qty": total_consumed_qty,
-            "karma_delta": total_consumed_qty * 10,
+            "karma_delta": total_karma_delta,
         }
 
     def delete_item(self, item_id: str, reason: str | None = None) -> dict | None:
@@ -125,12 +131,10 @@ class InventoryService:
 
         reason_norm = reason.strip().lower()
         karma_delta = 0
-        if reason_norm == DeleteReason.WASTED.value:
-            self.karma_service.increment_wasted(1)
-            karma_delta = -20
-        elif reason_norm == DeleteReason.CONSUMED.value:
-            self.karma_service.increment_consumed(1)
-            karma_delta = 10
+        if reason_norm in (DeleteReason.WASTED.value, DeleteReason.CONSUMED.value):
+            qty = int(existing.get("qty", 1)) or 1
+            unit = (existing.get("unit") or "pcs").strip() or "pcs"
+            karma_delta = self.karma_service.add_karma(qty, unit, reason_norm)
 
         return {"item": existing, "reason": reason, "karma_delta": karma_delta}
 
