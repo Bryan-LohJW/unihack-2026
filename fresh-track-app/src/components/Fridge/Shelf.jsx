@@ -4,7 +4,7 @@ const Shelf = ({
   title,
   index,
   isOpen,
-  display_img,
+  bg_img,
   total,
   expiry,
   onShelfClick,
@@ -19,58 +19,50 @@ const Shelf = ({
       }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98, transition: { duration: 0.15 } }}
-      style={{ transformOrigin: "center" }}
+      style={{
+        transformOrigin: "center",
+        backgroundImage: bg_img ? `url(${bg_img})` : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        borderRadius: "12px",
+      }}
       onTap={() => setTimeout(onShelfClick, 180)}
-      className="w-full px-6 flex flex-col items-center relative mb-12 cursor-pointer"
+      className="w-full flex-1 flex flex-col relative cursor-pointer overflow-hidden border-2 border-white/40"
     >
-      {/* --- STAT BOXES --- */}
-      <div className="absolute top-0 w-full flex justify-between px-8 z-30 -translate-y-4">
-        <div className="flex flex-col items-center bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-sm border border-slate-100 min-w-[46px]">
-          <span className="text-[11px] font-bold text-slate-400 uppercase leading-none mb-1">
-            Total
-          </span>
-          <span className="text-[17px] font-black text-slate-700 leading-none">
-            {total}
-          </span>
-        </div>
-
-        <div className="flex flex-col items-center bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-sm border border-slate-100 min-w-[46px] translate-x-4">
-          <span className="text-[11px] font-bold text-slate-400 uppercase leading-none mb-1">
-            Expiring
-          </span>
-          <span
-            className={`text-[17px] font-black leading-none ${expiry > 0 ? "text-orange-500" : "text-slate-700"}`}
-          >
-            {expiry}
-          </span>
-        </div>
-      </div>
+      {/* Subtle dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/20 z-0" />
 
       {/* SHELF TITLE */}
-      <div className="absolute -top-21 w-full text-center z-50">
-        <span className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">
+      <div className="relative z-10 pt-2 text-center">
+        <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase drop-shadow">
           {title}
         </span>
       </div>
 
-      {/* SHELF BODY */}
-      <div className="relative w-full h-12 flex items-end justify-center">
-        <div className="absolute bottom-0 flex gap-2 z-20 translate-y-2">
-          <motion.img
-            src={display_img}
-            initial={{ scale: 0 }}
-            animate={isOpen ? { scale: 1.1 } : { scale: 0 }}
-            className="w-40 h-50 object-contain object-bottom drop-shadow-md"
-          />
+      {/* SHELF BODY — fills remaining space */}
+      <div className="relative flex-1" />
+
+      {/* STAT BOXES — pinned to bottom */}
+      <div className="relative z-10 flex justify-between px-3 pb-2">
+        <div className="flex flex-col items-center bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md border-2 border-slate-200 min-w-[46px]">
+          <span className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-0.5">
+            Total
+          </span>
+          <span className="text-[15px] font-black text-slate-700 leading-none">
+            {total}
+          </span>
         </div>
 
-        <div
-          className="absolute inset-x-0 bottom-0 h-14 bg-cyan-100/25 backdrop-blur-sm border-b-2 border-cyan-200/40 rounded-b-xl shadow-md z-10"
-          style={{
-            transform: "perspective(400px) rotateX(40deg)",
-            transformOrigin: "top",
-          }}
-        />
+        <div className="flex flex-col items-center bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md border-2 border-slate-200 min-w-[46px]">
+          <span className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-0.5">
+            Expiring
+          </span>
+          <span
+            className={`text-[15px] font-black leading-none ${expiry > 0 ? "text-orange-500" : "text-slate-700"}`}
+          >
+            {expiry}
+          </span>
+        </div>
       </div>
     </motion.div>
   );
