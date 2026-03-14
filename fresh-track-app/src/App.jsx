@@ -8,6 +8,7 @@ import PantryPage from "./pages/PantryPage";
 import PointsPage from "./pages/PointsPage";
 import BottomNav from "./components/navigations/BottomNav";
 import AddItemModal from "./components/Modals/AddItemModal";
+import RecipePrefsModal from "./components/Modals/RecipePrefsModal";
 import Fridge from "./components/Fridge";
 import Pantry from "./components/Pantry";
 import "./globals/globals.css";
@@ -60,14 +61,22 @@ function App() {
 
   const [toastMessage, setToastMessage] = useState(null);
   const [karmaAnimationTrigger, setKarmaAnimationTrigger] = useState(0);
+  const [isCookPrefsOpen, setIsCookPrefsOpen] = useState(false);
 
   const handleCookClick = useCallback(() => {
+    setIsCookPrefsOpen(true);
+  }, []);
+
+  const handleCookPrefsSave = useCallback((prefs) => {
+    setIsCookPrefsOpen(false);
     setToastMessage(
-      "Generating recipe. Please check your notification one recipe suggestions are ready."
+      "Generating recipe. Please check your notification once recipe suggestions are ready."
     );
-    apiAxios.post("/cron/recipe-suggestions").catch(() => {
-      setToastMessage("Failed to generate recipes. Please try again.");
-    });
+    apiAxios
+      .post("/cron/recipe-suggestions", prefs)
+      .catch(() => {
+        setToastMessage("Failed to generate recipes. Please try again.");
+      });
   }, []);
 
   const handleAddItem = (item) => {
@@ -116,6 +125,12 @@ function App() {
         <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />
 
         <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} onNavigate={handleNavigate} />
+        <RecipePrefsModal
+          isOpen={isCookPrefsOpen}
+          onClose={() => setIsCookPrefsOpen(false)}
+          onSave={handleCookPrefsSave}
+          saveButtonText="Generate Recipes"
+        />
       </div>
     </Router>
   );

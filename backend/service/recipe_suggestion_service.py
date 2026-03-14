@@ -1,5 +1,6 @@
 from bson import ObjectId
 
+from ai_models.generate_recipe import generate_recipe
 from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 from mongo_collection.repository.recipe_suggestion_repository import RecipeSuggestionRepository
 from mongo_collection.repository.inventory_repository import InventoryRepository
@@ -11,43 +12,40 @@ class RecipeSuggestionService:
         self.repo = RecipeSuggestionRepository(db)
         self.inventory_repo = InventoryRepository(db)
 
-    def run_cron_suggestions(self) -> list[dict]:
+    def run_cron_suggestions(self,
+                             cuisine: list[str],
+                             dietary_requirements: list[str],
+                             headcount: int
+                             ) -> tuple[dict | None, int]:
         """
         Query whole inventory, feed to LLM for recipe suggestions,
         store RecipeSuggestions and return them (for notifications).
+        Returns (data_dict, status_code). data_dict is None on 404.
         """
         inventory_items = self.inventory_repo.find_in_fridge()
-        # Normalize for LLM: list of dicts with name, qty, expiry_date, etc.
-        inventory_payload = [
-            {
-                "name": item.get("name"),
-                "qty": item.get("qty", 1),
-                "expiry_date": item.get("expiry_date"),
-                "section": item.get("section"),
-            }
-            for item in inventory_items
-        ]
+        if not inventory_items:
+            return ({"error": "No inventory items found"}, 404)
 
-        recipes = suggest_recipes_from_inventory(inventory_payload)
-        if not recipes:
-            return []
+        result = generate_recipe(
+            inventory_items,
+            cuisine,
+            dietary_requirements,
+            headcount,
+        )
+
+        if not result:
+            return ([], 200)
 
         suggestion_id = str(ObjectId())
         docs = []
-        for schema in recipes:
-            if isinstance(schema, RecipeSuggestionSchema):
-                schema.suggestion_id = suggestion_id
-                docs.append(schema.to_document())
-            else:
-                # Legacy: dict from LLM/Spoonacular
-                mapped = _map_llm_recipe_to_schema(schema)
-                s = RecipeSuggestionSchema.from_llm_response(mapped, suggestion_id=suggestion_id)
-                docs.append(s.to_document())
+        for recipe in result.get("recipes", []):
+            schema = RecipeSuggestionSchema.from_llm_response(
+                recipe, suggestion_id=suggestion_id)
+            self.repo.insert_one(schema.to_document())
+            docs.append(schema.to_json_friendly())
 
-        self.repo.insert_many(docs)
+        return ({"suggestion_id": suggestion_id, "recipes": docs}, 200)
 
-        # Return inserted docs as JSON-friendly (for cron/notification)
-        return [_serialize_suggestion_doc(d) for d in docs]
 
 
 def _map_llm_recipe_to_schema(raw: dict) -> dict:

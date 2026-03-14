@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from mongo_collection.repository.recipe_suggestion_repository import RecipeSuggestionRepository
 from service.recipe_suggestion_service import RecipeSuggestionService
@@ -25,12 +25,20 @@ def init_cron_routes(db):
         Manually trigger the recipe-suggestions job (same logic as the background cron).
         Creates recipe_suggestions from current inventory via LLM. Use for testing or on-demand run.
         """
-        suggestions = recipe_suggestion_service.run_cron_suggestions()
-        return jsonify({
-            "triggered": True,
-            "count": len(suggestions),
-            "suggestions": suggestions,
-        }), 200
+
+        data = request.get_json(force=True, silent=True) or {}
+        cuisine = data.get("cuisine") or []
+        if not isinstance(cuisine, list):
+            cuisine = [str(cuisine)] if cuisine else []
+        dietary_requirements = data.get("dietary_requirements", data.get("dietary")) or []
+        if not isinstance(dietary_requirements, list):
+            dietary_requirements = [str(dietary_requirements)] if dietary_requirements else []
+        headcount = max(1, int(data.get("headcount", data.get("quantity", data.get("defaultServings", 1))) or 1))
+
+        payload, status = recipe_suggestion_service.run_cron_suggestions(
+            cuisine, dietary_requirements, headcount)
+
+        return jsonify(payload), status
 
 
     return cron_bp

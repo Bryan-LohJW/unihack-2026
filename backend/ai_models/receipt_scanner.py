@@ -3,6 +3,8 @@ import json
 import re
 from datetime import date
 
+from google.genai import types
+
 from ai_models.gemini_client import get_gemini_client
 
 SYSTEM_PROMPT = """You are a grocery receipt parser for a kitchen inventory app.
@@ -29,13 +31,9 @@ def parse_receipt(image_bytes: bytes, media_type: str = "image/jpeg") -> dict:
     today_date = date.today().isoformat()
     prompt = SYSTEM_PROMPT.format(today_date=today_date)
 
-    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
-
     model = get_gemini_client("gemini-3-flash-preview")
-    response = model.generate_content([
-        {"mime_type": media_type, "data": image_base64},
-        prompt,
-    ])
+    image_part = types.Part.from_bytes(data=image_bytes, mime_type=media_type)
+    response = model.generate_content(contents=[image_part, prompt])
 
     text = response.text.strip()
     # Strip markdown code fences if Gemini wraps the response
