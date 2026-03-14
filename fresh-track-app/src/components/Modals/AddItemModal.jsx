@@ -22,6 +22,7 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
   const [formData, setFormData] = useState({
     name: "",
     quantity: 1,
+    unit: "g",
     expiry: "",
     category: "fridge",
   });
@@ -30,6 +31,7 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
 
   // New state for our custom category dropdown
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isUnitOpen, setIsUnitOpen] = useState(false);
 
   const webcamRef = useRef(null);
   const [focusedField, setFocusedField] = useState(null);
@@ -43,6 +45,14 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
     { value: "pantry", label: "🥫 Pantry" },
   ];
 
+  const units = [
+    { value: "g", label: "g" },
+    { value: "ml", label: "ml" },
+    { value: "pck", label: "pck" },
+    { value: "bottle", label: "bottle" },
+    { value: "serving", label: "serving" },
+  ];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -52,6 +62,12 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
   const handleCategorySelect = (value) => {
     setFormData((prev) => ({ ...prev, category: value }));
     setIsCategoryOpen(false);
+    setFocusedField(null);
+  };
+
+  const handleUnitSelect = (value) => {
+    setFormData((prev) => ({ ...prev, unit: value }));
+    setIsUnitOpen(false);
     setFocusedField(null);
   };
 
@@ -94,7 +110,9 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
       // Convert base64 screenshot to a File object that PreAddIngredients expects
       const res = await fetch(capturedImage);
       const blob = await res.blob();
-      const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+      const file = new File([blob], "camera-capture.jpg", {
+        type: "image/jpeg",
+      });
       onClose();
       onNavigate("pre-add", { file });
       setCapturedImage(null);
@@ -123,17 +141,25 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
         name: formData.name,
         section: formData.category,
         qty: parseInt(formData.quantity, 10) || 1,
+        unit: formData.unit || "g",
         expiry_days: computeExpiryDays(formData.expiry),
         calories: 0,
       };
       const { data } = await apiAxios.post("/inventory", payload);
       onAddItem(data);
       onClose();
-      setFormData({ name: "", quantity: 1, expiry: "", category: "fridge" });
+      setFormData({
+        name: "",
+        quantity: 1,
+        unit: "g",
+        expiry: "",
+        category: "fridge",
+      });
       setReceiptFile(null);
       setCapturedImage(null);
       setErrors({ name: "", expiry: "" });
       setIsCategoryOpen(false);
+      setIsUnitOpen(false);
     } catch (err) {
       const msg =
         err?.response?.data?.error ?? err?.message ?? "Failed to add item";
@@ -149,7 +175,8 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
     const isFilled = formData[fieldName];
     const isFocused =
       focusedField === fieldName ||
-      (fieldName === "category" && isCategoryOpen);
+      (fieldName === "category" && isCategoryOpen) ||
+      (fieldName === "unit" && isUnitOpen);
 
     return `
       relative flex items-center w-full bg-[var(--color-white)] rounded-xl 
@@ -332,6 +359,60 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
                           </div>
                         </div>
 
+                        {/* --- UNIT DROPDOWN --- */}
+                        <div className="relative">
+                          <label className={commonLabelClasses("unit")}>
+                            Unit
+                          </label>
+                          <div
+                            className={getContainerClasses("unit")}
+                            onClick={() => {
+                              setIsUnitOpen(!isUnitOpen);
+                              setIsCategoryOpen(false);
+                              setFocusedField("unit");
+                            }}
+                          >
+                            <div className="w-full flex items-center justify-between py-3 pl-4 pr-3 font-medium text-[var(--color-black)] select-none">
+                              <span>
+                                {units.find((u) => u.value === formData.unit)
+                                  ?.label ?? formData.unit}
+                              </span>
+                              <ChevronDown
+                                size={18}
+                                className={`text-gray-400 transition-transform duration-300 ${isUnitOpen ? "rotate-180 text-blue-500" : ""}`}
+                              />
+                            </div>
+                          </div>
+
+                          <AnimatePresence>
+                            {isUnitOpen && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-y-auto max-h-48"
+                              >
+                                {units.map((u) => (
+                                  <div
+                                    key={u.value}
+                                    onClick={() => handleUnitSelect(u.value)}
+                                    className={`px-4 py-2.5 cursor-pointer text-sm font-bold transition-colors ${
+                                      formData.unit === u.value
+                                        ? "bg-blue-50 text-blue-600"
+                                        : "text-gray-700 hover:bg-gray-50"
+                                    }`}
+                                  >
+                                    {u.label}
+                                  </div>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
                         {/* --- CUSTOM CATEGORY DROPDOWN --- */}
                         <div className="relative">
                           <label className={commonLabelClasses("category")}>
@@ -341,6 +422,7 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
                             className={getContainerClasses("category")}
                             onClick={() => {
                               setIsCategoryOpen(!isCategoryOpen);
+                              setIsUnitOpen(false);
                               setFocusedField("category");
                             }}
                           >
