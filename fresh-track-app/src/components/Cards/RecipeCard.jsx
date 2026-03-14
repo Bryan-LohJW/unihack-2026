@@ -146,7 +146,7 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                   }
                   try {
                     const res = await apiAxios.patch('/inventory/batch', { updates });
-                    const karma = res?.karma_delta ?? (res?.total_consumed_qty ?? 0) * 10;
+                    const karma = res?.karma_delta ?? 30;
                     onStartCookingSuccess?.(karma);
                   } catch (err) {
                     console.error('Batch update failed', err);

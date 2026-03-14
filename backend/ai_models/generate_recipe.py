@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from datetime import datetime, timezone
 
 import requests
 from ai_models.gemini_client import get_gemini_client
@@ -89,10 +90,21 @@ def generate_recipe(
     dietary_requirements: list[str],
     quantity: int,
 ) -> dict:
-    sorted_inventory = sorted(
-        inventory_items,
-        key=lambda x: x.get("expiry_date") or "",
-    )
+    def _expiry_sort_key(item):
+        exp = item.get("expiry_date")
+        if exp is None:
+            return float("inf")
+        try:
+            if isinstance(exp, datetime):
+                dt = exp if exp.tzinfo else exp.replace(tzinfo=timezone.utc)
+            else:
+                dt = datetime.fromisoformat(str(exp).replace("Z", "+00:00"))
+                dt = dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+            return dt.timestamp()
+        except (ValueError, TypeError, AttributeError):
+            return float("inf")
+
+    sorted_inventory = sorted(inventory_items, key=_expiry_sort_key)
     inventory_list = "\n".join(
         f"- _id: {item.get('_id')} | {item.get('name')} | qty: {item.get('qty')} {item.get('unit', '')} | expires: {item.get('expiry_date', 'unknown')}"
         for item in sorted_inventory

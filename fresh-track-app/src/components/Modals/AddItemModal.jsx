@@ -47,10 +47,13 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate, onShowToast }) =
 
   const units = [
     { value: "g", label: "g" },
+    { value: "kg", label: "kg" },
     { value: "ml", label: "ml" },
-    { value: "pck", label: "pck" },
+    { value: "l", label: "l" },
+    { value: "pcs", label: "pcs" },
     { value: "bottle", label: "bottle" },
     { value: "serving", label: "serving" },
+    { value: "can", label: "can" },
   ];
 
   const handleInputChange = (e) => {
