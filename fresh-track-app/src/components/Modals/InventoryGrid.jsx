@@ -3,9 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import InventoryItem from "../Fridge/InventoryItem"; // Adjust path as needed
 import DetailedInventoryModal from "./DetailedInventoryModal"; // Adjust path as needed
 
+const sortByHealth = (items) =>
+  [...items].sort((a, b) => {
+    const getExpiry = (item) => item.expiry_date ? new Date(item.expiry_date).getTime() : Infinity;
+    return getExpiry(a) - getExpiry(b);
+  });
+
 const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
   // 1. State to track the specific item clicked for the detailed view
   const [selectedItem, setSelectedItem] = useState(null);
+  const sortedItems = sortByHealth(items);
 
   // Helper to close the main grid ONLY if the detail modal isn't open
   const handleGridClose = () => {
@@ -32,8 +39,8 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
               <div className="flex-1 overflow-y-auto pr-2 pb-4 -mr-2">
                 {/* 3x3 Grid Layout */}
                 <div className="grid grid-cols-3 gap-3">
-                  {items.length > 0 ? (
-                    items.map((item, index) => (
+                  {sortedItems.length > 0 ? (
+                    sortedItems.map((item, index) => (
                       <InventoryItem
                         key={item.id || index}
                         item={item}
