@@ -799,32 +799,7 @@ Return only valid JSON with no explanation, no markdown, and no code fences. Use
 
 **Batching**
 
-All unresolved ingredient names from a single receipt are sent in one call — not one call per ingredient. This keeps latency low regardless of receipt length.
-
-**In-memory map (checked first)**
-
-Before firing the LLM call, the backend checks an in-memory dictionary of pre-mapped common ingredients. If a match is found, no LLM call is needed for that item. The LLM call only handles names not covered by the map.
-
-```python
-IMAGE_KEY_MAP = {
-    "eggs": "eggs",
-    "free range eggs": "eggs",
-    "whole milk": "whole_milk",
-    "full cream milk": "whole_milk",
-    "skim milk": "whole_milk",
-    "chicken breast": "chicken_breast",
-    "chicken thigh": "chicken_thigh",
-    "beef mince": "beef_mince",
-    "minced beef": "beef_mince",
-    "salmon fillet": "salmon",
-    "baby spinach": "spinach",
-    # ... expand as needed during testing
-}
-```
-
-Lookup is performed by normalising the ingredient name to lowercase and stripping extra whitespace before checking against the map.
-
-Any names not found in the map are batched and sent to the LLM.
+All ingredient names from a single receipt are sent in one call — not one call per ingredient. This keeps latency low regardless of receipt length.
 
 **Model:** `gemini-1.5-flash` (smaller, faster model — task is simple)
 
@@ -874,7 +849,7 @@ For all three calls, the backend must handle the following failure cases before 
 - **Invalid JSON response** — if Gemini returns malformed JSON or wraps the response in markdown code fences, the backend should attempt to strip fences and re-parse before failing
 - **Missing required fields** — if a required field is absent from a recognised item or recipe, the backend should log the issue and either fill a safe default or exclude the item and continue
 - **Empty recognised list** — if no items are recognised from a receipt, return an empty `recognised` array and surface all items as `unrecognised` rather than returning an error
-- **Image key resolution failure** — if Call 3 fails entirely, fall back to the in-memory map for covered items and `unknown` for everything else. The receipt flow should never be blocked by a failed image key lookup
+- **Image key resolution failure** — if Call 3 fails entirely, fall back to `unknown` for all items. The receipt flow should never be blocked by a failed image key lookup
 - **Gemini API failure** — if any API call fails entirely, return a `502` error to the frontend with a user-facing message
 
 ---
@@ -900,53 +875,47 @@ Used on item cards in the inventory grid and in the item detail popup.
 
 **Required ingredient images**
 
-| image_key | Item |
-|---|---|
-| `chicken_breast` | Chicken Breast |
-| `chicken_thigh` | Chicken Thigh |
-| `beef_mince` | Beef Mince |
-| `beef_steak` | Beef Steak |
-| `pork_chop` | Pork Chop |
-| `salmon` | Salmon |
-| `tuna_can` | Canned Tuna |
-| `shrimp` | Shrimp |
-| `whole_milk` | Whole Milk |
-| `yoghurt` | Yoghurt |
-| `butter` | Butter |
-| `cheddar_cheese` | Cheddar Cheese |
-| `eggs` | Eggs |
-| `heavy_cream` | Heavy Cream |
-| `spinach` | Spinach |
-| `broccoli` | Broccoli |
-| `carrot` | Carrot |
-| `onion` | Onion |
-| `garlic` | Garlic |
-| `tomato` | Tomato |
-| `capsicum` | Capsicum |
-| `mushroom` | Mushroom |
-| `potato` | Potato |
-| `sweet_potato` | Sweet Potato |
-| `lettuce` | Lettuce |
-| `cucumber` | Cucumber |
-| `lemon` | Lemon |
-| `lime` | Lime |
-| `apple` | Apple |
-| `banana` | Banana |
-| `strawberry` | Strawberry |
-| `pasta` | Pasta |
-| `rice` | Rice |
-| `bread` | Bread |
-| `flour` | Flour |
-| `oats` | Oats |
-| `soy_sauce` | Soy Sauce |
-| `olive_oil` | Olive Oil |
-| `tomato_sauce` | Tomato Sauce |
-| `coconut_milk` | Coconut Milk |
-| `frozen_peas` | Frozen Peas |
-| `frozen_corn` | Frozen Corn |
-| `ice_cream` | Ice Cream |
-| `orange_juice` | Orange Juice |
-| `unknown` | Unknown / Fallback |
+> File location: `fresh-track-app/public/icons/`
+
+| image_key | Filename | Covers |
+|---|---|---|
+| `chicken` | `chicken.png` | Chicken Breast, Chicken Thigh |
+| `beef_mince` | `beef_mince.png` | Beef Mince |
+| `red_meat` | `red_meat.png` | Beef Steak, Pork Chop |
+| `can_food` | `can_food.png` | Canned Tuna, canned goods |
+| `fish` | `fish.png` | Salmon, general fish |
+| `shrimp` | `shrimp.png` | Shrimp |
+| `milk` | `milk.png` | Whole Milk, Coconut Milk |
+| `yoghurt` | `yoghurt.png` | Yoghurt |
+| `butter` | `butter.png` | Butter |
+| `cheese` | `cheese.png` | Cheddar Cheese |
+| `eggs` | `eggs.png` | Eggs |
+| `green_vegetable` | `green_vegetable.png` | Spinach, Broccoli, Lettuce, Cucumber |
+| `carrot` | `carrot.png` | Carrot |
+| `onion` | `onion.png` | Onion |
+| `garlic` | `garlic.png` | Garlic |
+| `tomato` | `tomato.png` | Tomato |
+| `capsicum` | `capsicum.png` | Capsicum |
+| `mushroom` | `mushroom.png` | Mushroom |
+| `potato` | `potato.png` | Potato, Sweet Potato |
+| `lemon` | `lemon.png` | Lemon, Lime |
+| `apple` | `apple.png` | Apple |
+| `banana` | `banana.png` | Banana |
+| `strawberry` | `strawberry.png` | Strawberry |
+| `orange` | `orange.png` | Orange Juice |
+| `noodles` | `noodles.png` | Pasta, Noodles |
+| `rice` | `rice.png` | Rice |
+| `bread` | `bread.png` | Bread |
+| `flour` | `flour.png` | Flour |
+| `oats` | `oats.png` | Oats |
+| `sauce` | `sauce.png` | Soy Sauce, generic sauce |
+| `oil` | `oil.png` | Olive Oil, generic oil |
+| `tomato_sauce` | `tomato_sauce.png` | Tomato Sauce |
+| `frozen_bag` | `frozen_bag.png` | Frozen Peas, Frozen Corn |
+| `ice_cream` | `ice_cream.png` | Ice Cream |
+| `unknown` | `unknown.png` | Unknown / Fallback (incl. Heavy Cream) |
+
+> **Note:** `kitchen_karma.png` is the app icon — see section 7.5.
 
 ---
 
