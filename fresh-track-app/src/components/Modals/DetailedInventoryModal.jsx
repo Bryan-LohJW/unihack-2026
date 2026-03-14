@@ -13,17 +13,33 @@ const DetailedInventoryModal = ({ isOpen, onClose, item, onSave, onDelete }) => 
     if (item) {
       setActiveItem(item);
       setQty(item.qty !== undefined ? item.qty : 1);
-
-      let calculatedDate = item.expiryDate || "";
-      if (!calculatedDate && item.expiry_days !== undefined) {
-        const date = new Date();
-        date.setDate(date.getDate() + item.expiry_days);
-        calculatedDate = date.toISOString().split("T")[0];
-      }
-      setExpiryDate(calculatedDate);
-
-      setHealth(item.health !== undefined ? item.health : 50);
       setSection(item.section || "pantry");
+
+      // 1. Format the ISO expiry_date to YYYY-MM-DD for the HTML date input
+      let formattedExpiryDate = "";
+      let calculatedHealth = 50;
+
+      if (item.expiry_date) {
+        const expDate = new Date(item.expiry_date);
+        formattedExpiryDate = expDate.toISOString().split("T")[0];
+
+        // 2. Dynamically calculate freshness percentage based on added_at and expiry_date
+        const now = new Date();
+        if (item.added_at) {
+          const addedDate = new Date(item.added_at);
+          const totalLifespan = expDate.getTime() - addedDate.getTime();
+          const timeRemaining = expDate.getTime() - now.getTime();
+
+          if (totalLifespan > 0) {
+            calculatedHealth = Math.max(0, Math.min(100, Math.round((timeRemaining / totalLifespan) * 100)));
+          } else {
+            calculatedHealth = timeRemaining > 0 ? 100 : 0;
+          }
+        }
+      }
+
+      setExpiryDate(formattedExpiryDate);
+      setHealth(calculatedHealth);
       setShowConfirm(false);
     }
   }, [item]);
@@ -34,13 +50,16 @@ const DetailedInventoryModal = ({ isOpen, onClose, item, onSave, onDelete }) => 
     if (qty === 0) {
       setShowConfirm(true);
     } else {
-      onSave({ ...currentItem, qty, expiryDate, health, section });
+      // Pass back the updated fields, ensuring expiryDate is converted back if needed by your API
+      onSave({ ...currentItem, qty, expiry_date: new Date(expiryDate).toISOString(), section });
     }
   };
 
   if (!currentItem) return null;
 
-  const isExpiringSoon = currentItem.expiry_days <= 3;
+  // Calculate if it's expiring soon (<= 3 days) based on the currently selected expiryDate
+  const daysRemaining = Math.ceil((new Date(expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+  const isExpiringSoon = daysRemaining <= 3;
 
   return (
     <AnimatePresence>
@@ -82,8 +101,20 @@ const DetailedInventoryModal = ({ isOpen, onClose, item, onSave, onDelete }) => 
                       <motion.img layoutId={`image-${currentItem._id}`} src={`/icons/${currentItem.image_url}`} alt={currentItem.name} className="max-w-full max-h-full object-contain drop-shadow-md" />
                     </div>
                     <h2 className="text-xl font-black text-slate-800">{currentItem.name}</h2>
-                    <span className={`mt-2 text-[10px] uppercase tracking-wider font-black px-3 py-1 rounded-full ${isExpiringSoon ? "bg-orange-100 text-orange-600" : "bg-emerald-100 text-emerald-600"}`}>{isExpiringSoon ? "Expiring Soon" : "Fresh Stock"}</span>
+                    <span className={`mt-2 text-[10px] uppercase tracking-wider font-black px-3 py-1 rounded-full ${isExpiringSoon ? "bg-orange-100 text-orange-600" : "bg-emerald-100 text-emerald-600"}`}>
+                      {isExpiringSoon ? (daysRemaining < 0 ? "Expired" : "Expiring Soon") : "Fresh Stock"}
+                    </span>
                   </div>
+
+                  {/* Added: Nutrition Quick View */}
+                  {currentItem.nutrition && (
+                    <div className="flex justify-between items-center px-4 py-3 mb-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                      <div className="flex flex-col"><span className="text-[10px] font-bold text-slate-400 uppercase">Cal</span><span className="text-sm font-black text-slate-700">{currentItem.calories}</span></div>
+                      <div className="flex flex-col"><span className="text-[10px] font-bold text-slate-400 uppercase">Carbs</span><span className="text-sm font-black text-slate-700">{currentItem.nutrition.carbs}g</span></div>
+                      <div className="flex flex-col"><span className="text-[10px] font-bold text-slate-400 uppercase">Fat</span><span className="text-sm font-black text-slate-700">{currentItem.nutrition.fat}g</span></div>
+                      <div className="flex flex-col"><span className="text-[10px] font-bold text-slate-400 uppercase">Prot</span><span className="text-sm font-black text-slate-700">{currentItem.nutrition.protein}g</span></div>
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     {/* UI-Matched Storage Dropdown */}
@@ -106,7 +137,7 @@ const DetailedInventoryModal = ({ isOpen, onClose, item, onSave, onDelete }) => 
                     {/* Non-Editable Health Bar */}
                     <div className="flex flex-col p-3 bg-slate-50 rounded-2xl border border-slate-100">
                       <div className="flex justify-between items-center mb-2">
-                        <label className="text-[11px] font-bold text-slate-400 uppercase ml-1">Freshness</label>
+                        <label className="text-[11px] font-bold text-slate-400 uppercase ml-1">Freshness Remaining</label>
                         <span className="text-xs font-black text-slate-600">{health}%</span>
                       </div>
                       <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
