@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera as CameraIcon, Edit3, Calendar, Hash, Tag, UploadCloud, ChevronRight, AlertCircle, ScanLine, Aperture, ChevronDown } from 'lucide-react';
 import Webcam from "react-webcam";
+import { apiAxios } from '../../api';
 
 const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
   const [mode, setMode] = useState('manual');
@@ -20,6 +21,8 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
   const webcamRef = useRef(null);
   const [focusedField, setFocusedField] = useState(null);
   const [errors, setErrors] = useState({ name: '', expiry: '' });
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = [
     { value: 'fridge', label: '🧊 Fridge' },
@@ -53,28 +56,63 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
     setCapturedImage(imageSrc);
   }, [webcamRef]);
 
-  const handleSubmit = (e) => {
+  const computeExpiryDays = (expiryDateStr) => {
+    if (!expiryDateStr) return 7;
+    const expiry = new Date(expiryDateStr);
+    const now = new Date();
+    return Math.max(1, Math.ceil((expiry - now) / (1000 * 60 * 60 * 24)));
+  };
+
+  const VALID_MODES = ['manual', 'camera', 'scan'];
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (mode === 'manual') {
-      if (needsExpiryDate && !formData.expiry) {
-          setErrors(prev => ({ ...prev, expiry: 'Expiry Date is required' }));
-          return;
-      }
-      onAddItem(formData);
-    } else if (mode === 'camera') {
+
+    if (!VALID_MODES.includes(mode)) {
+      setSubmitError(`Invalid mode: "${mode}". Expected one of: ${VALID_MODES.join(', ')}.`);
+      return;
+    }
+
+    if (mode === 'camera') {
       alert('Photo captured! AI analysis coming soon.');
-    } else {
+      return;
+    }
+    if (mode === 'scan') {
       onClose();
       onNavigate('pre-add', { file: receiptFile });
       return;
     }
-    
-    onClose();
-    setFormData({ name: '', quantity: 1, expiry: '', category: 'fridge' });
-    setReceiptFile(null);
-    setCapturedImage(null);
-    setErrors({ name: '', expiry: '' });
-    setIsCategoryOpen(false);
+
+    // manual mode
+    if (needsExpiryDate && !formData.expiry) {
+      setErrors(prev => ({ ...prev, expiry: 'Expiry Date is required' }));
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+    try {
+      const payload = {
+        name: formData.name,
+        section: formData.category,
+        qty: parseInt(formData.quantity, 10) || 1,
+        expiry_days: computeExpiryDays(formData.expiry),
+        calories: 0,
+      };
+      const { data } = await apiAxios.post('/inventory', payload);
+      onAddItem(data);
+      onClose();
+      setFormData({ name: '', quantity: 1, expiry: '', category: 'fridge' });
+      setReceiptFile(null);
+      setCapturedImage(null);
+      setErrors({ name: '', expiry: '' });
+      setIsCategoryOpen(false);
+    } catch (err) {
+      const msg = err?.response?.data?.error ?? err?.message ?? 'Failed to add item';
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // --- STYLING LOGIC ---
@@ -371,12 +409,18 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
                 </AnimatePresence>
 
                 <div className="mt-8 pt-4 border-t border-gray-100">
+                  {submitError && (
+                    <div className="flex items-center gap-2 mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm font-bold border border-red-200">
+                      <AlertCircle size={18} />
+                      {submitError}
+                    </div>
+                  )}
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-[var(--color-blue)] text-[var(--color-black)] rounded-xl font-black text-lg hover:shadow-lg hover:shadow-[var(--color-blue)]/30 active:scale-[0.98] transition-all"
-                    disabled={mode === 'camera' && !capturedImage}
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-[var(--color-blue)] text-[var(--color-black)] rounded-xl font-black text-lg hover:shadow-lg hover:shadow-[var(--color-blue)]/30 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={(mode === 'camera' && !capturedImage) || isSubmitting}
                   >
-                    {mode === 'manual' ? 'Add Item Manually' : mode === 'camera' ? 'Analyze Photo' : 'Analyze Image'}
+                    {mode === 'manual' && isSubmitting ? 'Adding...' : mode === 'manual' ? 'Add Item Manually' : mode === 'camera' ? 'Analyze Photo' : 'Analyze Image'}
                     <ChevronRight size={20} />
                   </button>
                 </div>
