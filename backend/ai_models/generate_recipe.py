@@ -42,7 +42,7 @@ USER PREFERENCES:
 RULES:
 - Generate exactly 3 distinct recipe options. Each must be meaningfully different from the others.
 - Prioritise ingredients expiring within 3 days — at least one of these must appear in every recipe where possible.
-- Where possible, use ingredients available in the inventory or suitable alternatives, but you may also suggest items to be bought to complete the recipe — place any ingredient not in the inventory in "ingredients_to_buy" instead of "ingredients".
+- Where possible, use ingredients available in the inventory or suitable alternatives, but you may also suggest items to be bought to complete the recipe — place any ingredient not in the inventory in "ingredients_to_buy" instead of "ingredients". For ingredients taken from the inventory, copy their "_id" field exactly as shown in the inventory list.
 - Each recipe must align with the user's dietary restrictions and cuisine preference.
 - Prep time should be realistic and reflect the actual steps involved.
 
@@ -61,6 +61,7 @@ Return only valid JSON with no explanation, no markdown, and no code fences. Use
       }},
       "ingredients": [
         {{
+          "_id": "",
           "name": "",
           "quantity": "",
           "unit": ""
@@ -93,7 +94,7 @@ def generate_recipe(
         key=lambda x: x.get("expiry_date") or "",
     )
     inventory_list = "\n".join(
-        f"- {item.get('name')} | qty: {item.get('qty')} {item.get('unit', '')} | expires: {item.get('expiry_date', 'unknown')}"
+        f"- _id: {item.get('_id')} | {item.get('name')} | qty: {item.get('qty')} {item.get('unit', '')} | expires: {item.get('expiry_date', 'unknown')}"
         for item in sorted_inventory
     )
 
