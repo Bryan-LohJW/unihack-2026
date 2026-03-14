@@ -25,7 +25,9 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
       if (!cancelled) setKarmaScore(score);
     };
     queueMicrotask(() => load());
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -51,7 +53,9 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
       });
     };
     queueMicrotask(() => runFlyIn());
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [karmaAnimationTrigger]);
 
   const handleFlyInComplete = () => {
@@ -65,30 +69,34 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
   return (
     <nav className="fixed top-0 inset-x-0 z-[100] grid grid-cols-3 items-center px-6 h-20 bg-white/80 backdrop-blur-md border-b border-[var(--color-brown)]/10 shadow-md shadow-black/5">
       {/* 1. Logo Section */}
-      <div onClick={onLogoClick} className="flex justify-start items-center group cursor-pointer">
+      <div
+        onClick={onLogoClick}
+        className="flex justify-start items-center group cursor-pointer"
+      >
         <div className="relative">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--color-blue)] to-white flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
-            <span className="text-[var(--color-black)] font-black text-xl tracking-tighter">FT</span>
+            <span className="text-[var(--color-black)] font-black text-xl tracking-tighter">
+              FT
+            </span>
           </div>
         </div>
       </div>
 
       {/* 2. Branding Center */}
-      <div className="flex flex-col items-center justify-center pointer-events-none">
-        <h2 className="text-[var(--color-black)] font-extrabold text-xl tracking-tight leading-tight">
+      <div className="flex items-center justify-center pointer-events-none">
+        <h2 className="text-[var(--color-black)] font-semibold text-xl tracking-tight leading-none" style={{ fontFamily: '"Outfit", sans-serif' }}>
           Fresh<span className="text-[var(--color-black)]">Track</span>
         </h2>
-        <div className="flex items-center gap-1.5">
-          <span className="w-1 h-1 bg-[var(--color-brown)]/40 rounded-full"></span>
-          <span className="text-[var(--color-brown)] text-[9px] font-bold uppercase tracking-[0.2em] opacity-70">Smart Kitchen</span>
-          <span className="w-1 h-1 bg-[var(--color-brown)]/40 rounded-full"></span>
-        </div>
       </div>
 
       {/* 3. Actions End */}
       <div ref={karmaRef} className="flex justify-end items-center gap-2">
         <div className="flex items-center gap-2 px-3 py-1.5 text-[var(--color-brown)] bg-[var(--color-blue)]/10 rounded-full pointer-events-none">
-          <img src="/icons/kitchen_karma.png" alt="Kitchen Karma" className="w-6 h-6 object-contain" />
+          <img
+            src="/icons/kitchen_karma.png"
+            alt="Kitchen Karma"
+            className="w-6 h-6 object-contain"
+          />
           <motion.span
             key={`${karmaScore ?? "init"}-${triggerZoom}`}
             initial={{ scale: triggerZoom > 0 ? 1.4 : 1 }}
@@ -128,8 +136,14 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
               className="fixed z-[200] w-[72px] h-9 flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-blue)]/20 shadow-xl pointer-events-none border border-[var(--color-brown)]/10"
               style={{ left: 0, top: 0 }}
             >
-              <img src="/icons/kitchen_karma.png" alt="" className="w-6 h-6 object-contain" />
-              <span className="font-bold text-sm text-[var(--color-brown)]">{karmaScore ?? "—"}</span>
+              <img
+                src="/icons/kitchen_karma.png"
+                alt=""
+                className="w-6 h-6 object-contain"
+              />
+              <span className="font-bold text-sm text-[var(--color-brown)]">
+                {karmaScore ?? "—"}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>,

@@ -4,7 +4,6 @@ from flask import Blueprint, request, jsonify
 
 from constant.enum import DeleteReason
 from service.inventory_service import InventoryService
-from service.llm_client import infer_expiry_single
 from util.logger import log_event
 from util.util import reponse_serializer
 
