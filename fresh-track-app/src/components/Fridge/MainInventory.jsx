@@ -9,127 +9,121 @@ import { getInventoryOverview, getAllInventory } from '../../api/inventory'
 const MainInventory = ({ onShowToast }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inventoryData, setInventoryData] = useState([]);
+  const [allInventoryItems, setAllInventoryItems] = useState([]);
   const [selectedShelf, setSelectedShelf] = useState(null);
-  const [isFetchingItems, setIsFetchingItems] = useState(false);
 
-	// 1. Fetch ONLY the overview counts on component mount
-	useEffect(() => {
-		const fetchOverview = async () => {
-			try {
-				const overviewData = await getInventoryOverview()
+  // Fetch both: overview (for shelf display) and full list (for section-click modal)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [overviewData, itemsData] = await Promise.all([
+          getInventoryOverview(),
+          getAllInventory(),
+        ])
 
-				// THE FIX: overviewData is already the array!
-				const fetchedSections = Array.isArray(overviewData)
-					? overviewData
-					: []
+        const fetchedSections = Array.isArray(overviewData) ? overviewData : []
+        const getCounts = (targetSection) =>
+          fetchedSections
+            .filter((s) => {
+              const secName = Array.isArray(s.section) ? s.section[0] : s.section
+              return secName?.toLowerCase() === targetSection.toLowerCase()
+            })
+            .reduce(
+              (acc, curr) => ({
+                total: acc.total + (curr.total_count || 0),
+                expiry: acc.expiry + (curr.soon_to_expire_count || 0),
+              }),
+              { total: 0, expiry: 0 },
+            )
 
-				const getCounts = (targetSection) => {
-					return fetchedSections
-						.filter((s) => {
-							const secName = Array.isArray(s.section)
-								? s.section[0]
-								: s.section
-							return (
-								secName?.toLowerCase() ===
-								targetSection.toLowerCase()
-							)
-						})
-						.reduce(
-							(acc, curr) => ({
-								total: acc.total + (curr.total_count || 0),
-								expiry:
-									acc.expiry +
-									(curr.soon_to_expire_count || 0),
-							}),
-							{ total: 0, expiry: 0 },
-						)
-				}
+        setAllInventoryItems(Array.isArray(itemsData) ? itemsData : [])
+        setInventoryData([
+          {
+            id: 1,
+            title: 'Pantry',
+            total: getCounts('pantry').total,
+            expiry: getCounts('pantry').expiry,
+            display_img: canned_png,
+            bg_img: '/pantry_bg.png',
+          },
+          {
+            id: 2,
+            title: 'Fridge',
+            total: getCounts('fridge').total,
+            expiry: getCounts('fridge').expiry,
+            display_img: canned_png,
+            bg_img: '/fridge_bg.png',
+          },
+          {
+            id: 3,
+            title: 'Freezer',
+            total: getCounts('freezer').total,
+            expiry: getCounts('freezer').expiry,
+            display_img: canned_png,
+            bg_img: '/freezer_bg.png',
+          },
+        ])
+      } catch (error) {
+        console.error('Failed to fetch inventory:', error)
+        setInventoryData([
+          { id: 1, title: 'Pantry', total: 45, expiry: 2, display_img: canned_png, bg_img: '/pantry_bg.png' },
+          { id: 2, title: 'Fridge', total: 18, expiry: 5, display_img: canned_png, bg_img: '/fridge_bg.png' },
+          { id: 3, title: 'Freezer', total: 32, expiry: 0, display_img: canned_png, bg_img: '/freezer_bg.png' },
+        ])
+      }
+    }
+    fetchData()
+  }, [])
 
-				const pantryStats = getCounts('pantry')
-				const fridgeStats = getCounts('fridge')
-				const freezerStats = getCounts('freezer')
+  // Filter from cached list — no API call on shelf click
+  const handleShelfClick = (category) => {
+    if (!isOpen) return
+    const section = category.title.toLowerCase()
+    const items = allInventoryItems.filter(
+      (item) => (item.section || item.category || '').toLowerCase() === section,
+    )
+    setSelectedShelf({ ...category, items })
+  }
 
-				setInventoryData([
-					{
-						id: 1,
-						title: 'Pantry',
-						total: pantryStats.total,
-						expiry: pantryStats.expiry,
-						display_img: canned_png,
-						bg_img: '/pantry_bg.png',
-					},
-					{
-						id: 2,
-						title: 'Fridge',
-						total: fridgeStats.total,
-						expiry: fridgeStats.expiry,
-						display_img: canned_png,
-						bg_img: '/fridge_bg.png',
-					},
-					{
-						id: 3,
-						title: 'Freezer',
-						total: freezerStats.total,
-						expiry: freezerStats.expiry,
-						display_img: canned_png,
-						bg_img: '/freezer_bg.png',
-					},
-				])
-			} catch (error) {
-				console.error('Failed to fetch inventory overview:', error)
-				// Fallback to dummy data if API fails
-				setInventoryData([
-					{
-						id: 1,
-						title: 'Pantry',
-						total: 45,
-						expiry: 2,
-						display_img: canned_png,
-						bg_img: '/pantry_bg.png',
-					},
-					{
-						id: 2,
-						title: 'Fridge',
-						total: 18,
-						expiry: 5,
-						display_img: canned_png,
-						bg_img: '/fridge_bg.png',
-					},
-					{
-						id: 3,
-						title: 'Freezer',
-						total: 32,
-						expiry: 0,
-						display_img: canned_png,
-						bg_img: '/freezer_bg.png',
-					},
-				])
-			}
-		}
+  const handleItemSaved = (updatedItem) => {
+    setAllInventoryItems((prev) =>
+      prev.map((i) => (i._id === updatedItem._id ? updatedItem : i)),
+    )
+  }
 
-		fetchOverview()
-	}, [])
+  const handleItemDeleted = (itemId) => {
+    setAllInventoryItems((prev) => prev.filter((i) => i._id !== itemId))
+  }
 
-	// 2. Fetch specific shelf items ONLY when a shelf is clicked
-	const handleShelfClick = async (category) => {
-		if (!isOpen) return
-
-		setIsFetchingItems(true)
-		try {
-			// Fetch items for the specific section clicked
-			const itemsData = await getAllInventory({
-				section: category.title.toLowerCase(),
-			})
-
-			// Open the modal with the specific category data + fetched items
-			setSelectedShelf({ ...category, items: itemsData || [] })
-		} catch (error) {
-			console.error(`Failed to fetch items for ${category.title}:`, error)
-			setSelectedShelf({ ...category, items: [] })
-		} finally {
-			setIsFetchingItems(false)
-		}
-	}
+  // Refetch both overview and list when grid closes so shelf counts and cached list stay correct
+  const handleGridClose = () => {
+    setSelectedShelf(null)
+    Promise.all([getInventoryOverview(), getAllInventory()]).then(
+      ([overviewData, itemsData]) => {
+        const fetchedSections = Array.isArray(overviewData) ? overviewData : []
+        const getCounts = (targetSection) =>
+          fetchedSections
+            .filter((s) => {
+              const secName = Array.isArray(s.section) ? s.section[0] : s.section
+              return secName?.toLowerCase() === targetSection.toLowerCase()
+            })
+            .reduce(
+              (acc, curr) => ({
+                total: acc.total + (curr.total_count || 0),
+                expiry: acc.expiry + (curr.soon_to_expire_count || 0),
+              }),
+              { total: 0, expiry: 0 },
+            )
+        setInventoryData((prev) =>
+          prev.map((shelf) => {
+            const { total, expiry } = getCounts(shelf.title.toLowerCase())
+            return { ...shelf, total, expiry }
+          }),
+        )
+        setAllInventoryItems(Array.isArray(itemsData) ? itemsData : [])
+      },
+    ).catch(() => {})
+  }
 
 	return (
 		<div className="min-h-screen bg-[#F4F7F9] flex flex-col font-sans overflow-hidden">
@@ -298,7 +292,13 @@ const MainInventory = ({ onShowToast }) => {
 
 				{/* Render the Modal */}
 				<InventoryGrid
-        isOpen={selectedShelf !== null} onClose={() => setSelectedShelf(null)} categoryTitle={selectedShelf?.title} items={selectedShelf?.items || []} isLoading={isFetchingItems} onShowToast={onShowToast} 
+					isOpen={selectedShelf !== null}
+					onClose={handleGridClose}
+					categoryTitle={selectedShelf?.title}
+					items={selectedShelf?.items || []}
+					onShowToast={onShowToast}
+					onItemSaved={handleItemSaved}
+					onItemDeleted={handleItemDeleted}
 				/>
 			</main>
 		</div>
