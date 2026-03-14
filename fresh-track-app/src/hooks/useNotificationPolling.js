@@ -21,6 +21,7 @@ async function showBrowserNotification(suggestionId, onClickCallback) {
 }
 
 export function useNotificationPolling(onNotificationClick) {
+  const lastNotifiedIdRef = useRef(null);
   const onClickRef = useRef(onNotificationClick);
   useEffect(() => {
     onClickRef.current = onNotificationClick;
@@ -33,11 +34,14 @@ export function useNotificationPolling(onNotificationClick) {
         const suggestion = data?.suggestion;
         if (!suggestion?.suggestion_id) return;
 
+        if (lastNotifiedIdRef.current === suggestion.suggestion_id) return;
+
         if (Notification.permission === "default") {
           const permission = await Notification.requestPermission();
           if (permission !== "granted") return;
         }
 
+        lastNotifiedIdRef.current = suggestion.suggestion_id;
         console.log("notification sent", suggestion.suggestion_id);
 
         showBrowserNotification(suggestion.suggestion_id, onClickRef.current);
