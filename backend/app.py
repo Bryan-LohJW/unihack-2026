@@ -19,7 +19,7 @@ from db import mongo
 load_dotenv()
 
 app = Flask(__name__)
-_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").strip()
+_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,https://localhost:5173").strip()
 _cors_list = [o.strip() for o in _cors_origins.split(",") if o.strip()]
 CORS(app, origins=_cors_list, supports_credentials=True)
 
