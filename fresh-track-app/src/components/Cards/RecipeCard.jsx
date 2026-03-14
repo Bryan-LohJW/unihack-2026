@@ -124,13 +124,18 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                     onShowToast?.('No ingredients in inventory for this recipe.');
                     return;
                   }
-                  const invByName = Object.fromEntries(
-                    (inventory || []).map((item) => [item.name?.toLowerCase()?.trim(), item])
+                  const invList = inventory || [];
+                  const invById = Object.fromEntries(
+                    invList.filter((i) => i._id).map((i) => [String(i._id), i])
                   );
+                  const invByName = Object.fromEntries(
+                    invList.map((i) => [i.name?.toLowerCase()?.trim(), i])
+                  );
+
                   const updates = [];
                   for (const ing of inInventory) {
-                    const key = ing.name?.toLowerCase()?.trim();
-                    const invItem = key ? invByName[key] : null;
+                    const invItem =
+                      ing.item_id ? invById[String(ing.item_id)] : invByName[ing.name?.toLowerCase()?.trim()];
                     if (!invItem?._id) continue;
                     const toConsume = parseAmountUsed(ing.amount);
                     updates.push({ item_id: invItem._id, qty: toConsume });
@@ -140,8 +145,8 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                     return;
                   }
                   try {
-                    const { data } = await apiAxios.patch('/inventory/batch', { updates });
-                    const consumed = data?.total_consumed_qty ?? 0;
+                    const res = await apiAxios.patch('/inventory/batch', { updates });
+                    const consumed = res?.total_consumed_qty ?? 0;
                     const karma = consumed * 10;
                     onStartCookingSuccess?.(karma);
                   } catch (err) {
