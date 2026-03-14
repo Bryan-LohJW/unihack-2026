@@ -18,7 +18,7 @@ def init_notifications_routes(db):
         limit = min(int(request.args.get("limit", 50)), 100)
         docs = recipe_suggestion_repo.find_recent(limit=limit)
         if not docs:
-            return jsonify({"suggestion": None, "count": 0}), 200
+            return jsonify({"suggestion": None}), 200
 
         latest_suggestion_id = docs[0].get("suggestion_id")
         batch_docs = [d for d in docs if d.get("suggestion_id") == latest_suggestion_id]
@@ -43,9 +43,6 @@ def init_notifications_routes(db):
             "recipes": recipes,
         }
 
-        return jsonify({
-            "suggestion": suggestion,
-            "count": 1 if suggestion["suggestion_id"] else 0,
-        }), 200
+        return jsonify({"suggestion": suggestion}), 200
 
     return notifications_bp

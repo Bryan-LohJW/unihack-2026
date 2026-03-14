@@ -22,7 +22,9 @@ function showBrowserNotification(onClick) {
 export function useNotificationPolling(onNotificationClick) {
   const lastNotifiedIdsRef = useRef(new Set());
   const onClickRef = useRef(onNotificationClick);
-  onClickRef.current = onNotificationClick;
+  useEffect(() => {
+    onClickRef.current = onNotificationClick;
+  }, [onNotificationClick]);
 
   useEffect(() => {
     const poll = async () => {
@@ -39,8 +41,11 @@ export function useNotificationPolling(onNotificationClick) {
         }
 
         lastNotifiedIdsRef.current.add(suggestion.suggestion_id);
+
+        console.log("notification sent", suggestion.suggestion_id);
+
         showBrowserNotification(() =>
-          onClickRef.current?.(suggestion.suggestion_id)
+          onClickRef.current?.(suggestion.suggestion_id),
         );
       } catch {
         // ignore poll errors
@@ -51,5 +56,5 @@ export function useNotificationPolling(onNotificationClick) {
     poll(); // run once immediately
 
     return () => clearInterval(id);
-  }, [onNotificationClick]);
+  }, []);
 }
