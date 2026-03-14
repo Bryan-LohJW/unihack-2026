@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from ai_models.receipt_scanner import parse_receipt
+from service.llm_client import parse_image_to_inventory_items
 
 
 llm_bp = Blueprint("llm", __name__, url_prefix="/llm")
@@ -21,8 +21,8 @@ def init_llm_routes(db):
         image_bytes = file.read()
 
         try:
-            result = parse_receipt(image_bytes, media_type=media_type)
+            items = parse_image_to_inventory_items(image_bytes, media_type=media_type)
         except Exception as e:
             return jsonify({"error": "Failed to process receipt.", "detail": str(e)}), 502
 
-        return jsonify(result), 200
+        return jsonify(items), 200
