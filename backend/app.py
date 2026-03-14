@@ -15,6 +15,10 @@ from router.cron_router import init_cron_routes, cron_bp
 from router.notifications_router import init_notifications_routes, notifications_bp
 from router.recipe_router import init_recipe_routes, recipe_bp
 from db import mongo
+from router.recipe_suggestion_router import (
+    init_recipe_suggestion_routes,
+    recipe_suggestion_bp,
+)
 
 load_dotenv()
 
@@ -59,12 +63,8 @@ app.register_blueprint(cron_bp)
 init_notifications_routes(db)
 app.register_blueprint(notifications_bp)
 
-init_recipe_routes(db)
-app.register_blueprint(recipe_bp)
-
-# Register CLI commands (flask check-expired)
-from cli import register_cli_commands
-register_cli_commands(app)
+init_recipe_suggestion_routes(db)
+app.register_blueprint(recipe_suggestion_bp)
 
 
 if __name__ == "__main__":

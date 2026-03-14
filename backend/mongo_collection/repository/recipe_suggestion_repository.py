@@ -18,3 +18,10 @@ class RecipeSuggestionRepository:
         return list(
             self.collection.find().sort("created_at", -1).limit(limit)
         )
+
+    def find_by_suggestion_id(self, suggestion_id: str):
+        return list(
+            self.collection.find({"suggestion_id": suggestion_id}).sort(
+                "created_at", 1
+            )
+        )
