@@ -6,6 +6,13 @@ export default defineConfig({
   plugins: [react()],
 
   server: {
-    host: true,
+    host: '0.0.0.0',
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001', // Flask port
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 });
