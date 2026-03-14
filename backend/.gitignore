@@ -1,0 +1,32 @@
+# Byte-code files
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Distribution / build files
+dist/
+build/
+*.egg-info/
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+
+# Editors/IDE files (optional, can be added to a global gitignore)
+.idea/  # JetBrains IDEs
+.vscode/ # Visual Studio Code
+
+# Sensitive data/environment variables
+.env
+instance/ # Recommended by Flask docs for instance-specific data
+
+# OS-specific files
+.DS_Store
+
+# To store your own personal files
+.personal
