@@ -20,6 +20,7 @@ from router.recipe_suggestion_router import (
     init_recipe_suggestion_routes,
     recipe_suggestion_bp,
 )
+from router.helper_router import init_helper_routes, helper_bp
 
 load_dotenv()
 
@@ -68,6 +69,9 @@ init_recipe_suggestion_routes(db)
 app.register_blueprint(recipe_suggestion_bp)
 
 app.register_blueprint(recipe_bp)
+
+init_helper_routes(db)
+app.register_blueprint(helper_bp)
 
 # Register CLI commands (flask check-expired)
 from cli import register_cli_commands
