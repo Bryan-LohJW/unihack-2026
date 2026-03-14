@@ -10,7 +10,7 @@ const sortByHealth = (items) =>
     return getExpiry(a) - getExpiry(b);
   });
 
-const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
+const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast }) => {
   const [localItems, setLocalItems] = useState(items);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -35,6 +35,7 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
         section: updatedItem.section,
       });
       setLocalItems((prev) => prev.map((i) => (i._id === saved._id ? saved : i)));
+      onShowToast?.("Item updated.");
     } catch (err) {
       console.error("Failed to save item:", err);
     } finally {
@@ -46,6 +47,7 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
     try {
       await deleteInventoryItem(itemToDelete._id);
       setLocalItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
+      onShowToast?.("Item removed from inventory.");
     } catch (err) {
       console.error("Failed to delete item:", err);
     } finally {

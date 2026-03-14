@@ -11,7 +11,7 @@ def run_recipe_suggestions_job(app):
         if not db:
             return
         from service.recipe_suggestion_service import RecipeSuggestionService
-        RecipeSuggestionService(db).run_cron_suggestions()
+        RecipeSuggestionService(db).run_cron_suggestions(-1, -1, -1)
 
 
 def start_scheduler(app):

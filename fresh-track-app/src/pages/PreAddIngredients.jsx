@@ -15,7 +15,7 @@ import {
 
 const USE_STATIC_DATA = false;
 
-const PreAddIngredients = ({ onNavigate, data }) => {
+const PreAddIngredients = ({ onNavigate, data, onShowToast }) => {
   const [ingredients, setIngredients] = useState(
     USE_STATIC_DATA ? INITIAL_INGREDIENTS : [],
   );
@@ -103,6 +103,7 @@ const PreAddIngredients = ({ onNavigate, data }) => {
     );
     try {
       await apiAxios.post("/inventory/batch", payload);
+      onShowToast?.("Ingredients added to inventory.");
       onNavigate("home");
     } catch (err) {
       const msg =

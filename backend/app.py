@@ -21,6 +21,7 @@ from router.recipe_suggestion_router import (
     recipe_suggestion_bp,
 )
 from router.helper_router import init_helper_routes, helper_bp
+from router.preference_router import init_preference_routes, preference_bp
 
 load_dotenv()
 
@@ -72,6 +73,12 @@ app.register_blueprint(recipe_bp)
 
 init_helper_routes(db)
 app.register_blueprint(helper_bp)
+
+init_preference_routes(db)
+app.register_blueprint(preference_bp)
+
+from mongo_collection.repository.preference_repository import PreferenceRepository
+PreferenceRepository(db).seed_defaults()
 
 # Register CLI commands (flask check-expired)
 from cli import register_cli_commands

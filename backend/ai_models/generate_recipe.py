@@ -109,7 +109,6 @@ def generate_recipe(
     response = model.generate_content([
         prompt,
     ])
-    print("Gemini response:", response.text)
     text = response.text.strip()
     # Strip markdown code fences if Gemini wraps the response
     text = re.sub(r"^```(?:json)?\s*", "", text)
