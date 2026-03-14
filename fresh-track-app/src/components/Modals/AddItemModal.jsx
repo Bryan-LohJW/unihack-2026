@@ -90,6 +90,14 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
     }
 
     if (mode === "camera") {
+      if (!capturedImage) return;
+      // Convert base64 screenshot to a File object that PreAddIngredients expects
+      const res = await fetch(capturedImage);
+      const blob = await res.blob();
+      const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+      onClose();
+      onNavigate("pre-add", { file });
+      setCapturedImage(null);
       return;
     }
     if (mode === "upload") {
@@ -440,7 +448,10 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
                             audio={false}
                             ref={webcamRef}
                             screenshotFormat="image/jpeg"
-                            videoConstraints={{ facingMode: "environment" }}
+                            playsInline
+                            videoConstraints={{
+                              facingMode: { exact: "environment" },
+                            }}
                             className="w-full h-full object-cover"
                           />
                         )}
