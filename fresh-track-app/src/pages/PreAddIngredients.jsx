@@ -34,16 +34,16 @@ const PreAddIngredients = ({ onNavigate, data }) => {
       try {
         const formData = new FormData();
         formData.append("file", data.file);
-        const { data: json } = await apiAxios.post("/llm/receipt", formData, {
+        const json = await apiAxios.post("/llm/receipt", formData, {
           headers: { "Content-Type": undefined },
           transformRequest: [(data, headers) => {
             if (data instanceof FormData) delete headers["Content-Type"];
             return data;
           }],
         });
-        setIngredients((json.recognised ?? json ?? []).map(withId));
+        setIngredients((json?.recognised ?? json ?? []).map(withId));
         setUnrecognised(
-          (json.unrecognised ?? []).map((u) => ({
+          (json?.unrecognised ?? []).map((u) => ({
             ...u,
             _id: makeId(),
             included: false,

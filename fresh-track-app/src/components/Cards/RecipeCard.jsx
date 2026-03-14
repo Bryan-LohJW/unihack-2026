@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Users, ChevronDown } from 'lucide-react';
+import { apiAxios } from '../../api';
 
-export default function RecipeCard({ recipe }) {
+function parseAmountUsed(amount) {
+  if (amount == null) return 1;
+  const m = String(amount).match(/^(\d+(?:\.\d+)?)/);
+  const num = m ? parseFloat(m[1]) : 1;
+  return Math.max(1, Math.ceil(num));
+}
+
+export default function RecipeCard({ recipe, inventory = [], onStartCookingSuccess, onShowToast }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -107,7 +115,48 @@ export default function RecipeCard({ recipe }) {
                 ))}
               </ol>
 
-              <button className="w-full mt-6 py-3 border-2 border-[#187A4F] text-[#187A4F] rounded-xl font-bold hover:bg-[#E8F3ED] transition" style={{marginTop: "15px"}}>
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const inInventory = recipe.ingredients.filter((i) => i.inInventory);
+                  if (!inInventory.length) {
+                    onShowToast?.('No ingredients in inventory for this recipe.');
+                    return;
+                  }
+                  const invList = inventory || [];
+                  const invById = Object.fromEntries(
+                    invList.filter((i) => i._id).map((i) => [String(i._id), i])
+                  );
+                  const invByName = Object.fromEntries(
+                    invList.map((i) => [i.name?.toLowerCase()?.trim(), i])
+                  );
+
+                  const updates = [];
+                  for (const ing of inInventory) {
+                    const invItem =
+                      ing.item_id ? invById[String(ing.item_id)] : invByName[ing.name?.toLowerCase()?.trim()];
+                    if (!invItem?._id) continue;
+                    const toConsume = parseAmountUsed(ing.amount);
+                    updates.push({ item_id: invItem._id, qty: toConsume });
+                  }
+                  if (!updates.length) {
+                    onShowToast?.('No matching items in your inventory. Add ingredients first.');
+                    return;
+                  }
+                  try {
+                    const res = await apiAxios.patch('/inventory/batch', { updates });
+                    const consumed = res?.total_consumed_qty ?? 0;
+                    const karma = consumed * 10;
+                    onStartCookingSuccess?.(karma);
+                  } catch (err) {
+                    console.error('Batch update failed', err);
+                    onShowToast?.('Failed to consume items. Please try again.');
+                  }
+                }}
+                className="w-full mt-6 py-3 border-2 border-[#187A4F] text-[#187A4F] rounded-xl font-bold hover:bg-[#E8F3ED] transition"
+                style={{ marginTop: '15px' }}
+              >
                 Start Cooking
               </button>
             </div>

@@ -66,11 +66,16 @@ const DIETS = [
   "Dairy-Free",
 ];
 
-export default function CookPage() {
+export default function CookPage({ onNavigateHome, onShowToast, onKarmaChange }) {
   const [recipes, setRecipes] = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [globalServings, setGlobalServings] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+
+  const refreshInventory = () => {
+    apiAxios.get("/inventory").then((res) => setInventory(Array.isArray(res) ? res : [])).catch(() => setInventory([]));
+  };
 
   useEffect(() => {
     const suggestionId = new URL(window.location.href).searchParams.get(
@@ -86,12 +91,13 @@ export default function CookPage() {
       try {
         setIsLoading(true);
         setLoadError(null);
-        const { data } = await apiAxios.get(`/recipe-suggestions/${sid}`);
-        const suggestion = data?.suggestion;
+        const json = await apiAxios.get(`/recipe-suggestions/${sid}`);
+        const suggestion = json?.suggestion;
         if (!suggestion?.recipes?.length) {
           setRecipes([]);
         } else {
           setRecipes(suggestion.recipes.map(mapApiRecipeToCard));
+          refreshInventory();
         }
       } catch (err) {
         setLoadError(err?.message ?? "Failed to load recipes");
@@ -230,7 +236,14 @@ export default function CookPage() {
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
+                inventory={inventory}
                 currentServings={globalServings}
+                onShowToast={onShowToast}
+                onStartCookingSuccess={(karma = 0) => {
+                  onShowToast?.(`Items consumed. +${karma} kitchen karma.`);
+                  onKarmaChange?.();
+                  onNavigateHome?.();
+                }}
               />
             ))}
           </div>

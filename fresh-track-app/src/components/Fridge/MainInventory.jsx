@@ -83,11 +83,64 @@ const MainInventory = () => {
       <main className="flex-1 pt-20 flex flex-col items-center">
         <div className="relative w-full max-w-sm mt-4 px-4 flex flex-col items-center">
           {/* FRIDGE BODY */}
-          <div className="relative w-full h-[620px] rounded-[3.5rem] bg-white border-2 border-slate-50 shadow-2xl flex flex-col justify-around py-16" onClick={() => !isOpen && setIsOpen(true)}>
+          <div className="relative w-full h-[620px] rounded-[3.5rem] bg-white border-2 border-slate-50 shadow-2xl flex flex-col justify-around py-16 overflow-hidden" onClick={() => !isOpen && setIsOpen(true)}>
             {/* Shelves */}
             {inventoryData.map((category, idx) => (
               <Shelf key={category.id} {...category} index={idx} isOpen={isOpen} onShelfClick={() => handleShelfClick(category)} />
             ))}
+
+            {/* Fridge light: OFF when closed, ON when open — bright at top (bulb), shaded at bottom */}
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute inset-0 z-40 pointer-events-none rounded-[3.5rem] overflow-hidden"
+                >
+                  {/* Dark overlay — fades out as light turns on */}
+                  <motion.div
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 0 }}
+                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                    className="absolute inset-0 bg-black/75 rounded-[3.5rem]"
+                  />
+                  {/* Two lights on top — left & right bright, center column slightly dimmer */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                    className="absolute inset-0 rounded-[3.5rem]"
+                    style={{
+                      background: `
+                        linear-gradient(to right, 
+                          transparent 0%, 
+                          rgba(0,0,0,0.06) 45%, 
+                          rgba(0,0,0,0.08) 50%, 
+                          rgba(0,0,0,0.06) 55%, 
+                          transparent 100%),
+                        linear-gradient(to bottom, 
+                          rgba(255,248,220,0.4) 0%, 
+                          rgba(255,245,200,0.15) 25%, 
+                          transparent 50%,
+                          rgba(0,0,0,0.1) 100%),
+                        radial-gradient(ellipse 60% 80% at 25% 8%, 
+                          rgba(255,250,225,0.55) 0%, 
+                          rgba(255,245,200,0.2) 35%, 
+                          transparent 65%),
+                        radial-gradient(ellipse 60% 80% at 75% 8%, 
+                          rgba(255,250,225,0.55) 0%, 
+                          rgba(255,245,200,0.2) 35%, 
+                          transparent 65%),
+                        radial-gradient(ellipse 80% 60% at 20% 90%, rgba(0,0,0,0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse 80% 60% at 80% 90%, rgba(0,0,0,0.08) 0%, transparent 50%)
+                      `,
+                    }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* THE DOOR */}
             <motion.div
@@ -103,7 +156,7 @@ const MainInventory = () => {
                 <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
                   <span className="text-xl font-bold tracking-wide mb-2">Tap to Open</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7 7-7" />
                   </svg>
                 </motion.div>
               )}

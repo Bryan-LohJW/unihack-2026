@@ -14,6 +14,7 @@ class InventorySchema:
         nutrition=None,
         qty: int = 1,
         image_url: str | None = None,
+        unit: str = "g",
         _id=None,
     ):
         self._id = _id or ObjectId()
@@ -26,6 +27,7 @@ class InventorySchema:
         self.nutrition = nutrition
         self.qty = max(0, int(qty)) if qty is not None else 1
         self.image_url = image_url
+        self.unit = (unit or "g").strip()
 
     @staticmethod
     def from_request(data: dict) -> "InventorySchema":
@@ -37,6 +39,7 @@ class InventorySchema:
             nutrition=data.get("nutrition"),
             qty=data.get("qty", 1),
             image_url=data.get("image_url"),
+            unit=data.get("unit", "g"),
         )
 
     def to_document(self) -> dict:
@@ -50,5 +53,6 @@ class InventorySchema:
             "nutrition": self.nutrition,
             "qty": self.qty,
             "image_url": self.image_url,
+            "unit": self.unit,
         }
 

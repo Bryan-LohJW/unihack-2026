@@ -50,13 +50,18 @@ class InventoryService:
         self.repo.update_one(oid, data or {})
         return self.repo.find_one(oid)
 
-    def batch_update_qty(self, updates: list[dict]) -> dict:
-        updated_items = []
-        deleted_items = []
+    def batch_consume(self, updates: list[dict]) -> dict:
+        """
+        Batch consume inventory items. Used when cooking a recipe.
+        Each update: {item_id, qty} = qty to consume (amount to deduct).
+        Consumes min(requested_qty, current_qty). Removes item if qty reaches 0.
+        Increments kitchen karma consumed. Returns total_consumed_qty.
+        """
+        total_consumed_qty = 0
         for entry in updates:
             item_id = entry.get("item_id")
-            qty = entry.get("qty")
-            if item_id is None:
+            to_consume = int(entry.get("qty", 0) or 0)
+            if item_id is None or to_consume <= 0:
                 continue
             try:
                 oid = ObjectId(item_id)
@@ -65,18 +70,18 @@ class InventoryService:
             existing = self.repo.find_one(oid)
             if not existing:
                 continue
-            new_qty = int(qty) if qty is not None else existing.get("qty", 1)
+            current_qty = int(existing.get("qty", 1)) or 1
+            consumed_qty = min(to_consume, current_qty)
+            if consumed_qty <= 0:
+                continue
+            total_consumed_qty += consumed_qty
+            self.karma_service.increment_consumed(consumed_qty)
+            new_qty = current_qty - consumed_qty
             if new_qty <= 0:
-                consumed_qty = int(existing.get("qty", 1)) or 1
                 self.repo.delete_one(oid)
-                deleted_items.append({**existing, "_id": str(existing["_id"])})
-                self.karma_service.increment_consumed(consumed_qty)
             else:
                 self.repo.update_one(oid, {"qty": new_qty})
-                updated = self.repo.find_one(oid)
-                if updated:
-                    updated_items.append(updated)
-        return {"updated": updated_items, "deleted": deleted_items}
+        return {"total_consumed_qty": total_consumed_qty}
 
     def delete_item(self, item_id: str, reason: str):
         oid = ObjectId(item_id)
