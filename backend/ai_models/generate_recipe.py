@@ -5,22 +5,23 @@ import re
 import requests
 from ai_models.gemini_client import get_gemini_client
 
-SPOONACULAR_API_KEY = os.getenv("SPOONACULAR_API_KEY", "")
+UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "")
 
 
 def fetch_recipe_images(menu_names: list[str]) -> dict[str, str]:
-    """Return {menu_name: image_url} for each name via Spoonacular complexSearch."""
+    """Return {menu_name: image_url} for each name via Unsplash search."""
     images = {}
     for name in menu_names:
         try:
             resp = requests.get(
-                "https://api.spoonacular.com/recipes/complexSearch",
-                params={"apiKey": SPOONACULAR_API_KEY, "query": name, "number": 1},
+                "https://api.unsplash.com/search/photos",
+                params={"query": name, "per_page": 1, "client_id": UNSPLASH_ACCESS_KEY},
                 timeout=10,
             )
+            print(resp)
             resp.raise_for_status()
             results = resp.json().get("results", [])
-            images[name] = results[0]["image"] if results else ""
+            images[name] = results[0]["urls"]["regular"] if results else ""
         except Exception:
             images[name] = ""
     return images
@@ -117,5 +118,24 @@ def generate_recipe(
 
     menu_names = [recipe.get("menu") for recipe in result.get("recipes", [])]
     print("Generated menus:", menu_names)
+
+    simplify_prompt = (
+        "Convert each of the following recipe names into a short, generic name suitable for searching in a recipe database. "
+        "Return only a JSON array of strings in the same order, no explanation.\n"
+        f"{json.dumps(menu_names)}"
+    )
+    simple_model = get_gemini_client("gemini-flash-lite-latest")
+    simplify_response = simple_model.generate_content([simplify_prompt])
+    simplify_text = simplify_response.text.strip()
+    simplify_text = re.sub(r"^```(?:json)?\s*", "", simplify_text)
+    simplify_text = re.sub(r"\s*```$", "", simplify_text)
+    simplified_names = json.loads(simplify_text)
+    print("Simplified menus:", simplified_names)
+
+    image_map = fetch_recipe_images(simplified_names)
+    # Re-map back to original menu names
+    image_map = {menu_names[i]: image_map.get(simplified_names[i], "") for i in range(len(menu_names))}
+    for recipe in result.get("recipes", []):
+        recipe["image_url"] = image_map.get(recipe.get("menu"), "")
 
     return result

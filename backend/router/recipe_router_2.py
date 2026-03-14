@@ -1,7 +1,10 @@
+import uuid
+
 from flask import Blueprint, jsonify, request
 
 from db import mongo
 from ai_models.generate_recipe import generate_recipe
+from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 
 recipe_bp_2 = Blueprint("recipe_2", __name__, url_prefix="/recipe2")
 
@@ -28,4 +31,11 @@ def generate():
         quantity=quantity,
     )
 
-    return jsonify(result), 200
+    suggestion_id = str(uuid.uuid4())
+    docs = []
+    for recipe in result.get("recipes", []):
+        schema = RecipeSuggestionSchema.from_llm_response(recipe, suggestion_id=suggestion_id)
+        mongo.db.recipe_suggestions.insert_one(schema.to_document())
+        docs.append(schema.to_json_friendly())
+
+    return jsonify({"suggestion_id": suggestion_id, "recipes": docs}), 200
