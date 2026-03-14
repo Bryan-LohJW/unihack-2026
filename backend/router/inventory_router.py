@@ -60,18 +60,24 @@ def init_inventory_routes(db):
     @inventory_bp.route("/<item_id>", methods=["PUT"])
     def update_item(item_id):
         data = request.json
-        updated = service.update_item(item_id, data)
-        if not updated:
+        result = service.update_item(item_id, data)
+        if not result:
             return jsonify({"message": "not found"}), 404
-        return jsonify(reponse_serializer(updated)), 200
+        payload = reponse_serializer(result["item"])
+        payload["karma_delta"] = result["karma_delta"]
+        return jsonify(payload), 200
 
     @inventory_bp.route("/<item_id>", methods=["DELETE"])
     def delete_item(item_id):
-        reason_str = request.args.get("reason", DeleteReason.CONSUMED.value)
-        deleted = service.delete_item(item_id, reason=reason_str)
-        if not deleted:
+        reason_str = request.args.get("reason", None)
+        result = service.delete_item(item_id, reason=reason_str)
+        if not result:
             return jsonify({"message": "not found"}), 404
-        return jsonify({"message": "deleted", "reason": reason_str}), 200
+        return jsonify({
+            "message": "deleted",
+            "reason": result["reason"],
+            "karma_delta": result["karma_delta"],
+        }), 200
 
     @inventory_bp.route("/<item_id>", methods=["GET"])
     def get_item(item_id):

@@ -34,8 +34,13 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
         expiry_date: updatedItem.expiry_date,
         section: updatedItem.section,
       });
-      setLocalItems((prev) => prev.map((i) => (i._id === saved._id ? saved : i)));
-      onShowToast?.("Item updated.");
+      const { karma_delta: _kd, ...item } = saved;
+      setLocalItems((prev) =>
+        prev.map((i) => (i._id === saved._id ? item : i))
+      );
+      const delta = saved?.karma_delta;
+      const karmaMsg = delta != null && delta > 0 ? ` Kitchen karma: +${delta}.` : "";
+      onShowToast?.(`Item updated.${karmaMsg}`);
     } catch (err) {
       console.error("Failed to save item:", err);
     } finally {
@@ -45,9 +50,11 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
 
   const handleDelete = async (itemToDelete) => {
     try {
-      await deleteInventoryItem(itemToDelete._id);
+      const res = await deleteInventoryItem(itemToDelete._id);
       setLocalItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
-      onShowToast?.("Item removed from inventory.");
+      const delta = res?.karma_delta;
+      const karmaMsg = delta != null ? ` Kitchen karma: ${delta >= 0 ? "+" : ""}${delta}.` : "";
+      onShowToast?.(`Item removed from inventory.${karmaMsg}`);
     } catch (err) {
       console.error("Failed to delete item:", err);
     } finally {

@@ -152,7 +152,7 @@ const DetailedInventoryModal = ({ isOpen, onClose, item, onSave, onDelete }) => 
                         <button onClick={() => setQty(Math.max(0, qty - 1))} className="w-8 h-8 rounded-xl bg-white shadow-sm text-slate-600 font-bold hover:bg-slate-100 active:scale-90 transition-all flex items-center justify-center">
                           —
                         </button>
-                        <span className="text-lg font-black text-slate-700 w-4 text-center">{qty}</span>
+                        <span className="text-lg font-black text-slate-700 min-w-[3rem] text-center">{qty} {currentItem.unit || "g"}</span>
                         <button onClick={() => setQty(qty + 1)} className="w-8 h-8 rounded-xl bg-white shadow-sm text-slate-600 font-bold hover:bg-slate-100 active:scale-90 transition-all flex items-center justify-center">
                           +
                         </button>
