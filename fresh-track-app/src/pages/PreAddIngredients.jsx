@@ -1,21 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle, ChevronRight, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { AlertTriangle, ChevronRight, Loader2 } from "lucide-react";
 
-import IngredientCard from '../components/PreAddIngredients/IngredientCard';
-import UnrecognisedCard from '../components/PreAddIngredients/UnrecognisedCard';
-import AddIngredientCard from '../components/PreAddIngredients/AddIngredientCard';
+import { apiAxios } from "../api";
+import IngredientCard from "../components/PreAddIngredients/IngredientCard";
+import UnrecognisedCard from "../components/PreAddIngredients/UnrecognisedCard";
+import AddIngredientCard from "../components/PreAddIngredients/AddIngredientCard";
 import {
   INITIAL_INGREDIENTS,
   INITIAL_UNRECOGNISED,
   NEW_INGREDIENT_TEMPLATE,
   withId,
-} from '../components/PreAddIngredients/ingredientUtils';
+  makeId,
+} from "../components/PreAddIngredients/ingredientUtils";
 
-const USE_STATIC_DATA = true;
+const USE_STATIC_DATA = false;
 
 const PreAddIngredients = ({ onNavigate, data }) => {
-  const [ingredients, setIngredients] = useState(USE_STATIC_DATA ? INITIAL_INGREDIENTS : []);
-  const [unrecognised, setUnrecognised] = useState(USE_STATIC_DATA ? INITIAL_UNRECOGNISED : []);
+  const [ingredients, setIngredients] = useState(
+    USE_STATIC_DATA ? INITIAL_INGREDIENTS : [],
+  );
+  const [unrecognised, setUnrecognised] = useState(
+    USE_STATIC_DATA ? INITIAL_UNRECOGNISED : [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -23,23 +29,45 @@ const PreAddIngredients = ({ onNavigate, data }) => {
   useEffect(() => {
     if (USE_STATIC_DATA || !data?.file) return;
     const fetchIngredients = async () => {
-      setLoading(true); setError(null);
+      setLoading(true);
+      setError(null);
       try {
         const formData = new FormData();
-        formData.append('file', data.file);
-        const res = await fetch('http://localhost:5001/llm/receipt', { method: 'POST', body: formData });
-        if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to scan receipt'); }
-        const json = await res.json();
-        setIngredients((json.recognised ?? json).map(withId));
-        setUnrecognised((json.unrecognised ?? []).map((u) => ({ ...u, _id: makeId(), included: false, draft: { ...NEW_INGREDIENT_TEMPLATE } })));
-      } catch (e) { setError(e.message); }
-      finally { setLoading(false); }
+        formData.append("file", data.file);
+        const { data: json } = await apiAxios.post("/llm/receipt", formData, {
+          headers: { "Content-Type": undefined },
+          transformRequest: [(data, headers) => {
+            if (data instanceof FormData) delete headers["Content-Type"];
+            return data;
+          }],
+        });
+        setIngredients((json.recognised ?? json ?? []).map(withId));
+        setUnrecognised(
+          (json.unrecognised ?? []).map((u) => ({
+            ...u,
+            _id: makeId(),
+            included: false,
+            draft: { ...NEW_INGREDIENT_TEMPLATE },
+          })),
+        );
+      } catch (err) {
+        const msg =
+          err?.response?.data?.detail ??
+          err?.response?.data?.error ??
+          err?.message ??
+          "Failed to scan receipt";
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchIngredients();
   }, [data]);
 
   const handleUpdate = (index, updated) => {
-    setIngredients((prev) => prev.map((item, i) => (i === index ? updated : item)));
+    setIngredients((prev) =>
+      prev.map((item, i) => (i === index ? updated : item)),
+    );
   };
 
   const handleDelete = (id) => {
@@ -51,37 +79,51 @@ const PreAddIngredients = ({ onNavigate, data }) => {
   };
 
   const handleToggleUnrecognised = (id) => {
-    setUnrecognised((prev) => prev.map((u) => u._id === id ? { ...u, included: !u.included } : u));
+    setUnrecognised((prev) =>
+      prev.map((u) => (u._id === id ? { ...u, included: !u.included } : u)),
+    );
   };
 
   const handleDraftChange = (id, field, value) => {
-    setUnrecognised((prev) => prev.map((u) => u._id === id ? { ...u, draft: { ...u.draft, [field]: value } } : u));
+    setUnrecognised((prev) =>
+      prev.map((u) =>
+        u._id === id ? { ...u, draft: { ...u.draft, [field]: value } } : u,
+      ),
+    );
   };
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    setError(null);
     const includedFromUnrecognised = unrecognised
       .filter((u) => u.included)
-      .map(({ draft }) => ({ ...draft, image_url: 'unknown.png' }));
-    const payload = [...ingredients, ...includedFromUnrecognised].map(({ _id, ...rest }) => rest);
+      .map(({ draft }) => ({ ...draft, image_url: "unknown.png" }));
+    const payload = [...ingredients, ...includedFromUnrecognised].map((item) =>
+      Object.fromEntries(Object.entries(item).filter(([key]) => key !== "_id")),
+    );
     try {
-      await fetch('http://localhost:5001/inventory/batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    } catch {
-      // Filler — navigate home regardless
+      await apiAxios.post("/inventory/batch", payload);
+      onNavigate("home");
+    } catch (err) {
+      const msg =
+        err?.response?.data?.error ??
+        err?.response?.data?.detail ??
+        err?.message ??
+        "Failed to add ingredients";
+      setError(msg);
     } finally {
       setSubmitting(false);
-      onNavigate('home');
     }
   };
 
   return (
     <div className="px-4 pt-24 pb-32 md:pb-12">
-      <h1 className="text-3xl font-semibold text-[var(--color-black)] mb-1">Add Ingredients</h1>
-      <p className="text-sm text-gray-500 mb-6">Review items scanned from your receipt</p>
+      <h1 className="text-3xl font-semibold text-[var(--color-black)] mb-1">
+        Add Ingredients
+      </h1>
+      <p className="text-sm text-gray-500 mb-6">
+        Review items scanned from your receipt
+      </p>
 
       {loading && (
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-400">
@@ -99,7 +141,13 @@ const PreAddIngredients = ({ onNavigate, data }) => {
       {!loading && (
         <div className="flex flex-col gap-4">
           {ingredients.map((item, index) => (
-            <IngredientCard key={item._id} item={item} index={index} onUpdate={handleUpdate} onDelete={handleDelete} />
+            <IngredientCard
+              key={item._id}
+              item={item}
+              index={index}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+            />
           ))}
 
           <AddIngredientCard onAdd={handleAddNew} />
@@ -113,7 +161,12 @@ const PreAddIngredients = ({ onNavigate, data }) => {
                 </p>
               </div>
               {unrecognised.map((u) => (
-                <UnrecognisedCard key={u._id} item={u} onToggle={handleToggleUnrecognised} onDraftChange={handleDraftChange} />
+                <UnrecognisedCard
+                  key={u._id}
+                  item={u}
+                  onToggle={handleToggleUnrecognised}
+                  onDraftChange={handleDraftChange}
+                />
               ))}
             </>
           )}
@@ -126,8 +179,12 @@ const PreAddIngredients = ({ onNavigate, data }) => {
         disabled={submitting}
         className="mt-8 w-full flex items-center justify-center gap-2 py-4 bg-[var(--color-blue)] text-[var(--color-black)] rounded-xl font-black text-lg hover:shadow-lg hover:shadow-[var(--color-blue)]/30 active:scale-[0.98] transition-all disabled:opacity-60"
       >
-        {submitting ? <Loader2 size={20} className="animate-spin" /> : <ChevronRight size={20} />}
-        {submitting ? 'Saving...' : 'Add to Inventory'}
+        {submitting ? (
+          <Loader2 size={20} className="animate-spin" />
+        ) : (
+          <ChevronRight size={20} />
+        )}
+        {submitting ? "Saving..." : "Add to Inventory"}
       </button>
     </div>
   );
