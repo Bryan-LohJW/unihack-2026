@@ -12,6 +12,7 @@ from router.kitchen_karma_router import (
 )
 from router.llm_router import init_llm_routes, llm_bp
 from router.cron_router import init_cron_routes, cron_bp
+from router.notifications_router import init_notifications_routes, notifications_bp
 
 load_dotenv()
 
@@ -43,6 +44,9 @@ app.register_blueprint(llm_bp)
 
 init_cron_routes(db)
 app.register_blueprint(cron_bp)
+
+init_notifications_routes(db)
+app.register_blueprint(notifications_bp)
 
 
 if __name__ == "__main__":
