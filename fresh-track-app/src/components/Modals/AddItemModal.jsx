@@ -101,6 +101,10 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
       return;
     }
     if (mode === "upload") {
+      if (!receiptFile) {
+        setSubmitError("Please select an image before continuing.");
+        return;
+      }
       onClose();
       onNavigate("pre-add", { file: receiptFile });
       return;
@@ -541,7 +545,9 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
                     type="submit"
                     className="w-full flex items-center justify-center gap-2 py-4 bg-[var(--color-blue)] text-[var(--color-black)] rounded-xl font-black text-lg hover:shadow-lg hover:shadow-[var(--color-blue)]/30 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                     disabled={
-                      (mode === "camera" && !capturedImage) || isSubmitting
+                      (mode === "camera" && !capturedImage) ||
+                      (mode === "upload" && !receiptFile) ||
+                      isSubmitting
                     }
                   >
                     {mode === "manual" && isSubmitting
@@ -549,8 +555,12 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
                       : mode === "manual"
                         ? "Add Item Manually"
                         : mode === "camera"
-                          ? "Analyze Photo"
-                          : "Analyze Image"}
+                          ? capturedImage
+                            ? "Analyze Photo"
+                            : "Take a Photo First"
+                          : receiptFile
+                            ? "Analyze Image"
+                            : "Select an Image First"}
                     <ChevronRight size={20} />
                   </button>
                 </div>
