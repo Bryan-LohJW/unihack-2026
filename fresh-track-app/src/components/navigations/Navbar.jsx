@@ -1,11 +1,11 @@
 import React from "react";
 import { Bell, User } from "lucide-react";
 
-const Navbar = () => {
+const Navbar = ({ onLogoClick }) => {
   return (
     <nav className="fixed top-0 inset-x-0 z-[100] grid grid-cols-3 items-center px-6 h-20 bg-white/80 backdrop-blur-md border-b border-[var(--color-brown)]/10 shadow-md shadow-black/5">
       {/* 1. Logo Section */}
-      <div className="flex justify-start items-center group cursor-pointer">
+      <div onClick={onLogoClick} className="flex justify-start items-center group cursor-pointer">
         <div className="relative">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--color-blue)] to-white flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
             <span className="text-[var(--color-black)] font-black text-xl tracking-tighter">FT</span>

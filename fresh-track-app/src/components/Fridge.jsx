@@ -2,7 +2,6 @@ import React, { useState, useRef, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, ContactShadows, Environment, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import FridgeInventory from "./FridgeInventory";
 
 const WIDTH = 6;
 const HEIGHT = 11;

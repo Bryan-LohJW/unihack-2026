@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import InventoryItem from "./InventoryItem";
+import InventoryItem from "./Fridge/InventoryItem";
 
 const FridgeInventory = () => {
   const [isOpen, setIsOpen] = useState(true);
