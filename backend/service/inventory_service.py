@@ -38,6 +38,10 @@ class InventoryService:
     def list_in_fridge(self, section: str | None = None, expiry_within_days: int | None = None):
         return self.repo.find_in_fridge(section=section, expiry_within_days=expiry_within_days)
 
+    def get_overview(self, soon_expire_within_days: float = 1.0) -> list[dict]:
+        """Overview per section: total_count and soon_to_expire_count (expiry < 1 day by default)."""
+        return self.repo.get_overview_per_section(soon_expire_within_days=soon_expire_within_days)
+
     def get_by_id(self, item_id: str):
         return self.repo.find_one(ObjectId(item_id))
 

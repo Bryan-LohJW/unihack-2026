@@ -33,3 +33,28 @@ class InventoryRepository:
     def delete_one(self, object_id):
         return self.collection.delete_one({"_id": object_id})
 
+    def get_overview_per_section(self, soon_expire_within_days: float = 1.0) -> List[Dict[str, Any]]:
+        """Per-section counts: total items and soon-to-expire (expiry_date within given days)."""
+        threshold = datetime.now(timezone.utc) + timedelta(days=soon_expire_within_days)
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$section",
+                    "total_count": {"$sum": 1},
+                    "soon_to_expire_count": {
+                        "$sum": {"$cond": [{"$lte": ["$expiry_date", threshold]}, 1, 0]},
+                    },
+                },
+            },
+            {"$sort": {"_id": 1}},
+            {
+                "$project": {
+                    "_id": 0,
+                    "section": "$_id",
+                    "total_count": 1,
+                    "soon_to_expire_count": 1,
+                },
+            },
+        ]
+        return list(self.collection.aggregate(pipeline))
+

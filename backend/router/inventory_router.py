@@ -27,6 +27,11 @@ def init_inventory_routes(db):
         doc = service.create_item(data)
         return jsonify(reponse_serializer(doc)), 201
 
+    @inventory_bp.route("/overview", methods=["GET"])
+    def get_overview():
+        overview = service.get_overview(soon_expire_within_days=1.0)
+        return jsonify({"sections": overview}), 200
+
     @inventory_bp.route("", methods=["GET"])
     def get_inventory():
         section = request.args.get("section")
