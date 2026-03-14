@@ -2,13 +2,14 @@
 
 @theme inline {
   /* Configure your theme variables here */
-  --font-display: "Inter", "sans-serif";
+  --font-display: "Nunito", system-ui, sans-serif;
   --color-primary-500: oklch(0.84 0.18 117.33);
   --spacing: 0.25rem;
 }
 
 /* globals.css */
 :root {
+  --font-family: "Nunito", system-ui, sans-serif;
   --color-blue: #E4F5FF;
   --color-white: #fcfbff;
   --color-brown: #8A6955;
@@ -18,4 +19,8 @@
   --bg-primary: var(--color-white);
   --accent-blue: var(--color-blue);
   --text-main: var(--color-brown);
+}
+
+html, body {
+  font-family: var(--font-family);
 }

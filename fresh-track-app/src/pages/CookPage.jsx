@@ -160,11 +160,17 @@ export default function CookPage({ onNavigateHome, onShowToast, onKarmaChange })
   };
 
   const handleDecrease = () => {
-    if (globalServings > 1) setGlobalServings((prev) => prev - 1);
+    setPrefs((p) => ({
+      ...p,
+      defaultServings: Math.max(1, p.defaultServings - 1),
+    }));
   };
 
   const handleIncrease = () => {
-    if (globalServings < 10) setGlobalServings((prev) => prev + 1);
+    setPrefs((p) => ({
+      ...p,
+      defaultServings: Math.min(10, p.defaultServings + 1),
+    }));
   };
 
   // Toggle for multi-select cuisine chips ---
@@ -296,12 +302,7 @@ export default function CookPage({ onNavigateHome, onShowToast, onKarmaChange })
                     </label>
                     <div className="flex items-center justify-between bg-[#E4F5FF]/50 p-1.5 rounded-xl border border-[#E4F5FF]">
                       <button
-                        onClick={() =>
-                          setPrefs((p) => ({
-                            ...p,
-                            defaultServings: Math.max(1, p.defaultServings - 1),
-                          }))
-                        }
+                        onClick={handleDecrease}
                         className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm active:scale-95"
                       >
                         <Minus size={16} strokeWidth={3} />
@@ -310,12 +311,7 @@ export default function CookPage({ onNavigateHome, onShowToast, onKarmaChange })
                         {prefs.defaultServings}
                       </span>
                       <button
-                        onClick={() =>
-                          setPrefs((p) => ({
-                            ...p,
-                            defaultServings: p.defaultServings + 1,
-                          }))
-                        }
+                        onClick={handleIncrease}
                         className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm active:scale-95"
                       >
                         <Plus size={16} strokeWidth={3} />

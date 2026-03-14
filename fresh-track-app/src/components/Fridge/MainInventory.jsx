@@ -82,6 +82,23 @@ const MainInventory = () => {
     <div className="min-h-screen bg-[#F4F7F9] flex flex-col font-sans overflow-hidden">
       <main className="flex-1 pt-20 flex flex-col items-center">
         <div className="relative w-full max-w-sm mt-4 px-4 flex flex-col items-center">
+          {/* Dialog box — above fridge, centered, no overlap, tail points down to fridge */}
+          <div
+            className="absolute top-0 left-1/2 z-30 max-w-[180px] px-4 py-3 bg-white text-sm text-slate-800 font-medium leading-snug"
+            style={{
+              borderRadius: "50% 40% 50% 40% / 55% 45% 55% 45%",
+              boxShadow: "3px 3px 0 0 rgba(30,41,59,0.2), 5px 5px 14px rgba(0,0,0,0.1)",
+              border: "1px solid rgba(30,41,59,0.25)",
+              transform: "translate(-50%, calc(-100% - 0.75rem)) rotate(-12deg)",
+            }}
+          >
+            Hi, I am <span className="font-bold text-[var(--color-brown)]">Freddy</span> your digital fridge.
+            <div
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-l border-b border-slate-300 rotate-[-135deg]"
+              aria-hidden
+            />
+          </div>
+
           {/* FRIDGE BODY */}
           <div className="relative w-full h-[620px] rounded-[3.5rem] bg-white border-2 border-slate-50 shadow-2xl flex flex-col justify-around py-16 overflow-hidden" onClick={() => !isOpen && setIsOpen(true)}>
             {/* Shelves */}
