@@ -21,7 +21,7 @@ const Shelf = ({ title, index, isOpen, display_img, total, expiry, onShelfClick 
       </div>
 
       {/* SHELF TITLE */}
-      <div className="absolute -top-21 w-full text-center z-100">
+      <div className="absolute -top-21 w-full text-center z-50">
         <span className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">{title}</span>
       </div>
 

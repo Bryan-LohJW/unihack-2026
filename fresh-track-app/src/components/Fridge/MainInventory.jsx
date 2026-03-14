@@ -24,14 +24,14 @@ const MainInventory = () => {
       total: 18,
       expiry: 5,
       items: [],
-      display_img: fresh_png,
+      display_img: canned_png,
     },
     {
       id: 3,
       title: "Freezer",
       total: 32,
       expiry: 0,
-
+      display_img: canned_png,
       items: [],
     },
   ];
