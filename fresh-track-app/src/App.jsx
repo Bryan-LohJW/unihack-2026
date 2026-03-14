@@ -59,6 +59,7 @@ function App() {
   }, []);
 
   const [toastMessage, setToastMessage] = useState(null);
+  const [karmaAnimationTrigger, setKarmaAnimationTrigger] = useState(0);
 
   const handleCookClick = useCallback(() => {
     setToastMessage(
@@ -85,7 +86,7 @@ function App() {
   return (
     <Router>
       <div className="min-w-[375px] h-screen flex flex-col">
-        <Navbar onLogoClick={() => setCurrentView("home")} />
+        <Navbar onLogoClick={() => setCurrentView("home")} karmaAnimationTrigger={karmaAnimationTrigger} />
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 overflow-scroll pt-19">
           <div className="h-full">
@@ -100,6 +101,7 @@ function App() {
               <CookPage
                 onNavigateHome={() => setCurrentView("home")}
                 onShowToast={setToastMessage}
+                onKarmaChange={() => setKarmaAnimationTrigger((t) => t + 1)}
               />
             )}
             {currentView === "pre-add" && <PreAddIngredients onNavigate={handleNavigate} data={navPayload} />}

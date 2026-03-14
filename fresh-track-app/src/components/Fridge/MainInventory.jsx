@@ -103,7 +103,7 @@ const MainInventory = () => {
                 <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
                   <span className="text-xl font-bold tracking-wide mb-2">Tap to Open</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7 7-7" />
                   </svg>
                 </motion.div>
               )}

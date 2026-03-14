@@ -66,7 +66,7 @@ const DIETS = [
   "Dairy-Free",
 ];
 
-export default function CookPage({ onNavigateHome, onShowToast }) {
+export default function CookPage({ onNavigateHome, onShowToast, onKarmaChange }) {
   const [recipes, setRecipes] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [globalServings, setGlobalServings] = useState(1);
@@ -74,7 +74,7 @@ export default function CookPage({ onNavigateHome, onShowToast }) {
   const [loadError, setLoadError] = useState(null);
 
   const refreshInventory = () => {
-    apiAxios.get("/inventory").then(({ data }) => setInventory(data || [])).catch(() => setInventory([]));
+    apiAxios.get("/inventory").then((res) => setInventory(Array.isArray(res) ? res : [])).catch(() => setInventory([]));
   };
 
   useEffect(() => {
@@ -91,8 +91,8 @@ export default function CookPage({ onNavigateHome, onShowToast }) {
       try {
         setIsLoading(true);
         setLoadError(null);
-        const { data } = await apiAxios.get(`/recipe-suggestions/${sid}`);
-        const suggestion = data?.suggestion;
+        const json = await apiAxios.get(`/recipe-suggestions/${sid}`);
+        const suggestion = json?.suggestion;
         if (!suggestion?.recipes?.length) {
           setRecipes([]);
         } else {
@@ -241,6 +241,7 @@ export default function CookPage({ onNavigateHome, onShowToast }) {
                 onShowToast={onShowToast}
                 onStartCookingSuccess={(karma = 0) => {
                   onShowToast?.(`Items consumed. +${karma} kitchen karma.`);
+                  onKarmaChange?.();
                   onNavigateHome?.();
                 }}
               />
