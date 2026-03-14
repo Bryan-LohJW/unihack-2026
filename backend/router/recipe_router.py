@@ -36,51 +36,28 @@ def init_recipe_routes(db):
     @recipe_bp.route("/generate", methods=["POST"])
     def generate():
         data = request.get_json(force=True)
-        user_id = data.get("user_id")
-        if not user_id:
-            return jsonify({"error": "user_id is required"}), 400
 
         # Fetch current inventory from MongoDB
-        inventory_items = list(mongo.db.inventory.find({"user_id": user_id}))
-        if not inventory_items:
-            # Fall back: try without user_id filter (single-user mode)
-            inventory_items = list(mongo.db.inventory.find())
+        inventory_items = list(mongo.db.inventory.find(
+            {},
+            {"_id": 1, "name": 1, "expiry_date": 1, "qty": 1, "unit": 1},
+        ))
 
         if not inventory_items:
             return jsonify({"error": "No inventory items found"}), 404
 
         # Normalise for pipeline
-        inv_payload = _normalise_inventory(inventory_items)
+        # inv_payload = _normalise_inventory(inventory_items)
 
         # Create a new session
-        session = create_session(user_id, inv_payload)
-        session_id = session["session_id"]
+        # session = create_session(user_id, inv_payload)
+        # session_id = session["session_id"]
 
         # Run the full pipeline
-        result = suggest_recipes_from_inventory(inv_payload)
+        result = suggest_recipes_from_inventory(inventory_items)
         recipes = result["recipes"]
         mode = result["mode"]
         user_message = result.get("user_message")
-
-        # Log
-        log_event(
-            event_type="recipe_generated",
-            user_id=user_id,
-            session_id=session_id,
-            payload={
-                "inventory_state": inv_payload,
-                "recipes_returned": [
-                    {"id": r.get("id"), "name": r.get("name")} for r in recipes
-                ],
-                "urgency_summary": _urgency_summary(inv_payload),
-                "mode": mode,
-            },
-        )
-
-        # Persist assistant turn
-        import json
-        append_to_history(session_id, "assistant", json.dumps(recipes, default=str))
-        touch_session(session_id)
 
         return jsonify({
             "session_id": session_id,

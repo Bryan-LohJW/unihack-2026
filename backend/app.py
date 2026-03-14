@@ -14,6 +14,7 @@ from router.llm_router import init_llm_routes, llm_bp
 from router.cron_router import init_cron_routes, cron_bp
 from router.notifications_router import init_notifications_routes, notifications_bp
 from router.recipe_router import init_recipe_routes, recipe_bp
+from router.recipe_router_2 import recipe_bp_2
 from db import mongo
 from router.recipe_suggestion_router import (
     init_recipe_suggestion_routes,
@@ -65,6 +66,14 @@ app.register_blueprint(notifications_bp)
 
 init_recipe_suggestion_routes(db)
 app.register_blueprint(recipe_suggestion_bp)
+init_recipe_routes(db)
+app.register_blueprint(recipe_bp)
+
+app.register_blueprint(recipe_bp_2)
+
+# Register CLI commands (flask check-expired)
+from cli import register_cli_commands
+register_cli_commands(app)
 
 
 if __name__ == "__main__":
