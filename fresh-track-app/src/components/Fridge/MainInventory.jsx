@@ -4,6 +4,7 @@ import Shelf from "./Shelf";
 import canned_png from "../../assets/static/canned.png";
 import fresh_png from "../../assets/static/fresh.jpg";
 import InventoryGrid from "../Modals/InventoryGrid";
+import dummy_data from "../../../public/dummyData/dummy_data.json";
 
 const MainInventory = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,14 +16,14 @@ const MainInventory = () => {
       total: 45,
       expiry: 2,
       display_img: canned_png,
-      items: [canned_png, canned_png, canned_png, canned_png, canned_png, "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", , "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png", "canned_png"],
+      items: [],
     },
     {
       id: 2,
       title: "Fridge",
       total: 18,
       expiry: 5,
-      items: [fresh_png],
+      items: [],
       display_img: fresh_png,
     },
     {
@@ -30,10 +31,26 @@ const MainInventory = () => {
       title: "Freezer",
       total: 32,
       expiry: 0,
-      
+
       items: [],
     },
   ];
+
+  dummy_data.forEach((item) => {
+    switch (item.section) {
+      case "fridge":
+        inventoryData[1].items.push(item);
+        break;
+      case "pantry":
+        inventoryData[0].items.push(item);
+        break;
+      case "freezer":
+        inventoryData[2].items.push(item);
+        break;
+      default:
+        break;
+    }
+  });
 
   const [selectedShelf, setSelectedShelf] = useState(null);
 
