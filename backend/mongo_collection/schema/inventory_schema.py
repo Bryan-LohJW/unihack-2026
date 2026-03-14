@@ -23,11 +23,7 @@ class InventorySchema:
         self.section = section_val
         self.expiry_date = datetime.now(timezone.utc) + timedelta(days=expiry_days)
         self.added_at = datetime.now(timezone.utc)
-        self.nutrition = nutrition or {
-            "protein": 10,
-            "carbs": 20,
-            "fat": 30,
-        }
+        self.nutrition = nutrition
         self.qty = max(0, int(qty)) if qty is not None else 1
         self.image_url = image_url
 

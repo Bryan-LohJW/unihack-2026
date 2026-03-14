@@ -13,6 +13,8 @@ from router.kitchen_karma_router import (
 from router.llm_router import init_llm_routes, llm_bp
 from router.cron_router import init_cron_routes, cron_bp
 from router.notifications_router import init_notifications_routes, notifications_bp
+from router.recipe_router import init_recipe_routes, recipe_bp
+from db import mongo
 
 load_dotenv()
 
@@ -28,8 +30,15 @@ if not mongo_uri:
     )
 
 client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
-db = client["fridge_db"]
+db = client[os.getenv("MONGO_DB_NAME", "fridge_db")]
 app.db = db
+
+# Initialise shared mongo module so all modules can `from db import mongo`
+mongo.init_db(app)
+
+# Create indexes for events collection
+from util.logger import ensure_event_indexes
+ensure_event_indexes()
 
 # Register blueprints / routers
 init_health_routes(client)
@@ -49,6 +58,13 @@ app.register_blueprint(cron_bp)
 
 init_notifications_routes(db)
 app.register_blueprint(notifications_bp)
+
+init_recipe_routes(db)
+app.register_blueprint(recipe_bp)
+
+# Register CLI commands (flask check-expired)
+from cli import register_cli_commands
+register_cli_commands(app)
 
 
 if __name__ == "__main__":
