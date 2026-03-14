@@ -11,6 +11,7 @@ from router.kitchen_karma_router import (
     kitchen_karma_bp,
 )
 from router.recipe_router import init_recipe_routes, recipe_bp
+from router.llm_router import init_llm_routes, llm_bp
 
 load_dotenv()
 
@@ -38,6 +39,9 @@ app.register_blueprint(kitchen_karma_bp)
 
 init_recipe_routes(db)
 app.register_blueprint(recipe_bp)
+
+init_llm_routes(db)
+app.register_blueprint(llm_bp)
 
 
 if __name__ == "__main__":

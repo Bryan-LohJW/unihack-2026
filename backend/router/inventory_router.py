@@ -29,7 +29,9 @@ def init_inventory_routes(db):
 
     @inventory_bp.route("", methods=["GET"])
     def get_inventory():
-        items = service.list_in_fridge()
+        section = request.args.get("section")
+        expiry_within_days = request.args.get("expiry_within_days", type=int)
+        items = service.list_in_fridge(section=section, expiry_within_days=expiry_within_days)
         return jsonify([reponse_serializer(item) for item in items]), 200
 
     @inventory_bp.route("/<item_id>", methods=["PUT"])

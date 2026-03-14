@@ -28,13 +28,15 @@ class InventoryService:
             docs.append(schema.to_document())
 
         if not docs:
-            return {"inserted_count": 0}
+            return {"inserted_count": 0, "items": []}
 
         result = self.repo.insert_many(docs)
-        return {"inserted_count": len(result.inserted_ids)}
+        for i, oid in enumerate(result.inserted_ids):
+            docs[i]["_id"] = oid
+        return {"inserted_count": len(result.inserted_ids), "items": docs}
 
-    def list_in_fridge(self):
-        return self.repo.find_in_fridge()
+    def list_in_fridge(self, section: str | None = None, expiry_within_days: int | None = None):
+        return self.repo.find_in_fridge(section=section, expiry_within_days=expiry_within_days)
 
     def get_by_id(self, item_id: str):
         return self.repo.find_one(ObjectId(item_id))
