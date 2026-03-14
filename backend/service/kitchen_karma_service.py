@@ -30,7 +30,7 @@ class KitchenKarmaService:
         Returns the karma delta (positive for consumed, negative for wasted).
         """
         is_consumed = (reason or "").strip().lower() == DeleteReason.CONSUMED.value
-        delta = compute_karma_delta(amount, unit or "pcs", is_consumed=is_consumed)
+        delta = compute_karma_delta(amount, unit or "g", is_consumed=is_consumed)
         self.repo.increment_score(delta)
         return delta
 

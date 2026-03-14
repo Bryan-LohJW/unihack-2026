@@ -19,6 +19,7 @@ def init_inventory_routes(db):
         """
         Batch consume inventory. Body: {updates: [{item_id, qty}, ...]}.
         qty = amount to consume (deduct). Consumes min(qty, current_qty).
+        Response: {total_consumed_qty, karma_delta} — karma_delta is unit-aware (per karma_rules).
         """
         data = request.json or {}
         updates = data.get("updates", [])
