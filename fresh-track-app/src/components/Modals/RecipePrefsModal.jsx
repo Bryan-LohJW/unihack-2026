@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Minus, X, Check } from "lucide-react";
+import { Plus, Minus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CUISINES = [
@@ -158,7 +158,10 @@ export default function RecipePrefsModal({ isOpen, onClose, onSave, saveButtonTe
               </div>
 
               <div>
-                <label className="text-sm font-bold text-gray-700 mb-3 block">Preferred Cuisine</label>
+                <div className="mb-3">
+                  <label className="text-sm font-bold text-gray-700 block">Preferred Cuisine</label>
+                  <span className="text-xs text-gray-400">Select all that apply</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {allCuisines.map((cuisine) => {
                     const isSelected = prefs.cuisine.includes(cuisine);
@@ -166,13 +169,13 @@ export default function RecipePrefsModal({ isOpen, onClose, onSave, saveButtonTe
                       <button
                         key={cuisine}
                         onClick={() => toggleCuisine(cuisine)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all border-2 ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors border-2 focus:outline-none focus-visible:outline-none ${
                           isSelected
-                            ? "bg-emerald-50 text-[#187A4F] border-[#187A4F] shadow-md shadow-[#187A4F]/25"
-                            : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                            ? "bg-[#187A4F] text-white border-[#187A4F] shadow-md shadow-[#187A4F]/30"
+                            : "bg-white text-gray-500 border-gray-200"
                         }`}
                       >
-                        {isSelected && <Check size={14} strokeWidth={3} className="text-[#187A4F]" />}
+                        <span className={`w-3 h-3 rounded-full border-2 shrink-0 transition-all ${isSelected ? "bg-white border-white" : "border-gray-300"}`} />
                         {cuisine}
                       </button>
                     );
@@ -203,7 +206,10 @@ export default function RecipePrefsModal({ isOpen, onClose, onSave, saveButtonTe
               </div>
 
               <div>
-                <label className="text-sm font-bold text-gray-700 mb-3 block">Dietary Restrictions</label>
+                <div className="mb-3">
+                  <label className="text-sm font-bold text-gray-700 block">Dietary Restrictions</label>
+                  <span className="text-xs text-gray-400">Select all that apply</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {allDiets.map((diet) => {
                     const isSelected = prefs.dietary.includes(diet);
@@ -211,13 +217,13 @@ export default function RecipePrefsModal({ isOpen, onClose, onSave, saveButtonTe
                       <button
                         key={diet}
                         onClick={() => toggleDiet(diet)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all border-2 ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors border-2 focus:outline-none focus-visible:outline-none ${
                           isSelected
-                            ? "bg-emerald-50 text-[#187A4F] border-[#187A4F] shadow-md shadow-[#187A4F]/25"
-                            : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                            ? "bg-[#187A4F] text-white border-[#187A4F] shadow-md shadow-[#187A4F]/30"
+                            : "bg-white text-gray-500 border-gray-200"
                         }`}
                       >
-                        {isSelected && <Check size={14} strokeWidth={3} className="text-[#187A4F]" />}
+                        <span className={`w-3 h-3 rounded-full border-2 shrink-0 transition-all ${isSelected ? "bg-white border-white" : "border-gray-300"}`} />
                         {diet}
                       </button>
                     );
