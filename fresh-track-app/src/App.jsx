@@ -96,7 +96,12 @@ function App() {
             {currentView === "waste" && <WasteTrackPage />}
             {currentView === "points" && <PointsPage />}
             {currentView === "search" && <div>Search - Coming Soon</div>}
-            {currentView === "cook" && <CookPage />}
+            {currentView === "cook" && (
+              <CookPage
+                onNavigateHome={() => setCurrentView("home")}
+                onShowToast={setToastMessage}
+              />
+            )}
             {currentView === "pre-add" && <PreAddIngredients onNavigate={handleNavigate} data={navPayload} />}
           </div>
         </div>

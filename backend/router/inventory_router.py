@@ -16,17 +16,16 @@ def init_inventory_routes(db):
     service = InventoryService(db)
 
     @inventory_bp.route("/batch", methods=["PATCH"])
-    def batch_update_qty():
+    def batch_consume():
+        """
+        Batch consume inventory. Body: {updates: [{item_id, qty}, ...]}.
+        qty = amount to consume (deduct). Consumes min(qty, current_qty).
+        """
         data = request.json or {}
         updates = data.get("updates", [])
         if not isinstance(updates, list):
             return jsonify({"error": "updates must be a list of {item_id, qty}"}), 400
-        result = service.batch_update_qty(updates)
-        result["updated"] = [reponse_serializer(
-            item) for item in result["updated"]]
-        result["deleted"] = [reponse_serializer(
-            item) for item in result["deleted"]]
-
+        result = service.batch_consume(updates)
         return jsonify(result), 200
 
     @inventory_bp.route("/batch", methods=["POST"])

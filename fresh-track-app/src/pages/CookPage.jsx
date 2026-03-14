@@ -66,11 +66,16 @@ const DIETS = [
   "Dairy-Free",
 ];
 
-export default function CookPage() {
+export default function CookPage({ onNavigateHome, onShowToast }) {
   const [recipes, setRecipes] = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [globalServings, setGlobalServings] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+
+  const refreshInventory = () => {
+    apiAxios.get("/inventory").then(({ data }) => setInventory(data || [])).catch(() => setInventory([]));
+  };
 
   useEffect(() => {
     const suggestionId = new URL(window.location.href).searchParams.get(
@@ -92,6 +97,7 @@ export default function CookPage() {
           setRecipes([]);
         } else {
           setRecipes(suggestion.recipes.map(mapApiRecipeToCard));
+          refreshInventory();
         }
       } catch (err) {
         setLoadError(err?.message ?? "Failed to load recipes");
@@ -230,7 +236,13 @@ export default function CookPage() {
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
+                inventory={inventory}
                 currentServings={globalServings}
+                onShowToast={onShowToast}
+                onStartCookingSuccess={(karma = 0) => {
+                  onShowToast?.(`Items consumed. +${karma} kitchen karma.`);
+                  onNavigateHome?.();
+                }}
               />
             ))}
           </div>
