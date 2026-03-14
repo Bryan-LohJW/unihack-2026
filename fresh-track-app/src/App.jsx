@@ -14,11 +14,18 @@ import Navbar from "./components/navigations/Navbar";
 import AddButton from "./components/ActionButtons/AddButton";
 import CookButton from "./components/ActionButtons/CookButton";
 import HomePage from "./pages/HomePage";
+import PreAddIngredients from "./pages/PreAddIngredients";
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const [currentView, setCurrentView] = useState("home");
+  const [navPayload, setNavPayload] = useState(null);
+
+  const handleNavigate = (view, payload = null) => {
+    setNavPayload(payload);
+    setCurrentView(view);
+  };
 
   const handleAddItem = (item) => {
     if (item.category === "fridge") {
@@ -48,6 +55,7 @@ function App() {
             {currentView === "points" && <PointsPage />}
             {currentView === "search" && <div>Search - Coming Soon</div>}
             {currentView === "cook" && <div>Recipes - Coming Soon</div>}
+            {currentView === "pre-add" && <PreAddIngredients onNavigate={handleNavigate} data={navPayload} />}
           </div>
         </div>
 
@@ -56,7 +64,7 @@ function App() {
           <CookButton onClick={() => setCurrentView("cook")} />
         </div>
 
-        <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} />
+        <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} onNavigate={handleNavigate} />
       </div>
     </Router>
   );
