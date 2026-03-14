@@ -17,7 +17,9 @@ from router.notifications_router import init_notifications_routes, notifications
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").strip()
+_cors_list = [o.strip() for o in _cors_origins.split(",") if o.strip()]
+CORS(app, origins=_cors_list, supports_credentials=True)
 
 mongo_uri = os.getenv("MONGO_URI", "").strip()
 if not mongo_uri:
