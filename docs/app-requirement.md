@@ -5,6 +5,7 @@
 ---
 
 ## Table of Contents
+
 1. [Front Page — Inventory Screen](#1-front-page--inventory-screen)
 2. [Recipe Generation](#2-recipe-generation)
 3. [Adding Ingredients](#3-adding-ingredients)
@@ -18,79 +19,104 @@
 ## 1. Front Page — Inventory Screen
 
 ### Overview
-The inventory screen is the home screen of D-Larder. It opens with a fridge/pantry door animation that the user taps to enter. Behind the door is the user's full ingredient inventory, divided across three storage sections — Fridge, Pantry, and Freezer.
+
+The inventory screen is the home screen of D-Larder. It opens with a fridge/pantry door animation that the user taps to enter. Behind the door, instead of an immediate ingredient grid, the user sees the three storage sections displayed as visual placeholders — Fridge, Pantry, and Freezer. Tapping a section opens a popup grid of the ingredients stored there. The design is intentionally gamified, feeling more like an interactive space than a traditional list-based app.
 
 ---
 
 ### 1.1 Fridge Door Entry Animation
 
 - On first load, user sees a closed fridge/pantry door centred on screen
-- Tapping the door triggers it to swing open, revealing the inventory behind it
+- Tapping the door triggers it to swing open, revealing the interior behind it
 - The door swings on its left edge hinge, like a real fridge door
 - As the door opens, a soft glow spreads from the interior outward
-- A blurred preview of the inventory is visible behind the door as it swings — the content is already there waiting
+- A blurred preview of the interior is visible behind the door as it swings — the content is already there waiting
 - The door handle has a subtle bounce animation on load to signal it is tappable
 - The animation plays once per session — navigating away and back skips it
 
 ---
 
-### 1.2 Inventory Grid
+### 1.2 Interior Layout
 
-- Ingredients are displayed in a 2-column grid
+Once the fridge door is open, the user sees the interior of the fridge/larder as a single screen. The layout has three zones:
+
+**Left side panel**
+
+- Displays the total number of ingredients currently across all storage sections
+- Shown as a count with a label (e.g. "24 ingredients")
+- Updates in real time as items are added or removed
+
+**Centre — Section Placeholders**
+
+- Three section blocks displayed vertically in the centre of the screen representing Fridge, Pantry, and Freezer
+- Each block shows:
+    - The section name (Fridge / Pantry / Freezer)
+    - A visual placeholder representing that section (e.g. a shelf, a drawer, a container)
+    - The number of items currently stored in that section
+- Each block is tappable — tapping opens the ingredient grid popup for that section
+- The blocks have a subtle idle animation to reinforce the gamified feel (e.g. a gentle pulse or glow)
+
+**Right side panel**
+
+- Displays alert indicators for ingredients that need attention
+- A red exclamation mark icon is shown if any ingredients are expiring within 3 days or have already expired
+- The number of flagged ingredients is shown alongside the icon
+- If there are no alerts, this panel is empty or shows a green indicator confirming all items are in good standing
+- Tapping the alert indicator opens the ingredient grid popup filtered to show only the flagged items
+
+---
+
+### 1.3 Ingredient Grid Popup
+
+- Tapping a section block (or the alert indicator) opens a popup that slides up from the bottom of the screen
+- The popup displays the ingredient grid for the selected section
+- If opened via the alert indicator, the grid is pre-filtered to show only expiring or expired items
+- The grid displays ingredients in a 2-column layout
 - Each item card shows:
-  - An image of the ingredient, sourced from a pre-generated set of food assets
-  - The name of the ingredient
-  - A health bar indicating time remaining until expiry — green when fresh, amber when getting close, red when nearly expired
-  - A red border and glow around the card if the item expires within 3 days
+    - An image of the ingredient, sourced from a pre-generated set of food assets
+    - The name of the ingredient
+    - A health bar indicating time remaining until expiry — green when fresh, amber when getting close, red when nearly expired
+    - A red border and glow around the card if the item expires within 3 days
+    - Expired items are displayed as greyed out
 - If no image exists for an ingredient, a generic fallback icon is shown
 - The grid is scrollable vertically
+- The popup can be dismissed by swiping it down or tapping outside it
 
 ---
 
-### 1.3 Item Detail Popup
+### 1.4 Item Detail Popup
 
-- Tapping an item card opens a popup sheet from the bottom of the screen
+- Tapping an item card within the ingredient grid popup opens a second popup layered on top
 - The popup displays:
-  - Ingredient image
-  - Item name
-  - Date added
-  - Expiry date
-  - Storage location
-  - The expiry health bar
+    - Ingredient image
+    - Item name
+    - Date added
+    - Expiry date
+    - Storage location
+    - The expiry health bar
 - The user can edit the expiry date directly in the popup
 - The user can edit the storage location (Fridge, Pantry, or Freezer) directly in the popup
-- The user can delete the item from the popup
+- If the item is expired, a **Throw Away** button is shown — tapping this removes the item from the inventory, decrements the score, and logs the event to the activity feed
+- The user can delete a non-expired item from the popup
 - Tapping outside the popup or swiping it down dismisses it without saving
-
----
-
-### 1.4 Section Navigation — Fridge / Pantry / Freezer
-
-- The inventory is divided into three sections: Fridge, Pantry, and Freezer
-- Sections are navigated via a carousel — the active section is centred, with the adjacent sections partially visible on either side to hint that more sections exist
-- Left and right arrow buttons sit on either edge of the carousel to navigate between sections
-- Swiping left or right on the grid also moves between sections
-- The section label (e.g. "Fridge") is displayed prominently above the grid
-- Dot indicators below the carousel show which section is currently active
-- Each section only shows items stored in that location
 
 ---
 
 ### 1.5 Bottom Action Buttons
 
-Two floating action buttons sit at the bottom of the screen, persistent across all three sections:
+Two floating action buttons sit at the bottom of the screen, persistent across the interior view:
 
 - The **left button** displays a **+** icon
 - The **right button** displays a **chef hat** icon
-- Both buttons are visually distinct from the carousel navigation and sit above it
+- Both buttons are visually distinct and float above the interior layout
 
 ---
 
 ### 1.6 Add Item Menu (+ Button)
 
-- Tapping the **+** button opens a small menu above the button with two options:
-  - **Scan Receipt** — opens the camera to photograph a grocery receipt
-  - **Add Manually** — opens a form to enter an item by hand
+- Tapping the **+** button reveals a small menu above the button with two options:
+    - **Scan Receipt**
+    - **Add Manually**
 - Tapping outside the menu dismisses it without any action
 
 ---
@@ -105,6 +131,7 @@ Two floating action buttons sit at the bottom of the screen, persistent across a
 ## 2. Recipe Generation
 
 ### Overview
+
 Triggered by tapping the chef hat button on the front page. The user is guided through a series of preference questions before D-Larder generates three tailored recipe options based on their current inventory. The user then selects a recipe, follows the guide, and marks it as done — automatically updating their inventory.
 
 ---
@@ -114,8 +141,8 @@ Triggered by tapping the chef hat button on the front page. The user is guided t
 - The modal presents the user with a series of questions one at a time
 - The full list of questions is TBD, but will cover areas such as cuisine, dietary goal, number of servings, and any other relevant preferences
 - For each question, the user can either:
-  - Select from a set of pre-generated options displayed as tappable chips or buttons
-  - Type in their own answer if none of the options fit
+    - Select from a set of pre-generated options displayed as tappable chips or buttons
+    - Type in their own answer if none of the options fit
 - A progress indicator shows the user how far along they are in the questionnaire
 - The user can go back to a previous question to change their answer at any point
 - The final question is an open text box inviting the user to add any extra comments or specific requests to factor into the recipe generation
@@ -128,9 +155,9 @@ Triggered by tapping the chef hat button on the front page. The user is guided t
 - After submitting preferences, three recipe options are generated and displayed
 - The three options are stacked vertically, one above the other, each as a card
 - Each card displays:
-  - A background image representing the general cuisine or dish style
-  - The name of the recipe
-  - The estimated prep time
+    - A background image representing the general cuisine or dish style
+    - The name of the recipe
+    - The estimated prep time
 - Tapping a card expands it to reveal more detail about the recipe (details TBD)
 - Each expanded card has a **Choose this Recipe** button
 - Tapping **Choose this Recipe** navigates the user to the Recipe Page for that recipe
@@ -141,9 +168,9 @@ Triggered by tapping the chef hat button on the front page. The user is guided t
 
 - The recipe page presents a full step-by-step guide for the chosen recipe
 - The page is structured in three sections in order:
-  1. **Ingredients** — a list of all required ingredients with their quantities
-  2. **Preparation** — steps to prepare ingredients before cooking (chopping, marinating, etc.)
-  3. **Cooking** — the step-by-step cooking instructions
+    1. **Ingredients** — a list of all required ingredients with their quantities
+    2. **Preparation** — steps to prepare ingredients before cooking (chopping, marinating, etc.)
+    3. **Cooking** — the step-by-step cooking instructions
 - At the bottom of the page there is a **Done** button
 
 ---
@@ -162,6 +189,7 @@ Triggered by tapping the chef hat button on the front page. The user is guided t
 ## 3. Adding Ingredients
 
 ### Overview
+
 Triggered by tapping the **+** button on the front page. The user is presented with two options — scanning a receipt or manually adding an ingredient. Both paths lead to the same ingredient list page, ensuring a consistent review experience before anything is saved to the inventory.
 
 ---
@@ -169,8 +197,8 @@ Triggered by tapping the **+** button on the front page. The user is presented w
 ### 3.1 Entry Point — Add Menu
 
 - Tapping the **+** button on the front page reveals a small menu with two options:
-  - **Scan Receipt**
-  - **Add Manually**
+    - **Scan Receipt**
+    - **Add Manually**
 - Tapping outside the menu dismisses it without any action
 
 ---
@@ -178,8 +206,8 @@ Triggered by tapping the **+** button on the front page. The user is presented w
 ### 3.2 Option 1 — Receipt Scanner
 
 - Selecting **Scan Receipt** prompts the user to either:
-  - Open their camera to photograph a receipt directly
-  - Upload a photo from their device gallery
+    - Open their camera to photograph a receipt directly
+    - Upload a photo from their device gallery
 - Once an image is selected or captured, it is sent to the backend where the AI model processes it
 - A loading state is shown while the AI is working
 - Once processing is complete, the user is directed to the Ingredient Review Page (see 3.3)
@@ -190,20 +218,21 @@ Triggered by tapping the **+** button on the front page. The user is presented w
 
 - The page lists all ingredients extracted from the receipt by the AI
 - Each ingredient entry displays:
-  - Ingredient name
-  - Quantity
-  - Expiry date (estimated by the AI based on food category)
-  - Storage location (Fridge, Pantry, or Freezer — assigned by the AI, editable by user)
+    - Ingredient name
+    - Quantity
+    - Expiry date (estimated by the AI based on food category)
+    - Storage location (Fridge, Pantry, or Freezer — assigned by the AI, editable by user)
 - All fields are editable — the user can tap any field to modify it before saving
 - The user can remove any ingredient from the list if it should not be added
 - The user can add a new ingredient to the list manually from this page if anything was missed
 - At the bottom of the page, a **Save All** button adds all listed ingredients to the inventory
 
 #### Unrecognised Ingredients
+
 - If the AI cannot confidently identify an ingredient (e.g. due to an unclear or abbreviated name on the receipt), it is flagged separately at the top of the page in a dedicated review section
 - Each flagged item shows the raw text from the receipt and prompts the user to either:
-  - Type in the correct ingredient name and fill in the details
-  - Dismiss the item if it is not a food ingredient (e.g. cleaning products, toiletries)
+    - Type in the correct ingredient name and fill in the details
+    - Dismiss the item if it is not a food ingredient (e.g. cleaning products, toiletries)
 
 ---
 
@@ -211,10 +240,10 @@ Triggered by tapping the **+** button on the front page. The user is presented w
 
 - Selecting **Add Manually** opens a modal popup over the front page
 - The modal contains a form with the following fields:
-  - Ingredient name
-  - Quantity and unit
-  - Expiry date
-  - Storage location (Fridge, Pantry, or Freezer)
+    - Ingredient name
+    - Quantity and unit
+    - Expiry date
+    - Storage location (Fridge, Pantry, or Freezer)
 - All fields are required before the ingredient can be saved
 - Tapping **Save** adds the ingredient directly to the inventory and closes the modal
 - Tapping outside the modal or dismissing it discards the entry without saving
@@ -224,6 +253,7 @@ Triggered by tapping the **+** button on the front page. The user is presented w
 ## 4. Status Page
 
 ### Overview
+
 The status page gives the user a snapshot of how well they are managing their kitchen. It is accessible as one of the carousel sections on the front page, sitting alongside Fridge, Pantry, and Freezer. The page is built around a central score that rewards using ingredients and penalises food waste.
 
 ---
@@ -241,10 +271,10 @@ The status page gives the user a snapshot of how well they are managing their ki
 
 - A prominent score is displayed at the top of the page as the primary metric
 - The score increases when:
-  - A recipe is cooked using ingredients from the inventory
-  - Ingredients are used up before their expiry date
+    - A recipe is cooked using ingredients from the inventory
+    - Ingredients are used up before their expiry date
 - The score decreases when:
-  - An ingredient expires and is not used
+    - An ingredient expires and is not used
 - The score is displayed as a number with a visual indicator (e.g. a ring, a level bar, or a grade) — exact design TBD
 - A short label beneath the score contextualises it (e.g. "Great kitchen management" or "A few things going to waste")
 
@@ -279,9 +309,9 @@ The status page gives the user a snapshot of how well they are managing their ki
 
 - A quick visual breakdown of the current state of the inventory across all three storage areas
 - Shows counts for:
-  - Fresh items (expiry > 3 days)
-  - Expiring soon (expiry within 3 days)
-  - Expired items still in inventory
+    - Fresh items (expiry > 3 days)
+    - Expiring soon (expiry within 3 days)
+    - Expired items still in inventory
 - Gives the user an at-a-glance reason to act if something needs attention
 
 ---
@@ -290,9 +320,9 @@ The status page gives the user a snapshot of how well they are managing their ki
 
 - A short log of recent actions at the bottom of the page, showing the last 5–10 events
 - Event types include:
-  - Recipe cooked (e.g. "Cooked Chicken Stir Fry — 3 ingredients used")
-  - Ingredients added (e.g. "8 items added via receipt scan")
-  - Item expired (e.g. "Spinach expired before use")
+    - Recipe cooked (e.g. "Cooked Chicken Stir Fry — 3 ingredients used")
+    - Ingredients added (e.g. "8 items added via receipt scan")
+    - Item expired (e.g. "Spinach expired before use")
 - The feed gives the page a sense of life and shows the user their history at a glance
 
 ---
@@ -300,6 +330,7 @@ The status page gives the user a snapshot of how well they are managing their ki
 ## 5. API Endpoints
 
 ### Overview
+
 All endpoints are prefixed with `/api`. The frontend communicates exclusively through these endpoints — no direct database access. Endpoints are grouped by feature area.
 
 ---
@@ -307,67 +338,71 @@ All endpoints are prefixed with `/api`. The frontend communicates exclusively th
 ### 5.1 Inventory
 
 #### `GET /api/inventory`
+
 Fetch all inventory items. Returns all items across all locations by default.
 
 **Query Parameters**
 
-| Param | Type | Required | Description |
-|---|---|---|---|
-| `location` | string | No | Filter by storage location. One of `fridge`, `pantry`, `freezer`. If omitted, all items are returned |
+| Param      | Type   | Required | Description                                                                                          |
+| ---------- | ------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| `location` | string | No       | Filter by storage location. One of `fridge`, `pantry`, `freezer`. If omitted, all items are returned |
 
 **Response**
+
 ```json
 [
-  {
-    "id": 1,
-    "name": "Chicken Breast",
-    "category": "meat",
-    "quantity": 2,
-    "unit": "pack",
-    "purchase_date": "2026-03-10",
-    "expiry_date": "2026-03-13",
-    "days_until_expiry": -1,
-    "health_percent": 0,
-    "location": "fridge",
-    "image_key": "chicken_breast",
-    "status": "expired"
-  }
+	{
+		"id": 1,
+		"name": "Chicken Breast",
+		"category": "meat",
+		"quantity": 2,
+		"unit": "pack",
+		"purchase_date": "2026-03-10",
+		"expiry_date": "2026-03-13",
+		"days_until_expiry": -1,
+		"health_percent": 0,
+		"location": "fridge",
+		"image_key": "chicken_breast",
+		"status": "expired"
+	}
 ]
 ```
 
 **Calculated fields** — not stored in the database, computed on every request:
 
-| Field | Formula |
-|---|---|
-| `days_until_expiry` | `expiry_date - today` (can be negative if expired) |
-| `health_percent` | `(days_until_expiry / (expiry_date - purchase_date)) * 100`, clamped between `0` and `100` |
+| Field               | Formula                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| `days_until_expiry` | `expiry_date - today` (can be negative if expired)                                         |
+| `health_percent`    | `(days_until_expiry / (expiry_date - purchase_date)) * 100`, clamped between `0` and `100` |
 
 `health_percent` represents how much shelf life remains as a percentage of the item's total expected life. The frontend uses this value directly to render the health bar on each item card — no additional calculation required.
 
 **Status field values**
 
-| Value | Condition |
-|---|---|
-| `fresh` | `days_until_expiry` > 3 |
-| `warning` | `days_until_expiry` between 1 and 3 |
-| `critical` | `days_until_expiry` == 0 |
-| `expired` | `days_until_expiry` < 0 |
+| Value      | Condition                           |
+| ---------- | ----------------------------------- |
+| `fresh`    | `days_until_expiry` > 3             |
+| `warning`  | `days_until_expiry` between 1 and 3 |
+| `critical` | `days_until_expiry` == 0            |
+| `expired`  | `days_until_expiry` < 0             |
 
 ---
 
 #### `POST /api/inventory`
+
 Add a single item manually.
 
 **Request Body**
+
 ```json
 {
-  "name": "Spinach",
-  "category": "produce",
-  "quantity": 1,
-  "unit": "bag",
-  "purchase_date": "2026-03-14",
-  "expiry_date": "2026-03-21",
-  "location": "fridge"
+	"name": "Spinach",
+	"category": "produce",
+	"quantity": 1,
+	"unit": "bag",
+	"purchase_date": "2026-03-14",
+	"expiry_date": "2026-03-21",
+	"location": "fridge"
 }
 ```
 
@@ -376,31 +411,33 @@ Add a single item manually.
 ---
 
 #### `POST /api/inventory/bulk`
+
 Add multiple items at once. Used after the user confirms the receipt scan ingredient list.
 
 **Request Body**
+
 ```json
 {
-  "items": [
-    {
-      "name": "Chicken Breast",
-      "category": "meat",
-      "quantity": 2,
-      "unit": "pack",
-      "purchase_date": "2026-03-14",
-      "expiry_date": "2026-03-17",
-      "location": "fridge"
-    },
-    {
-      "name": "Whole Milk",
-      "category": "dairy",
-      "quantity": 1,
-      "unit": "carton",
-      "purchase_date": "2026-03-14",
-      "expiry_date": "2026-03-21",
-      "location": "fridge"
-    }
-  ]
+	"items": [
+		{
+			"name": "Chicken Breast",
+			"category": "meat",
+			"quantity": 2,
+			"unit": "pack",
+			"purchase_date": "2026-03-14",
+			"expiry_date": "2026-03-17",
+			"location": "fridge"
+		},
+		{
+			"name": "Whole Milk",
+			"category": "dairy",
+			"quantity": 1,
+			"unit": "carton",
+			"purchase_date": "2026-03-14",
+			"expiry_date": "2026-03-21",
+			"location": "fridge"
+		}
+	]
 }
 ```
 
@@ -409,14 +446,16 @@ Add multiple items at once. Used after the user confirms the receipt scan ingred
 ---
 
 #### `PATCH /api/inventory/{id}`
+
 Update one or more fields on an existing item. Only fields provided in the request body are updated.
 
 **Request Body** — any subset of editable fields
+
 ```json
 {
-  "expiry_date": "2026-03-20",
-  "quantity": 1,
-  "location": "pantry"
+	"expiry_date": "2026-03-20",
+	"quantity": 1,
+	"location": "pantry"
 }
 ```
 
@@ -425,24 +464,26 @@ Update one or more fields on an existing item. Only fields provided in the reque
 ---
 
 #### `DELETE /api/inventory/{id}`
+
 Remove an item from the inventory. Used in two scenarios:
 
 1. User manually deletes an item from the item detail popup
 2. User throws away an expired item — in this case the request must include a `reason` field so the backend can decrement the score accordingly
 
 **Request Body**
+
 ```json
 {
-  "reason": "thrown_away"
+	"reason": "thrown_away"
 }
 ```
 
 The `reason` field is optional. Accepted values:
 
-| Value | Effect on Score |
-|---|---|
-| omitted or `manual` | No score change |
-| `thrown_away` | Score decremented, waste event logged to activity feed |
+| Value               | Effect on Score                                        |
+| ------------------- | ------------------------------------------------------ |
+| omitted or `manual` | No score change                                        |
+| `thrown_away`       | Score decremented, waste event logged to activity feed |
 
 **Response** — `204 No Content`
 
@@ -451,31 +492,33 @@ The `reason` field is optional. Accepted values:
 ### 5.2 Receipt Scanner
 
 #### `POST /api/receipt/scan`
+
 Upload a receipt image for the AI to process. Returns a parsed list of recognised ingredients and a separate list of items the AI could not confidently identify.
 
 **Request** — `multipart/form-data` with an `image` field (JPEG or PNG)
 
 **Response**
+
 ```json
 {
-  "recognised": [
-    {
-      "name": "Chicken Breast",
-      "category": "meat",
-      "quantity": 2,
-      "unit": "pack",
-      "expiry_days": 3,
-      "expiry_date": "2026-03-17",
-      "location": "fridge",
-      "confidence": "high"
-    }
-  ],
-  "unrecognised": [
-    {
-      "raw_text": "CHKN BNLS SKLS 500G",
-      "confidence": "low"
-    }
-  ]
+	"recognised": [
+		{
+			"name": "Chicken Breast",
+			"category": "meat",
+			"quantity": 2,
+			"unit": "pack",
+			"expiry_days": 3,
+			"expiry_date": "2026-03-17",
+			"location": "fridge",
+			"confidence": "high"
+		}
+	],
+	"unrecognised": [
+		{
+			"raw_text": "CHKN BNLS SKLS 500G",
+			"confidence": "low"
+		}
+	]
 }
 ```
 
@@ -484,50 +527,61 @@ Upload a receipt image for the AI to process. Returns a parsed list of recognise
 ### 5.3 Recipe Generation
 
 #### `POST /api/recipe/generate`
+
 Submit user preferences and current inventory to generate three recipe options.
 
 **Request Body**
+
 ```json
 {
-  "cuisine": "asian",
-  "goal": "high_protein",
-  "servings": 2,
-  "mode": "available_only",
-  "comments": "Something quick, I only have 30 minutes"
+	"cuisine": "asian",
+	"goal": "high_protein",
+	"servings": 2,
+	"mode": "available_only",
+	"comments": "Something quick, I only have 30 minutes"
 }
 ```
 
 **Response**
+
 ```json
 {
-  "recipes": [
-    {
-      "id": "recipe_abc123",
-      "name": "Chicken and Spinach Stir Fry",
-      "cuisine": "asian",
-      "prep_time": "25 mins",
-      "image_key": "stir_fry",
-      "ingredients": [
-        { "name": "Chicken Breast", "quantity": "300g", "available": true },
-        { "name": "Spinach", "quantity": "1 bag", "available": true },
-        { "name": "Soy Sauce", "quantity": "2 tbsp", "available": false }
-      ],
-      "preparation": [
-        "Slice chicken breast into thin strips",
-        "Wash and dry spinach"
-      ],
-      "cooking": [
-        "Heat oil in a wok over high heat",
-        "Add chicken and stir fry for 5 minutes"
-      ],
-      "macros": {
-        "calories": 420,
-        "protein": 45,
-        "carbs": 12,
-        "fat": 18
-      }
-    }
-  ]
+	"recipes": [
+		{
+			"id": "recipe_abc123",
+			"name": "Chicken and Spinach Stir Fry",
+			"cuisine": "asian",
+			"prep_time": "25 mins",
+			"image_key": "stir_fry",
+			"ingredients": [
+				{
+					"name": "Chicken Breast",
+					"quantity": "300g",
+					"available": true
+				},
+				{ "name": "Spinach", "quantity": "1 bag", "available": true },
+				{
+					"name": "Soy Sauce",
+					"quantity": "2 tbsp",
+					"available": false
+				}
+			],
+			"preparation": [
+				"Slice chicken breast into thin strips",
+				"Wash and dry spinach"
+			],
+			"cooking": [
+				"Heat oil in a wok over high heat",
+				"Add chicken and stir fry for 5 minutes"
+			],
+			"macros": {
+				"calories": 420,
+				"protein": 45,
+				"carbs": 12,
+				"fat": 18
+			}
+		}
+	]
 }
 ```
 
@@ -536,16 +590,18 @@ The full recipe detail is returned upfront for all three options so the frontend
 ---
 
 #### `POST /api/recipe/complete`
+
 Mark a recipe as completed. Deducts used ingredients from the inventory, increments the score, and logs the event to the activity feed.
 
 **Request Body**
+
 ```json
 {
-  "recipe_id": "recipe_abc123",
-  "ingredients_used": [
-    { "inventory_id": 1, "quantity_used": 2 },
-    { "inventory_id": 3, "quantity_used": 1 }
-  ]
+	"recipe_id": "recipe_abc123",
+	"ingredients_used": [
+		{ "inventory_id": 1, "quantity_used": 2 },
+		{ "inventory_id": 3, "quantity_used": 1 }
+	]
 }
 ```
 
@@ -556,7 +612,7 @@ Mark a recipe as completed. Deducts used ingredients from the inventory, increme
 
 ```json
 {
-  "score": 142
+	"score": 142
 }
 ```
 
@@ -565,42 +621,45 @@ Mark a recipe as completed. Deducts used ingredients from the inventory, increme
 ### 5.4 Status
 
 #### `GET /api/status`
+
 Returns the user's current status values. All values are pre-computed and stored — this endpoint reads them directly, no computation on request.
 
 Score and related stats are updated by two events only:
+
 - `POST /api/recipe/complete` — score goes up, streak maintained
 - `DELETE /api/inventory/{id}` with `reason: thrown_away` — score goes down, streak resets if applicable
 
 **Response**
+
 ```json
 {
-  "score": 142,
-  "streak_days": 5,
-  "waste_saved_dollars": 34.50,
-  "recipes_cooked": 12,
-  "inventory_health": {
-    "fresh": 14,
-    "warning": 3,
-    "critical": 1,
-    "expired": 2
-  },
-  "recent_activity": [
-    {
-      "type": "recipe_cooked",
-      "description": "Cooked Chicken Stir Fry — 3 ingredients used",
-      "timestamp": "2026-03-14T18:30:00Z"
-    },
-    {
-      "type": "items_added",
-      "description": "8 items added via receipt scan",
-      "timestamp": "2026-03-14T09:15:00Z"
-    },
-    {
-      "type": "item_expired",
-      "description": "Spinach thrown away",
-      "timestamp": "2026-03-13T20:00:00Z"
-    }
-  ]
+	"score": 142,
+	"streak_days": 5,
+	"waste_saved_dollars": 34.5,
+	"recipes_cooked": 12,
+	"inventory_health": {
+		"fresh": 14,
+		"warning": 3,
+		"critical": 1,
+		"expired": 2
+	},
+	"recent_activity": [
+		{
+			"type": "recipe_cooked",
+			"description": "Cooked Chicken Stir Fry — 3 ingredients used",
+			"timestamp": "2026-03-14T18:30:00Z"
+		},
+		{
+			"type": "items_added",
+			"description": "8 items added via receipt scan",
+			"timestamp": "2026-03-14T09:15:00Z"
+		},
+		{
+			"type": "item_expired",
+			"description": "Spinach thrown away",
+			"timestamp": "2026-03-13T20:00:00Z"
+		}
+	]
 }
 ```
 
@@ -624,6 +683,7 @@ This keeps expiry handling entirely user-driven with no background jobs or sched
 ## 6. AI Model Usage
 
 ### Overview
+
 D-Larder makes two distinct calls to the Google Gemini API. Both calls are made server-side from the Python backend — the frontend never communicates with Gemini directly. All prompts are constructed in the backend and responses are parsed before being returned to the frontend.
 
 The model used for both calls is `gemini-1.5-flash`.
@@ -699,8 +759,8 @@ Return only valid JSON with no explanation, no markdown, and no code fences. Use
 
 **Variables injected at runtime:**
 
-| Variable | Source |
-|---|---|
+| Variable       | Source                                             |
+| -------------- | -------------------------------------------------- |
 | `{today_date}` | Server date at time of request (e.g. `2026-03-14`) |
 
 **Expected Response:** JSON matching the structure above, parsed by the backend before returning to the frontend via `POST /api/receipt/scan`.
@@ -778,14 +838,14 @@ Return only valid JSON with no explanation, no markdown, and no code fences. Use
 
 **Variables injected at runtime:**
 
-| Variable | Source |
-|---|---|
+| Variable           | Source                                                                                                                                              |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `{inventory_list}` | All inventory items fetched from DB, sorted by `expiry_date` ASC, formatted as a plain text list: `- Chicken Breast, qty 2 pack, expires in 2 days` |
-| `{cuisine}` | User preference from request body (e.g. `Asian`, `No preference`) |
-| `{goal}` | User preference from request body (e.g. `High protein`, `Lose weight`) |
-| `{servings}` | User preference from request body (e.g. `2`) |
-| `{mode}` | User preference from request body — either `Use available ingredients only` or `Allow buying additional ingredients` |
-| `{comments}` | Free text from the final question in the preference questionnaire. If empty, inject `None` |
+| `{cuisine}`        | User preference from request body (e.g. `Asian`, `No preference`)                                                                                   |
+| `{goal}`           | User preference from request body (e.g. `High protein`, `Lose weight`)                                                                              |
+| `{servings}`       | User preference from request body (e.g. `2`)                                                                                                        |
+| `{mode}`           | User preference from request body — either `Use available ingredients only` or `Allow buying additional ingredients`                                |
+| `{comments}`       | Free text from the final question in the preference questionnaire. If empty, inject `None`                                                          |
 
 **Expected Response:** JSON matching the structure above with exactly 3 recipes, parsed by the backend before returning to the frontend via `POST /api/recipe/generate`.
 
@@ -858,10 +918,10 @@ Use this exact structure:
 
 **Variables injected at runtime:**
 
-| Variable | Source |
-|---|---|
+| Variable             | Source                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------- |
 | `{ingredient_names}` | List of ingredient names not resolved by the in-memory map, formatted as a JSON array |
-| `{image_keys}` | Full list of valid image keys from section 7.1, formatted as a comma-separated list |
+| `{image_keys}`       | Full list of valid image keys from section 7.1, formatted as a comma-separated list   |
 
 **Expected Response:** JSON mapping each ingredient name to its resolved image key. The backend merges these results with the in-memory map results before returning the full ingredient list to the frontend.
 
@@ -882,6 +942,7 @@ For all three calls, the backend must handle the following failure cases before 
 ## 7. Assets
 
 ### Overview
+
 All static assets are pre-generated before the hackathon and bundled with the frontend. No assets are fetched at runtime. Assets are organised by type and referenced by key throughout the app.
 
 ---
@@ -891,6 +952,7 @@ All static assets are pre-generated before the hackathon and bundled with the fr
 Used on item cards in the inventory grid and in the item detail popup.
 
 **Specs**
+
 - Format: PNG with transparent background
 - Size: 256x256px
 - Style: Flat illustration, consistent colour palette across all images
@@ -900,53 +962,53 @@ Used on item cards in the inventory grid and in the item detail popup.
 
 **Required ingredient images**
 
-| image_key | Item |
-|---|---|
-| `chicken_breast` | Chicken Breast |
-| `chicken_thigh` | Chicken Thigh |
-| `beef_mince` | Beef Mince |
-| `beef_steak` | Beef Steak |
-| `pork_chop` | Pork Chop |
-| `salmon` | Salmon |
-| `tuna_can` | Canned Tuna |
-| `shrimp` | Shrimp |
-| `whole_milk` | Whole Milk |
-| `yoghurt` | Yoghurt |
-| `butter` | Butter |
-| `cheddar_cheese` | Cheddar Cheese |
-| `eggs` | Eggs |
-| `heavy_cream` | Heavy Cream |
-| `spinach` | Spinach |
-| `broccoli` | Broccoli |
-| `carrot` | Carrot |
-| `onion` | Onion |
-| `garlic` | Garlic |
-| `tomato` | Tomato |
-| `capsicum` | Capsicum |
-| `mushroom` | Mushroom |
-| `potato` | Potato |
-| `sweet_potato` | Sweet Potato |
-| `lettuce` | Lettuce |
-| `cucumber` | Cucumber |
-| `lemon` | Lemon |
-| `lime` | Lime |
-| `apple` | Apple |
-| `banana` | Banana |
-| `strawberry` | Strawberry |
-| `pasta` | Pasta |
-| `rice` | Rice |
-| `bread` | Bread |
-| `flour` | Flour |
-| `oats` | Oats |
-| `soy_sauce` | Soy Sauce |
-| `olive_oil` | Olive Oil |
-| `tomato_sauce` | Tomato Sauce |
-| `coconut_milk` | Coconut Milk |
-| `frozen_peas` | Frozen Peas |
-| `frozen_corn` | Frozen Corn |
-| `ice_cream` | Ice Cream |
-| `orange_juice` | Orange Juice |
-| `unknown` | Unknown / Fallback |
+| image_key        | Item               |
+| ---------------- | ------------------ |
+| `chicken_breast` | Chicken Breast     |
+| `chicken_thigh`  | Chicken Thigh      |
+| `beef_mince`     | Beef Mince         |
+| `beef_steak`     | Beef Steak         |
+| `pork_chop`      | Pork Chop          |
+| `salmon`         | Salmon             |
+| `tuna_can`       | Canned Tuna        |
+| `shrimp`         | Shrimp             |
+| `whole_milk`     | Whole Milk         |
+| `yoghurt`        | Yoghurt            |
+| `butter`         | Butter             |
+| `cheddar_cheese` | Cheddar Cheese     |
+| `eggs`           | Eggs               |
+| `heavy_cream`    | Heavy Cream        |
+| `spinach`        | Spinach            |
+| `broccoli`       | Broccoli           |
+| `carrot`         | Carrot             |
+| `onion`          | Onion              |
+| `garlic`         | Garlic             |
+| `tomato`         | Tomato             |
+| `capsicum`       | Capsicum           |
+| `mushroom`       | Mushroom           |
+| `potato`         | Potato             |
+| `sweet_potato`   | Sweet Potato       |
+| `lettuce`        | Lettuce            |
+| `cucumber`       | Cucumber           |
+| `lemon`          | Lemon              |
+| `lime`           | Lime               |
+| `apple`          | Apple              |
+| `banana`         | Banana             |
+| `strawberry`     | Strawberry         |
+| `pasta`          | Pasta              |
+| `rice`           | Rice               |
+| `bread`          | Bread              |
+| `flour`          | Flour              |
+| `oats`           | Oats               |
+| `soy_sauce`      | Soy Sauce          |
+| `olive_oil`      | Olive Oil          |
+| `tomato_sauce`   | Tomato Sauce       |
+| `coconut_milk`   | Coconut Milk       |
+| `frozen_peas`    | Frozen Peas        |
+| `frozen_corn`    | Frozen Corn        |
+| `ice_cream`      | Ice Cream          |
+| `orange_juice`   | Orange Juice       |
+| `unknown`        | Unknown / Fallback |
 
 ---
 
@@ -955,6 +1017,7 @@ Used on item cards in the inventory grid and in the item detail popup.
 Used as background images on recipe option cards in the recipe generation screen.
 
 **Specs**
+
 - Format: JPG
 - Size: 800x400px
 - Style: Atmospheric food photography or illustrated food scene — consistent mood across all images
@@ -963,15 +1026,15 @@ Used as background images on recipe option cards in the recipe generation screen
 
 **Required cuisine images**
 
-| image_key | Cuisine |
-|---|---|
-| `cuisine_asian` | Asian |
-| `cuisine_mediterranean` | Mediterranean |
-| `cuisine_western` | Western |
-| `cuisine_mexican` | Mexican |
-| `cuisine_indian` | Indian |
-| `cuisine_middle_eastern` | Middle Eastern |
-| `cuisine_general` | General / No preference (fallback) |
+| image_key                | Cuisine                            |
+| ------------------------ | ---------------------------------- |
+| `cuisine_asian`          | Asian                              |
+| `cuisine_mediterranean`  | Mediterranean                      |
+| `cuisine_western`        | Western                            |
+| `cuisine_mexican`        | Mexican                            |
+| `cuisine_indian`         | Indian                             |
+| `cuisine_middle_eastern` | Middle Eastern                     |
+| `cuisine_general`        | General / No preference (fallback) |
 
 ---
 
@@ -980,6 +1043,7 @@ Used as background images on recipe option cards in the recipe generation screen
 Used throughout the app for buttons, navigation, and status indicators.
 
 **Specs**
+
 - Format: SVG
 - Size: 24x24px base, scalable
 - Style: Outlined, consistent stroke weight
@@ -987,20 +1051,20 @@ Used throughout the app for buttons, navigation, and status indicators.
 
 **Required icons**
 
-| Filename | Used For |
-|---|---|
-| `icon_plus.svg` | Add item button (front page) |
-| `icon_chef.svg` | Recipe generation button (front page) |
-| `icon_arrow_left.svg` | Carousel left navigation |
-| `icon_arrow_right.svg` | Carousel right navigation |
-| `icon_trash.svg` | Delete / throw away item |
-| `icon_edit.svg` | Edit item fields |
-| `icon_check.svg` | Confirm / save action |
-| `icon_close.svg` | Dismiss popup or modal |
-| `icon_flame.svg` | Streak indicator on status page |
-| `icon_star.svg` | Score indicator on status page |
-| `icon_leaf.svg` | Waste saved indicator on status page |
-| `icon_back.svg` | Back navigation in recipe modal |
+| Filename               | Used For                              |
+| ---------------------- | ------------------------------------- |
+| `icon_plus.svg`        | Add item button (front page)          |
+| `icon_chef.svg`        | Recipe generation button (front page) |
+| `icon_arrow_left.svg`  | Carousel left navigation              |
+| `icon_arrow_right.svg` | Carousel right navigation             |
+| `icon_trash.svg`       | Delete / throw away item              |
+| `icon_edit.svg`        | Edit item fields                      |
+| `icon_check.svg`       | Confirm / save action                 |
+| `icon_close.svg`       | Dismiss popup or modal                |
+| `icon_flame.svg`       | Streak indicator on status page       |
+| `icon_star.svg`        | Score indicator on status page        |
+| `icon_leaf.svg`        | Waste saved indicator on status page  |
+| `icon_back.svg`        | Back navigation in recipe modal       |
 
 ---
 
@@ -1009,12 +1073,13 @@ Used throughout the app for buttons, navigation, and status indicators.
 Used on the landing animation screen.
 
 **Specs**
+
 - Format: SVG (preferred for scalability) or PNG
 - Size: fills screen width on a 375px mobile viewport
 - Style: Flat, minimal illustration — off-white door body, pill-shaped handle on the right edge, subtle fridge/freezer dividing line
 - Two states required:
-  - `fridge_door_closed.svg` — default state shown on load
-  - The open state is achieved via CSS `rotateY` transform on the same asset, no separate open illustration needed
+    - `fridge_door_closed.svg` — default state shown on load
+    - The open state is achieved via CSS `rotateY` transform on the same asset, no separate open illustration needed
 - Location: `frontend/public/assets/`
 
 ---
@@ -1022,11 +1087,13 @@ Used on the landing animation screen.
 ### 7.5 App Icon & Branding
 
 **Required**
+
 - App icon: 512x512px PNG, used for PWA manifest and home screen install
 - Favicon: 32x32px PNG
 - Wordmark or logo lockup for the splash/loading state (optional, nice to have)
 
 **Naming**
+
 - `frontend/public/icon-512.png`
 - `frontend/public/favicon.png`
 
