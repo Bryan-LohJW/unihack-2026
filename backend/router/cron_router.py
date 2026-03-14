@@ -32,11 +32,11 @@ def init_cron_routes(db):
             cuisine = [str(cuisine)] if cuisine else []
         dietary_requirements = data.get("dietary_requirements", data.get("dietary")) or []
         if not isinstance(dietary_requirements, list):
-            dietary_requirements = [str(dietary_requirements)] if dietary_requirements else []
-        headcount = max(1, int(data.get("headcount", data.get("quantity", data.get("defaultServings", 1))) or 1))
+            dietary_requirements = [
+                str(dietary_requirements)] if dietary_requirements else []
 
         payload, status = recipe_suggestion_service.run_cron_suggestions(
-            cuisine, dietary_requirements, headcount)
+            data.get("cuisine", []), data.get("dietary", []), data.get("defaultServings", 0))
 
         return jsonify(payload), status
 

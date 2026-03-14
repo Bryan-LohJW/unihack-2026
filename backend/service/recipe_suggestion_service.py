@@ -4,6 +4,7 @@ from ai_models.generate_recipe import generate_recipe
 from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 from mongo_collection.repository.recipe_suggestion_repository import RecipeSuggestionRepository
 from mongo_collection.repository.inventory_repository import InventoryRepository
+from mongo_collection.repository.preference_repository import PreferenceRepository
 from service.llm_client import suggest_recipes_from_inventory
 
 
@@ -11,6 +12,7 @@ class RecipeSuggestionService:
     def __init__(self, db):
         self.repo = RecipeSuggestionRepository(db)
         self.inventory_repo = InventoryRepository(db)
+        self.preference_repo = PreferenceRepository(db)
 
     def run_cron_suggestions(self,
                              cuisine: list[str],
@@ -25,6 +27,15 @@ class RecipeSuggestionService:
         inventory_items = self.inventory_repo.find_in_fridge()
         if not inventory_items:
             return ({"error": "No inventory items found"}, 404)
+
+        # headcount <= 0 is a flag condition when the logic is triggered by background cron instead of user actively requesting.
+        if headcount <= 0 or (not cuisine and not dietary_requirements):
+            prefs = self.preference_repo.find_one()
+            if prefs:
+                headcount = prefs.get("default_service", 1)
+                cuisine = list(prefs.get("cuisine", [])) or []
+                dietary_requirements = list(prefs.get("dietary", [])) or []
+
 
         result = generate_recipe(
             inventory_items,

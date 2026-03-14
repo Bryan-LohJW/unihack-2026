@@ -166,13 +166,13 @@ export default function RecipePrefsModal({ isOpen, onClose, onSave, saveButtonTe
                       <button
                         key={cuisine}
                         onClick={() => toggleCuisine(cuisine)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all border-2 ${
                           isSelected
-                            ? "bg-[#187A4F] text-white border-[#187A4F] shadow-md shadow-[#187A4F]/20"
+                            ? "bg-emerald-50 text-[#187A4F] border-[#187A4F] shadow-md shadow-[#187A4F]/25"
                             : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
                         }`}
                       >
-                        {isSelected && <Check size={14} strokeWidth={3} />}
+                        {isSelected && <Check size={14} strokeWidth={3} className="text-[#187A4F]" />}
                         {cuisine}
                       </button>
                     );
@@ -211,13 +211,13 @@ export default function RecipePrefsModal({ isOpen, onClose, onSave, saveButtonTe
                       <button
                         key={diet}
                         onClick={() => toggleDiet(diet)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all border-2 ${
                           isSelected
-                            ? "bg-[#3A4D5C] text-white border-[#3A4D5C] shadow-md"
+                            ? "bg-emerald-50 text-[#187A4F] border-[#187A4F] shadow-md shadow-[#187A4F]/25"
                             : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
                         }`}
                       >
-                        {isSelected && <Check size={14} strokeWidth={3} />}
+                        {isSelected && <Check size={14} strokeWidth={3} className="text-[#187A4F]" />}
                         {diet}
                       </button>
                     );
@@ -230,7 +230,7 @@ export default function RecipePrefsModal({ isOpen, onClose, onSave, saveButtonTe
                         onChange={(e) => setCustomInput(e.target.value)}
                         onBlur={handleAddCustomDiet}
                         placeholder="Type & Enter..."
-                        className="px-4 py-2 rounded-xl text-sm font-bold border-2 border-[#3A4D5C] outline-none w-32 text-gray-700 bg-white"
+                        className="px-4 py-2 rounded-xl text-sm font-bold border-2 border-[#187A4F] outline-none w-32 text-gray-700 bg-white"
                       />
                     </form>
                   ) : (

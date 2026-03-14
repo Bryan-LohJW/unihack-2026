@@ -62,6 +62,21 @@ function App() {
   const [toastMessage, setToastMessage] = useState(null);
   const [karmaAnimationTrigger, setKarmaAnimationTrigger] = useState(0);
   const [isCookPrefsOpen, setIsCookPrefsOpen] = useState(false);
+  const [cookPrefsInitial, setCookPrefsInitial] = useState(null);
+
+  useEffect(() => {
+    if (!isCookPrefsOpen) return;
+    apiAxios
+      .get("/preference")
+      .then((data) => {
+        setCookPrefsInitial({
+          defaultServings: data.default_serving ?? 1,
+          cuisine: data.cuisine ?? [],
+          dietary: data.dietary ?? [],
+        });
+      })
+      .catch(() => setCookPrefsInitial(null));
+  }, [isCookPrefsOpen]);
 
   const handleCookClick = useCallback(() => {
     setIsCookPrefsOpen(true);
@@ -69,6 +84,12 @@ function App() {
 
   const handleCookPrefsSave = useCallback((prefs) => {
     setIsCookPrefsOpen(false);
+    const apiPrefs = {
+      default_serving: prefs.defaultServing,
+      cuisine: prefs.cuisine ?? [],
+      dietary: prefs.dietary ?? [],
+    };
+    apiAxios.put("/preference", apiPrefs).catch(() => {});
     setToastMessage(
       "Generating recipe. Please check your notification once recipe suggestions are ready."
     );
@@ -80,13 +101,14 @@ function App() {
   }, []);
 
   const handleAddItem = (item) => {
-    if (item.category === "fridge") {
+    const section = item?.section ?? item?.category;
+    if (section === "fridge" && item) {
       const items = JSON.parse(localStorage.getItem("fridgeItems") || "[]");
-      items.push({ name: item.name, expiry: item.expiry });
+      items.push({ name: item.name, expiry: item.expiry_date ?? item.expiry });
       localStorage.setItem("fridgeItems", JSON.stringify(items));
-    } else {
+    } else if (item) {
       const items = JSON.parse(localStorage.getItem("pantryItems") || "[]");
-      items.push({ name: item.name, quantity: item.quantity });
+      items.push({ name: item.name, quantity: item.qty ?? item.quantity });
       localStorage.setItem("pantryItems", JSON.stringify(items));
     }
     setRefresh((prev) => prev + 1);
@@ -99,7 +121,7 @@ function App() {
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 overflow-scroll pt-19">
           <div className="h-full">
-            {currentView === "home" && <HomePage key={refresh} />}
+            {currentView === "home" && <HomePage key={refresh} onShowToast={setToastMessage} />}
             {currentView === "freezer" && <div>Freezer - Coming Soon</div>}
             {currentView === "pantry" && <Pantry key={refresh} />}
             {currentView === "status" && <div>My Status - Coming Soon</div>}
@@ -113,7 +135,7 @@ function App() {
                 onKarmaChange={() => setKarmaAnimationTrigger((t) => t + 1)}
               />
             )}
-            {currentView === "pre-add" && <PreAddIngredients onNavigate={handleNavigate} data={navPayload} />}
+            {currentView === "pre-add" && <PreAddIngredients onNavigate={handleNavigate} data={navPayload} onShowToast={setToastMessage} />}
           </div>
         </div>
 
@@ -124,12 +146,13 @@ function App() {
 
         <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />
 
-        <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} onNavigate={handleNavigate} />
+        <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} onNavigate={handleNavigate} onShowToast={setToastMessage} />
         <RecipePrefsModal
           isOpen={isCookPrefsOpen}
           onClose={() => setIsCookPrefsOpen(false)}
           onSave={handleCookPrefsSave}
           saveButtonText="Generate Recipes"
+          initialPrefs={cookPrefsInitial}
         />
       </div>
     </Router>

@@ -1,9 +1,9 @@
 import MainInventory from "../components/Fridge/MainInventory";
 
-const HomePage = () => {
+const HomePage = ({ onShowToast }) => {
   return (
     <div className="relative w-full aspect-[3/5] shadow-2xl cursor-pointer">
-      <MainInventory />
+      <MainInventory onShowToast={onShowToast} />
     </div>
   );
 };

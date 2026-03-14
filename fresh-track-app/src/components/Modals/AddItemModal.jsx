@@ -17,7 +17,7 @@ import {
 import Webcam from "react-webcam";
 import { apiAxios } from "../../api";
 
-const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
+const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate, onShowToast }) => {
   const [mode, setMode] = useState("manual");
   const [formData, setFormData] = useState({
     name: "",
@@ -145,8 +145,9 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
         expiry_days: computeExpiryDays(formData.expiry),
         calories: 0,
       };
-      const { data } = await apiAxios.post("/inventory", payload);
-      onAddItem(data);
+      const doc = await apiAxios.post("/inventory", payload);
+      onAddItem(doc);
+      onShowToast?.("Item added to inventory.");
       onClose();
       setFormData({
         name: "",

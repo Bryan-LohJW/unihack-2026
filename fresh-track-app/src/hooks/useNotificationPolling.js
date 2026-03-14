@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { apiAxios } from "../api";
-import { NOTIFICATION_POLL_INTERVAL_MINUTES } from "../constants";
+import { NOTIFICATION_POLL_INTERVAL_SECONDS } from "../constants";
 import { sendNotification } from "../notifications";
 
 // setInterval/setTimeout overflow above 2^31-1 ms; treat 0 as rapid firing
@@ -8,10 +8,7 @@ const MAX_SAFE_INTERVAL_MS = 2147483647;
 const MIN_SAFE_INTERVAL_MS = 60000; // 1 minute floor
 const POLL_INTERVAL_MS = Math.max(
   MIN_SAFE_INTERVAL_MS,
-  Math.min(
-    NOTIFICATION_POLL_INTERVAL_MINUTES * 60 * 1000,
-    MAX_SAFE_INTERVAL_MS,
-  ),
+  Math.min(NOTIFICATION_POLL_INTERVAL_SECONDS * 1000, MAX_SAFE_INTERVAL_MS),
 );
 
 async function showBrowserNotification(suggestionId, onClickCallback) {

@@ -6,11 +6,11 @@ import fresh_png from '../../assets/static/fresh.jpg' // Re-add if used later
 import InventoryGrid from '../Modals/InventoryGrid'
 import { getInventoryOverview, getAllInventory } from '../../api/inventory'
 
-const MainInventory = () => {
-	const [isOpen, setIsOpen] = useState(false)
-	const [inventoryData, setInventoryData] = useState([])
-	const [selectedShelf, setSelectedShelf] = useState(null)
-	const [isFetchingItems, setIsFetchingItems] = useState(false)
+const MainInventory = ({ onShowToast }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inventoryData, setInventoryData] = useState([]);
+  const [selectedShelf, setSelectedShelf] = useState(null);
+  const [isFetchingItems, setIsFetchingItems] = useState(false);
 
 	// 1. Fetch ONLY the overview counts on component mount
 	useEffect(() => {
@@ -298,11 +298,7 @@ const MainInventory = () => {
 
 				{/* Render the Modal */}
 				<InventoryGrid
-					isOpen={selectedShelf !== null}
-					onClose={() => setSelectedShelf(null)}
-					categoryTitle={selectedShelf?.title}
-					items={selectedShelf?.items || []}
-					isLoading={isFetchingItems}
+        isOpen={selectedShelf !== null} onClose={() => setSelectedShelf(null)} categoryTitle={selectedShelf?.title} items={selectedShelf?.items || []} isLoading={isFetchingItems} onShowToast={onShowToast} 
 				/>
 			</main>
 		</div>
