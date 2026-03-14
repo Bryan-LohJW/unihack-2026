@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Configure your theme variables here */
+  --font-display: "Inter", "sans-serif";
+  --color-primary-500: oklch(0.84 0.18 117.33);
+  --spacing: 0.25rem;
+}
+
+/* globals.css */
+:root {
+  --color-blue: #E4F5FF;
+  --color-white: #fcfbff;
+  --color-brown: #8A6955;
+  --color-black: #16171D;
+  
+  /* You can also create functional names for easier updates later */
+  --bg-primary: var(--color-white);
+  --accent-blue: var(--color-blue);
+  --text-main: var(--color-brown);
+}

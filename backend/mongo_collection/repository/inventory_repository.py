@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Any
 
 
@@ -13,8 +14,15 @@ class InventoryRepository:
             return None
         return self.collection.insert_many(docs)
 
-    def find_in_fridge(self):
-        return list(self.collection.find({"status": "in_fridge"}))
+    def find_in_fridge(self, section: str | None = None, expiry_within_days: int | None = None):
+        query: Dict[str, Any] = {}
+        if section is not None and section != "":
+            query["section"] = section
+        if expiry_within_days is not None:
+            threshold = datetime.now(timezone.utc) + \
+                timedelta(days=expiry_within_days)
+            query["expiry_date"] = {"$lte": threshold}
+        return list(self.collection.find(query))
 
     def find_one(self, object_id):
         return self.collection.find_one({"_id": object_id})
