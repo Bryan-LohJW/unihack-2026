@@ -10,8 +10,8 @@ from router.kitchen_karma_router import (
     init_kitchen_karma_routes,
     kitchen_karma_bp,
 )
-from router.recipe_router import init_recipe_routes, recipe_bp
 from router.llm_router import init_llm_routes, llm_bp
+from router.cron_router import init_cron_routes, cron_bp
 
 load_dotenv()
 
@@ -26,6 +26,7 @@ if not mongo_uri:
 
 client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
 db = client["fridge_db"]
+app.db = db
 
 # Register blueprints / routers
 init_health_routes(client)
@@ -37,12 +38,16 @@ app.register_blueprint(inventory_bp)
 init_kitchen_karma_routes(db)
 app.register_blueprint(kitchen_karma_bp)
 
-init_recipe_routes(db)
-app.register_blueprint(recipe_bp)
-
 init_llm_routes(db)
 app.register_blueprint(llm_bp)
 
+init_cron_routes(db)
+app.register_blueprint(cron_bp)
+
 
 if __name__ == "__main__":
+    # Start background scheduler only in the process that runs the app (avoid duplicate in reloader)
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        from scheduler import start_scheduler
+        start_scheduler(app)
     app.run(debug=True, port=5001)
