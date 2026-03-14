@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { useNotificationPolling } from "./hooks/useNotificationPolling";
 import WasteTrackPage from "./pages/WasteTrackPage";
 import PantryPage from "./pages/PantryPage";
 import PointsPage from "./pages/PointsPage";
@@ -26,7 +27,24 @@ function App() {
   const handleNavigate = (view, payload = null) => {
     setNavPayload(payload);
     setCurrentView(view);
+    if (view === "cook") {
+      const url = new URL(window.location.href);
+      if (payload?.suggestion_id) {
+        url.searchParams.set("suggestion_id", payload.suggestion_id);
+      } else {
+        url.searchParams.delete("suggestion_id");
+      }
+      window.history.replaceState({}, "", url);
+    }
   };
+
+  useNotificationPolling((suggestionId) => {
+    if (suggestionId) {
+      handleNavigate("cook", { suggestion_id: suggestionId });
+    } else {
+      handleNavigate("cook");
+    }
+  });
 
   const handleAddItem = (item) => {
     if (item.category === "fridge") {

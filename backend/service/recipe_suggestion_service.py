@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 from mongo_collection.repository.recipe_suggestion_repository import RecipeSuggestionRepository
 from mongo_collection.repository.inventory_repository import InventoryRepository
@@ -30,9 +32,10 @@ class RecipeSuggestionService:
         if not suggestions_payload:
             return []
 
+        suggestion_id = str(ObjectId())
         docs = []
         for raw in suggestions_payload:
-            schema = RecipeSuggestionSchema.from_llm_response(raw)
+            schema = RecipeSuggestionSchema.from_llm_response(raw, suggestion_id=suggestion_id)
             docs.append(schema.to_document())
 
         self.repo.insert_many(docs)
