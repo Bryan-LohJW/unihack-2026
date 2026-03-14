@@ -15,6 +15,20 @@ inventory_bp = Blueprint("inventory", __name__, url_prefix="/inventory")
 def init_inventory_routes(db):
     service = InventoryService(db)
 
+    @inventory_bp.route("/batch", methods=["PATCH"])
+    def batch_update_qty():
+        data = request.json or {}
+        updates = data.get("updates", [])
+        if not isinstance(updates, list):
+            return jsonify({"error": "updates must be a list of {item_id, qty}"}), 400
+        result = service.batch_update_qty(updates)
+        result["updated"] = [reponse_serializer(
+            item) for item in result["updated"]]
+        result["deleted"] = [reponse_serializer(
+            item) for item in result["deleted"]]
+
+        return jsonify(result), 200
+
     @inventory_bp.route("/batch", methods=["POST"])
     def add_items_batch():
         data = request.json

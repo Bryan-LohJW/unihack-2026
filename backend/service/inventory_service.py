@@ -50,6 +50,34 @@ class InventoryService:
         self.repo.update_one(oid, data or {})
         return self.repo.find_one(oid)
 
+    def batch_update_qty(self, updates: list[dict]) -> dict:
+        updated_items = []
+        deleted_items = []
+        for entry in updates:
+            item_id = entry.get("item_id")
+            qty = entry.get("qty")
+            if item_id is None:
+                continue
+            try:
+                oid = ObjectId(item_id)
+            except Exception:
+                continue
+            existing = self.repo.find_one(oid)
+            if not existing:
+                continue
+            new_qty = int(qty) if qty is not None else existing.get("qty", 1)
+            if new_qty <= 0:
+                consumed_qty = int(existing.get("qty", 1)) or 1
+                self.repo.delete_one(oid)
+                deleted_items.append({**existing, "_id": str(existing["_id"])})
+                self.karma_service.increment_consumed(consumed_qty)
+            else:
+                self.repo.update_one(oid, {"qty": new_qty})
+                updated = self.repo.find_one(oid)
+                if updated:
+                    updated_items.append(updated)
+        return {"updated": updated_items, "deleted": deleted_items}
+
     def delete_item(self, item_id: str, reason: str):
         oid = ObjectId(item_id)
         existing = self.repo.find_one(oid)
