@@ -14,6 +14,7 @@ import Navbar from "./components/navigations/Navbar";
 import AddButton from "./components/ActionButtons/AddButton";
 import CookButton from "./components/ActionButtons/CookButton";
 import HomePage from "./pages/HomePage";
+import CookPage from "./pages/CookPage";
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +48,7 @@ function App() {
             {currentView === "waste" && <WasteTrackPage />}
             {currentView === "points" && <PointsPage />}
             {currentView === "search" && <div>Search - Coming Soon</div>}
-            {currentView === "cook" && <div>Recipes - Coming Soon</div>}
+            {currentView === "cook" && <CookPage />}
           </div>
         </div>
 
