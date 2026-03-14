@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import InventoryItem from "../Fridge/InventoryItem"; // Adjust path as needed
-import DetailedInventoryModal from "./DetailedInventoryModal"; // Adjust path as needed
+import InventoryItem from "../Fridge/InventoryItem";
+import DetailedInventoryModal from "./DetailedInventoryModal";
+import { updateInventoryItem, deleteInventoryItem } from "../../api/inventory";
 
 const sortByHealth = (items) =>
   [...items].sort((a, b) => {
@@ -10,14 +11,45 @@ const sortByHealth = (items) =>
   });
 
 const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
-  // 1. State to track the specific item clicked for the detailed view
+  const [localItems, setLocalItems] = useState(items);
   const [selectedItem, setSelectedItem] = useState(null);
-  const sortedItems = sortByHealth(items);
 
-  // Helper to close the main grid ONLY if the detail modal isn't open
+  // Sync localItems when the parent passes new items (e.g. different shelf opened)
+  useEffect(() => {
+    setLocalItems(items);
+  }, [items]);
+
+  const sortedItems = sortByHealth(localItems);
+
   const handleGridClose = () => {
     if (!selectedItem) {
       onClose();
+    }
+  };
+
+  const handleSave = async (updatedItem) => {
+    try {
+      const saved = await updateInventoryItem(updatedItem._id, {
+        qty: updatedItem.qty,
+        expiry_date: updatedItem.expiry_date,
+        section: updatedItem.section,
+      });
+      setLocalItems((prev) => prev.map((i) => (i._id === saved._id ? saved : i)));
+    } catch (err) {
+      console.error("Failed to save item:", err);
+    } finally {
+      setSelectedItem(null);
+    }
+  };
+
+  const handleDelete = async (itemToDelete) => {
+    try {
+      await deleteInventoryItem(itemToDelete._id);
+      setLocalItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    } finally {
+      setSelectedItem(null);
     }
   };
 
@@ -25,8 +57,8 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
     <>
       <AnimatePresence>
         {isOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" onClick={handleGridClose}>
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md max-h-[85vh] flex flex-col bg-white/95 backdrop-blur-md p-6 rounded-[2rem] shadow-2xl border border-white overflow-hidden">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" onClick={handleGridClose}>
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md max-h-[85vh] flex flex-col bg-white/95 backdrop-blur-md p-6 rounded-4xl shadow-2xl border border-white overflow-hidden">
               {/* Modal Header */}
               <div className="shrink-0 flex justify-between items-center mb-6 px-2">
                 <h2 className="text-lg font-black text-slate-700 tracking-widest uppercase">{categoryTitle}</h2>
@@ -37,14 +69,12 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
 
               {/* Scrollable Container */}
               <div className="flex-1 overflow-y-auto pr-2 pb-4 -mr-2">
-                {/* 3x3 Grid Layout */}
                 <div className="grid grid-cols-3 gap-3">
                   {sortedItems.length > 0 ? (
                     sortedItems.map((item, index) => (
                       <InventoryItem
-                        key={item.id || index}
+                        key={item._id || index}
                         item={item}
-                        // 2. We pass the function down to the item!
                         onClick={(clickedItem) => setSelectedItem(clickedItem)}
                       />
                     ))
@@ -58,16 +88,12 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [] }) => {
         )}
       </AnimatePresence>
 
-      {/* 3. Render the Detailed Modal on top */}
       <DetailedInventoryModal
         isOpen={selectedItem !== null}
         onClose={() => setSelectedItem(null)}
         item={selectedItem}
-        onSave={(updatedItem) => {
-          console.log("Saving item:", updatedItem);
-          // Here you would eventually update your main state/database
-          setSelectedItem(null); // Close the detail modal after saving
-        }}
+        onSave={handleSave}
+        onDelete={handleDelete}
       />
     </>
   );
