@@ -147,8 +147,8 @@ export default function CookPage() {
       </button>
 
       {/* Header Area */}
-      <div className="px-6 pt-6 pb-4 bg-white shadow-sm sticky top-0 z-10">
-        <div className="flex justify-between items-center mb-6 pr-12"> {/* Added pr-12 so text doesn't hit the floating button */}
+      <div className="px-6 pt-6 pb-1 bg-white shadow-sm top-0 z-10">
+        <div className="flex justify-between items-center mb-1 pr-12"> {/* Added pr-12 so text doesn't hit the floating button */}
           <h1 className="text-3xl font-black text-gray-800 flex items-center gap-2">
             Recipes just for you
           </h1>
@@ -167,9 +167,12 @@ export default function CookPage() {
       </div>
 
       {/* --- PREFERENCES MODAL (BOTTOM SHEET) --- */}
+      {/* --- PREFERENCES MODAL (CENTERED DIALOG) --- */}
       <AnimatePresence>
         {isPrefsOpen && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+          // 1. Changed items-end to items-center and added global p-4
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -181,11 +184,14 @@ export default function CookPage() {
 
             {/* Modal Content */}
             <motion.div
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+              // 2. Changed animation from a bottom-slide to a subtle scale/fade-in
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              
+              // 3. Changed rounded-t-3xl to rounded-3xl for all corners
+              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
             >
               <div className="flex justify-between items-center p-6 border-b border-gray-100 shrink-0">
                 <h2 className="text-2xl font-black text-gray-900">Preferences</h2>
@@ -269,7 +275,7 @@ export default function CookPage() {
                           autoFocus
                           value={customInput}
                           onChange={(e) => setCustomInput(e.target.value)}
-                          onBlur={handleAddCustomCuisine} // Saves if they click away
+                          onBlur={handleAddCustomCuisine}
                           placeholder="Type & Enter..."
                           className="px-4 py-2 rounded-xl text-sm font-bold border-2 border-[#187A4F] outline-none w-32 text-gray-700 bg-white"
                         />
