@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera as CameraIcon, Edit3, Calendar, Hash, Tag, UploadCloud, ChevronRight, AlertCircle, ScanLine, Aperture, ChevronDown } from 'lucide-react';
 import Webcam from "react-webcam";
 
-const AddItemModal = ({ isOpen, onClose, onAddItem }) => {
+const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
   const [mode, setMode] = useState('manual');
   const [formData, setFormData] = useState({
     name: '',
@@ -64,7 +64,9 @@ const AddItemModal = ({ isOpen, onClose, onAddItem }) => {
     } else if (mode === 'camera') {
       alert('Photo captured! AI analysis coming soon.');
     } else {
-      alert('Receipt uploaded! AI analysis coming soon.');
+      onClose();
+      onNavigate('pre-add');
+      return;
     }
     
     onClose();
