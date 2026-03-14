@@ -113,9 +113,6 @@ nav {
     margin-right: 0;
   }
 
-  button {
-    width: 100%;
-  }
 
   li {
     flex-direction: column;

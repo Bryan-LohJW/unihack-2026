@@ -12,6 +12,8 @@ import "./globals/globals.css";
 import "./App.css";
 import StorageCarousel from "./components/StorageCarousel";
 import Navbar from "./components/Navbar";
+import AddButton from "./components/ActionButtons/AddButton";
+import CookButton from "./components/ActionButtons/CookButton";
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,7 +51,11 @@ function App() {
           </div>
         </div>
 
-        <BottomNav onAddClick={() => setIsModalOpen(true)} onChange={setCurrentView} />
+        <div>
+          <AddButton onClick={() => setIsModalOpen(true)} />
+          <CookButton onClick={() => setCurrentView("recipes")} />
+        </div>
+
         <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} />
       </div>
     </Router>
