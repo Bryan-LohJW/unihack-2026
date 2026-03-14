@@ -6,6 +6,7 @@ self.addEventListener('message', event => {
     self.registration.showNotification(event.data.title, {
       body: event.data.body,
       icon: '/icon-192.png',
+      data: { suggestionId: event.data.suggestionId },
     });
   }
 });

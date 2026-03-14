@@ -23,11 +23,13 @@ export async function setupNotifications() {
   console.log('Notifications ready.');
 }
 
-export async function sendNotification(title, body) {
+export async function sendNotification(title, body, suggestionId) {
   // Use service worker if one is actively controlling the page
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({ type: 'NOTIFY', title, body });
+    navigator.serviceWorker.controller.postMessage({ type: 'NOTIFY', title, body, suggestionId });
+    return null;
   } else {
-    new Notification(title, { body });
+    // Return notification so caller can attach onclick
+    return new Notification(title, { body });
   }
 }

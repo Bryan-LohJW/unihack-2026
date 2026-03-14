@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useNotificationPolling } from "./hooks/useNotificationPolling";
 import WasteTrackPage from "./pages/WasteTrackPage";
@@ -45,6 +45,16 @@ function App() {
       handleNavigate("cook");
     }
   });
+
+  useEffect(() => {
+    const handleSWMessage = (event) => {
+      if (event.data?.type === "navigate" && event.data?.view === "cook") {
+        handleNavigate("cook", event.data.suggestionId ? { suggestion_id: event.data.suggestionId } : null);
+      }
+    };
+    navigator.serviceWorker?.addEventListener("message", handleSWMessage);
+    return () => navigator.serviceWorker?.removeEventListener("message", handleSWMessage);
+  }, []);
 
   const handleAddItem = (item) => {
     if (item.category === "fridge") {

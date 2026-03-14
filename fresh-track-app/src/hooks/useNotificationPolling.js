@@ -5,12 +5,19 @@ import { sendNotification } from "../notifications";
 
 const POLL_INTERVAL_MS = NOTIFICATION_POLL_INTERVAL_MINUTES * 60 * 1000;
 
-async function showBrowserNotification() {
+async function showBrowserNotification(suggestionId, onClickCallback) {
   const title = "FreshTrack";
   const body =
     "Some items in your inventory are expiring soon. Use these recipe suggestions!";
 
-  await sendNotification(title, body);
+  const notification = await sendNotification(title, body, suggestionId);
+  if (notification) {
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+      onClickCallback?.(suggestionId);
+    };
+  }
 }
 
 export function useNotificationPolling(onNotificationClick) {
@@ -33,7 +40,7 @@ export function useNotificationPolling(onNotificationClick) {
 
         console.log("notification sent", suggestion.suggestion_id);
 
-        showBrowserNotification();
+        showBrowserNotification(suggestion.suggestion_id, onClickRef.current);
       } catch {
         // ignore poll errors
       }
