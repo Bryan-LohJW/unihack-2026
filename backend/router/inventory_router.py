@@ -1,7 +1,11 @@
+from datetime import datetime, timezone
+
 from flask import Blueprint, request, jsonify
 
 from constant.enum import DeleteReason
 from service.inventory_service import InventoryService
+from service.llm_client import infer_expiry_single
+from util.logger import log_event
 from util.util import reponse_serializer
 
 
@@ -62,6 +66,69 @@ def init_inventory_routes(db):
             return jsonify({"error": "Item not found"}), 404
 
         return jsonify(reponse_serializer(item)), 200
+
+    @inventory_bp.route("/add", methods=["POST"])
+    def add_item_with_expiry():
+        """PRD §12 — POST /inventory/add with LLM expiry inference."""
+        data = request.get_json(force=True)
+        user_id = data.get("user_id", "")
+        item_name = data.get("item")
+        qty = data.get("qty", 1)
+        unit = data.get("unit", "pieces")
+
+        if not item_name:
+            return jsonify({"error": "item is required"}), 400
+
+        now = datetime.now(timezone.utc)
+        added_at = now.isoformat()
+
+        # Infer expiry via Gemini Flash
+        expiry_info = infer_expiry_single(item_name, added_at)
+        method = "llm"
+        expiry_days = expiry_info.get("expiry_days", 7)
+        expiry_date_str = expiry_info.get("expiry_date")
+        try:
+            expiry_date = datetime.fromisoformat(expiry_date_str)
+            if expiry_date.tzinfo is None:
+                expiry_date = expiry_date.replace(tzinfo=timezone.utc)
+        except Exception:
+            from datetime import timedelta
+            expiry_date = now + timedelta(days=expiry_days)
+            method = "fallback"
+
+        doc_data = {
+            "name": item_name,
+            "calories": 0,
+            "section": "fridge",
+            "expiry_days": expiry_days,
+            "qty": qty,
+            "image_url": None,
+            "user_id": user_id,
+            "unit": unit,
+        }
+        doc = service.create_item(doc_data)
+
+        # Update the doc with the inferred expiry_date
+        from bson import ObjectId
+        service.update_item(str(doc["_id"]), {
+            "expiry_date": expiry_date,
+            "expiry_days": expiry_days,
+        })
+        doc["expiry_date"] = expiry_date
+        doc["expiry_days"] = expiry_days
+
+        log_event(
+            event_type="expiry_inferred",
+            user_id=user_id,
+            session_id="",
+            payload={
+                "item_name": item_name,
+                "inferred_expiry_date": expiry_date.isoformat(),
+                "method": method,
+            },
+        )
+
+        return jsonify(reponse_serializer(doc)), 201
 
     return inventory_bp
 
