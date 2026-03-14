@@ -32,10 +32,9 @@ function mapApiRecipeToCard(apiRecipe) {
   return {
     id: apiRecipe.id,
     title: apiRecipe.menu || "Recipe",
-    description:
-      apiRecipe.cuisine_type?.trim()
-        ? `A ${apiRecipe.cuisine_type} dish based on your inventory.`
-        : "AI-generated recipe based on your inventory.",
+    description: apiRecipe.cuisine_type?.trim()
+      ? `A ${apiRecipe.cuisine_type} dish based on your inventory.`
+      : "AI-generated recipe based on your inventory.",
     time: "—",
     servings: apiRecipe.headcount ?? 1,
     difficulty: "medium",
@@ -74,8 +73,9 @@ export default function CookPage() {
   const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
-    const suggestionId =
-      new URL(window.location.href).searchParams.get("suggestion_id");
+    const suggestionId = new URL(window.location.href).searchParams.get(
+      "suggestion_id",
+    );
 
     const fetchRecipes = async (sid) => {
       if (!sid) {
@@ -101,20 +101,11 @@ export default function CookPage() {
       }
     };
 
-    if (suggestionId) {
-      fetchRecipes(suggestionId);
-    } else {
-      apiAxios
-        .get("/notifications/latest")
-        .then((res) => {
-          const sid = res.data?.suggestion?.suggestion_id;
-          fetchRecipes(sid || null);
-        })
-        .catch(() => {
-          setRecipes([]);
-          setIsLoading(false);
-        });
+    if (!suggestionId) {
+      return;
     }
+
+    fetchRecipes(suggestionId);
   }, []);
 
   // Modal State
@@ -284,41 +275,8 @@ export default function CookPage() {
               </div>
 
               <div className="p-6 overflow-y-auto space-y-8 custom-scrollbar">
-                {/* 1. Family Members & Default Servings (Grid) */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <label className="text-sm font-bold text-gray-700">
-                      Family Size
-                    </label>
-                    <div className="flex items-center justify-between bg-gray-50 p-1.5 rounded-xl border border-gray-200">
-                      <button
-                        onClick={() =>
-                          setPrefs((p) => ({
-                            ...p,
-                            familyMembers: Math.max(1, p.familyMembers - 1),
-                          }))
-                        }
-                        className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm active:scale-95"
-                      >
-                        <Minus size={16} strokeWidth={3} />
-                      </button>
-                      <span className="font-bold text-lg">
-                        {prefs.familyMembers}
-                      </span>
-                      <button
-                        onClick={() =>
-                          setPrefs((p) => ({
-                            ...p,
-                            familyMembers: p.familyMembers + 1,
-                          }))
-                        }
-                        className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm active:scale-95"
-                      >
-                        <Plus size={16} strokeWidth={3} />
-                      </button>
-                    </div>
-                  </div>
-
+                {/* 1. Default Servings */}
+                <div>
                   <div className="space-y-3">
                     <label className="text-sm font-bold text-gray-700">
                       Default Servings
