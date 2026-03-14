@@ -7,7 +7,8 @@ class RecipeSuggestionSchema:
     """
     Schema for LLM-generated recipe suggestions.
     Fields: menu, headcount, cuisine_type, nutrition_per_person,
-    ingredients (list of {name, qty}), ingredients_to_buy (list of {name, qty}).
+    ingredients (list of {name, qty}), ingredients_to_buy (list of {name, qty}),
+    instruction (list of str), image_url (str).
     """
 
     def __init__(
@@ -18,6 +19,8 @@ class RecipeSuggestionSchema:
         nutrition_per_person: dict[str, Any],
         ingredients: list[dict[str, Any]],
         ingredients_to_buy: list[dict[str, Any]],
+        instruction: list[str] | None = None,
+        image_url: str | None = None,
         suggestion_id: str | None = None,
         _id: Any = None,
         created_at: datetime | None = None,
@@ -30,6 +33,8 @@ class RecipeSuggestionSchema:
         self.nutrition_per_person = nutrition_per_person or {}
         self.ingredients = list(ingredients or [])
         self.ingredients_to_buy = list(ingredients_to_buy or [])
+        self.instruction = list(instruction or [])
+        self.image_url = image_url or ""
         self.created_at = created_at or datetime.now(timezone.utc)
 
     @staticmethod
@@ -43,6 +48,8 @@ class RecipeSuggestionSchema:
             nutrition_per_person=data.get("nutrition_per_person") or {},
             ingredients=data.get("ingredients") or [],
             ingredients_to_buy=data.get("ingredients_to_buy") or [],
+            instruction=data.get("instruction") or [],
+            image_url=data.get("image_url") or "",
         )
 
     def to_document(self) -> dict:
@@ -54,6 +61,8 @@ class RecipeSuggestionSchema:
             "nutrition_per_person": self.nutrition_per_person,
             "ingredients": self.ingredients,
             "ingredients_to_buy": self.ingredients_to_buy,
+            "instruction": self.instruction,
+            "image_url": self.image_url,
             "created_at": self.created_at,
         }
         if self.suggestion_id is not None:
@@ -66,3 +75,19 @@ class RecipeSuggestionSchema:
         if isinstance(d.get("created_at"), datetime):
             d["created_at"] = d["created_at"].isoformat()
         return d
+
+    @staticmethod
+    def doc_to_api_recipe(doc: dict) -> dict:
+        """
+        Convert a mongo document to API response format. Single source of truth for
+        recipe API shape. Add new fields in to_document; they will appear here.
+        """
+        out = {}
+        for k, v in doc.items():
+            if k == "_id":
+                continue
+            if k == "created_at" and hasattr(v, "isoformat"):
+                v = v.isoformat()
+            out[k] = v
+        out["id"] = str(doc.get("_id", ""))
+        return out

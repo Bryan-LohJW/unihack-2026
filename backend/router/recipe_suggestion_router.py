@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 
 from mongo_collection.repository.recipe_suggestion_repository import RecipeSuggestionRepository
+from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 
 
 recipe_suggestion_bp = Blueprint(
@@ -28,18 +29,7 @@ def init_recipe_suggestion_routes(db):
                 if hasattr(d0.get("created_at"), "isoformat")
                 else d0.get("created_at")
             ),
-            "recipes": [
-                {
-                    "id": str(d["_id"]),
-                    "menu": d.get("menu"),
-                    "headcount": d.get("headcount"),
-                    "cuisine_type": d.get("cuisine_type"),
-                    "nutrition_per_person": d.get("nutrition_per_person"),
-                    "ingredients": d.get("ingredients"),
-                    "ingredients_to_buy": d.get("ingredients_to_buy"),
-                }
-                for d in batch_docs
-            ],
+            "recipes": [RecipeSuggestionSchema.doc_to_api_recipe(d) for d in batch_docs],
         }
         return jsonify({"suggestion": suggestion}), 200
 
