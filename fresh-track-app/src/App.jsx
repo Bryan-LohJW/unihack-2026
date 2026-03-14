@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useNotificationPolling } from "./hooks/useNotificationPolling";
+import { apiAxios } from "./api";
+import Toast from "./components/Toast";
 import WasteTrackPage from "./pages/WasteTrackPage";
 import PantryPage from "./pages/PantryPage";
 import PointsPage from "./pages/PointsPage";
@@ -56,6 +58,17 @@ function App() {
     return () => navigator.serviceWorker?.removeEventListener("message", handleSWMessage);
   }, []);
 
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const handleCookClick = useCallback(() => {
+    setToastMessage(
+      "Generating recipe. Please check your notification one recipe suggestions are ready."
+    );
+    apiAxios.post("/cron/recipe-suggestions").catch(() => {
+      setToastMessage("Failed to generate recipes. Please try again.");
+    });
+  }, []);
+
   const handleAddItem = (item) => {
     if (item.category === "fridge") {
       const items = JSON.parse(localStorage.getItem("fridgeItems") || "[]");
@@ -90,8 +103,10 @@ function App() {
 
         <div>
           <AddButton onClick={() => setIsModalOpen(true)} />
-          <CookButton onClick={() => setCurrentView("cook")} />
+          <CookButton onClick={handleCookClick} />
         </div>
+
+        <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />
 
         <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={handleAddItem} onNavigate={handleNavigate} />
       </div>

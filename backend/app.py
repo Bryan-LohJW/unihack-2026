@@ -16,11 +16,17 @@ from router.notifications_router import init_notifications_routes, notifications
 from router.recipe_router import init_recipe_routes, recipe_bp
 from router.recipe_router_2 import recipe_bp_2
 from db import mongo
+from router.recipe_suggestion_router import (
+    init_recipe_suggestion_routes,
+    recipe_suggestion_bp,
+)
 
 load_dotenv()
 
 app = Flask(__name__)
-_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").strip()
+# Allow both http and https localhost for Vite dev (often uses HTTPS)
+_default_origins = "http://localhost:5173,https://localhost:5173"
+_cors_origins = os.getenv("CORS_ORIGINS", _default_origins).strip()
 _cors_list = [o.strip() for o in _cors_origins.split(",") if o.strip()]
 CORS(app, origins=_cors_list, supports_credentials=True)
 
@@ -60,6 +66,8 @@ app.register_blueprint(cron_bp)
 init_notifications_routes(db)
 app.register_blueprint(notifications_bp)
 
+init_recipe_suggestion_routes(db)
+app.register_blueprint(recipe_suggestion_bp)
 init_recipe_routes(db)
 app.register_blueprint(recipe_bp)
 

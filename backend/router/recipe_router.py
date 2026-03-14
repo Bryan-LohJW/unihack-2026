@@ -2,9 +2,9 @@
 Recipe endpoints — PRD Section 12.
 
 POST /recipe/generate   — new recipe generation session
-POST /recipe/correct    — quantity correction within session
-POST /recipe/cooked     — mark recipe cooked, passive deduction
-POST /recipe/skip       — log that a recipe was skipped
+POST /recipe/correct    — quantity correction within session -- CAN DELETE
+POST /recipe/cooked     — mark recipe cooked, passive deduction -- CAN DELETE
+POST /recipe/skip       — log that a recipe was skipped -- CAN DELETEc
 """
 
 from datetime import datetime, timezone

@@ -15,6 +15,7 @@ from google import genai
 
 from ai_models.receipt_scanner import parse_receipt
 from ai_models.icon_image_mapping import map_items_to_icons
+from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 from service.urgency import run_urgency_ranking
 from service.spoonacular import fetch_spoonacular_candidates
 from util.logger import log_event
@@ -385,7 +386,7 @@ def rank_with_gemini(
 # Main entry point (PRD §11.1)
 # ---------------------------------------------------------------------------
 
-def suggest_recipes_from_inventory(inventory_items: list[dict]) -> dict:
+def suggest_recipes_from_inventory(inventory_items: list[dict]) -> list:
     """
     Suggest recipes based on current inventory. Prioritises by expiry urgency.
 
@@ -394,72 +395,38 @@ def suggest_recipes_from_inventory(inventory_items: list[dict]) -> dict:
                          Each dict contains: name, qty, expiry_date, section, added_at, etc.
 
     Returns:
-        Dict with keys: recipes, mode, user_message, expired_items_warning.
-        mode is one of "urgency", "standard", or "empty_fridge".
+        List of RecipeSuggestionSchema instances (suggestion_id will be assigned by caller).
+
+    TODO: Replace with real LLM/Spoonacular implementation.
     """
-    # 1. Urgency ranking
-    ranked_items, expired_warnings = run_urgency_ranking(inventory_items)
-
-    if not ranked_items:
-        return {
-            "recipes": [],
-            "mode": "empty_fridge",
-            "user_message": "Your fridge is looking pretty empty \u2014 try adding some items first.",
-            "expired_items_warning": expired_warnings,
-        }
-
-    has_urgent = any(i["urgency"] in ("CRITICAL", "HIGH") for i in ranked_items)
-    mode = "urgency" if has_urgent else "standard"
-
-    # 2. Spoonacular query + enrichment
-    candidates = fetch_spoonacular_candidates(ranked_items)
-    if not candidates:
-        return {
-            "recipes": [],
-            "mode": "empty_fridge",
-            "user_message": "Your fridge is looking pretty empty \u2014 try adding some items first.",
-            "expired_items_warning": expired_warnings,
-        }
-
-    # 3. LLM ranking via Gemini 2.5 Pro
-    llm_result = rank_with_gemini(
-        candidates=candidates,
-        ranked_items=ranked_items,
-        expired_warnings=expired_warnings,
-    )
-
-    # 4. Merge Spoonacular metadata back into LLM output + cap quantities
-    candidate_map = {c["id"]: c for c in candidates}
-    inv_qty = {i["item"].lower(): i["qty"] for i in ranked_items}
-    recipes = []
-    for recipe in llm_result.get("recipes", []):
-        rid = recipe.get("id")
-        spoon = candidate_map.get(rid, {})
-
-        # Cap ingredients_used to actual inventory quantities
-        for ing in recipe.get("ingredients_used", []):
-            item_key = ing.get("item", "").lower()
-            available = inv_qty.get(item_key)
-            if available is not None and ing.get("qty_used", 0) > available:
-                ing["qty_used"] = available
-
-        # Ensure missing_ingredients_count is present
-        # Extract the exact names directly from Spoonacular's data
-        missing_items = spoon.get("missed_ingredients", [])
-        recipe["missing_ingredients"] = [item.get("name") for item in missing_items]
-        recipe["missing_ingredients_count"] = len(recipe["missing_ingredients"])
-
-        recipe["cuisine_type"] = spoon.get("cuisine_type", "Unknown")
-        recipe["steps"] = spoon.get("steps", [])
-        recipe["prep_time_minutes"] = spoon.get("prep_time_minutes", 0)
-        recipe["servings"] = spoon.get("servings", 1)
-        if not recipe.get("image_url"):
-            recipe["image_url"] = spoon.get("image_url", "")
-        recipes.append(recipe)
-
-    return {
-        "recipes": recipes,
-        "mode": mode,
-        "user_message": None,
-        "expired_items_warning": expired_warnings,
-    }
+    # Dummy hardcoded list of RecipeSuggestionSchema instances
+    return [
+        RecipeSuggestionSchema(
+            menu="Grilled Cheese Sandwich",
+            headcount=2,
+            cuisine_type="American",
+            nutrition_per_person={"calories": 350, "protein": 12, "carbs": 30, "fat": 20},
+            ingredients=[{"name": "Bread", "qty": 4}, {"name": "Cheese", "qty": 2}],
+            ingredients_to_buy=[{"name": "Butter", "qty": "2 tbsp"}],
+            instruction=[
+                "Butter one side of each bread slice.",
+                "Place cheese between two slices, buttered sides out.",
+                "Grill in a pan over medium heat until golden, 2–3 min per side.",
+            ],
+            image_url="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800",
+        ),
+        RecipeSuggestionSchema(
+            menu="Tomato Pasta",
+            headcount=1,
+            cuisine_type="Italian",
+            nutrition_per_person={"calories": 450, "protein": 15, "carbs": 60, "fat": 15},
+            ingredients=[{"name": "Pasta", "qty": 100}, {"name": "Tomato", "qty": 2}],
+            ingredients_to_buy=[{"name": "Garlic", "qty": "2 cloves"}, {"name": "Olive oil", "qty": "1 tbsp"}],
+            instruction=[
+                "Boil pasta according to package directions.",
+                "Sauté garlic in olive oil, add chopped tomatoes, simmer 10 min.",
+                "Toss pasta with sauce and serve.",
+            ],
+            image_url="https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800",
+        ),
+    ]
