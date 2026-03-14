@@ -962,53 +962,42 @@ Used on item cards in the inventory grid and in the item detail popup.
 
 **Required ingredient images**
 
-| image_key        | Item               |
-| ---------------- | ------------------ |
-| `chicken_breast` | Chicken Breast     |
-| `chicken_thigh`  | Chicken Thigh      |
-| `beef_mince`     | Beef Mince         |
-| `beef_steak`     | Beef Steak         |
-| `pork_chop`      | Pork Chop          |
-| `salmon`         | Salmon             |
-| `tuna_can`       | Canned Tuna        |
-| `shrimp`         | Shrimp             |
-| `whole_milk`     | Whole Milk         |
-| `yoghurt`        | Yoghurt            |
-| `butter`         | Butter             |
-| `cheddar_cheese` | Cheddar Cheese     |
-| `eggs`           | Eggs               |
-| `heavy_cream`    | Heavy Cream        |
-| `spinach`        | Spinach            |
-| `broccoli`       | Broccoli           |
-| `carrot`         | Carrot             |
-| `onion`          | Onion              |
-| `garlic`         | Garlic             |
-| `tomato`         | Tomato             |
-| `capsicum`       | Capsicum           |
-| `mushroom`       | Mushroom           |
-| `potato`         | Potato             |
-| `sweet_potato`   | Sweet Potato       |
-| `lettuce`        | Lettuce            |
-| `cucumber`       | Cucumber           |
-| `lemon`          | Lemon              |
-| `lime`           | Lime               |
-| `apple`          | Apple              |
-| `banana`         | Banana             |
-| `strawberry`     | Strawberry         |
-| `pasta`          | Pasta              |
-| `rice`           | Rice               |
-| `bread`          | Bread              |
-| `flour`          | Flour              |
-| `oats`           | Oats               |
-| `soy_sauce`      | Soy Sauce          |
-| `olive_oil`      | Olive Oil          |
-| `tomato_sauce`   | Tomato Sauce       |
-| `coconut_milk`   | Coconut Milk       |
-| `frozen_peas`    | Frozen Peas        |
-| `frozen_corn`    | Frozen Corn        |
-| `ice_cream`      | Ice Cream          |
-| `orange_juice`   | Orange Juice       |
-| `unknown`        | Unknown / Fallback |
+| image_key         | Item                | Maps From                                            |
+| ----------------- | ------------------- | ---------------------------------------------------- |
+| `chicken`         | Chicken             | Chicken breast, chicken thigh, any chicken cut       |
+| `beef_mince`      | Beef Mince          | Mince, ground beef                                   |
+| `red_meat`        | Red Meat / Chop     | Beef steak, pork chop, lamb chop, any red meat cut   |
+| `fish`            | Fish                | Salmon, any fresh fish fillet                        |
+| `can_food`        | Canned Food         | Canned tuna, coconut milk, any canned good           |
+| `shrimp`          | Shrimp              | Shrimp, prawns                                       |
+| `milk`            | Milk / Dairy Liquid | Whole milk, skim milk, heavy cream, any liquid dairy |
+| `yoghurt`         | Yoghurt             | Yoghurt, Greek yoghurt                               |
+| `butter`          | Butter              | Butter, margarine                                    |
+| `cheese`          | Cheese              | Cheddar, any cheese variety                          |
+| `eggs`            | Eggs                | Eggs, free range eggs                                |
+| `green_vegetable` | Green Vegetable     | Spinach, broccoli, lettuce, cucumber, any green veg  |
+| `carrot`          | Carrot              | Carrot, baby carrots                                 |
+| `onion`           | Onion               | Onion, shallots, red onion                           |
+| `garlic`          | Garlic              | Garlic, garlic cloves                                |
+| `tomato`          | Tomato              | Tomato, cherry tomatoes                              |
+| `capsicum`        | Capsicum            | Capsicum, bell pepper                                |
+| `mushroom`        | Mushroom            | Mushroom, any mushroom variety                       |
+| `potato`          | Potato              | Potato, sweet potato, any potato variety             |
+| `lemon`           | Lemon               | Lemon, lime                                          |
+| `apple`           | Apple               | Apple, any apple variety                             |
+| `banana`          | Banana              | Banana                                               |
+| `strawberry`      | Strawberry          | Strawberry, any berry                                |
+| `orange`          | Orange              | Orange, orange juice                                 |
+| `pasta`           | Pasta               | Pasta, noodles, any pasta shape                      |
+| `rice`            | Rice                | Rice, any rice variety                               |
+| `bread`           | Bread               | Bread, loaf, rolls                                   |
+| `flour`           | Flour               | Flour, any flour type                                |
+| `oats`            | Oats                | Oats, rolled oats                                    |
+| `sauce_bottle`    | Sauce / Oil Bottle  | Soy sauce, olive oil, any bottled sauce or oil       |
+| `tomato_sauce`    | Tomato Sauce        | Tomato sauce, passata, pasta sauce                   |
+| `frozen_bag`      | Frozen Bag          | Frozen peas, frozen corn, any frozen bag item        |
+| `ice_cream`       | Ice Cream           | Ice cream, gelato                                    |
+| `unknown`         | Unknown / Fallback  | Any item with no matching key                        |
 
 ---
 
