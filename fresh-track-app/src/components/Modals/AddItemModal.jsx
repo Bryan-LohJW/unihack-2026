@@ -65,7 +65,7 @@ const AddItemModal = ({ isOpen, onClose, onAddItem, onNavigate }) => {
       alert('Photo captured! AI analysis coming soon.');
     } else {
       onClose();
-      onNavigate('pre-add');
+      onNavigate('pre-add', { file: receiptFile });
       return;
     }
     
