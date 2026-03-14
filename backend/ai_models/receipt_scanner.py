@@ -48,6 +48,3 @@ def parse_receipt(image_bytes: bytes, media_type: str = "image/jpeg") -> dict:
     result.setdefault("unrecognised", [])
 
     return result
-
-def select_image_from_list(list: list[str]) -> list[str]:
-    return []

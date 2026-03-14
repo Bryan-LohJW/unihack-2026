@@ -3,6 +3,7 @@ LLM service layer: parses a receipt image and returns items shaped for Inventory
 """
 
 from ai_models.receipt_scanner import parse_receipt
+from ai_models.icon_image_mapping import map_items_to_icons
 
 
 def parse_image_to_inventory_items(image_bytes: bytes, media_type: str = "image/jpeg") -> list[dict]:
@@ -28,5 +29,11 @@ def parse_image_to_inventory_items(image_bytes: bytes, media_type: str = "image/
             "qty": item.get("quantity", 1),
             "image_url": None,
         })
+
+    if items:
+        icon_input = {item["name"]: None for item in items}
+        icon_mapping = map_items_to_icons(icon_input)
+        for item in items:
+            item["image_url"] = icon_mapping.get(item["name"], "unknown.png")
 
     return items
