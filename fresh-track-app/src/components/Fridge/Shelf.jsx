@@ -34,9 +34,9 @@ const Shelf = ({
           </span>
         </div>
 
-        <div className="flex flex-col items-center bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-sm border border-slate-100 min-w-[46px]">
+        <div className="flex flex-col items-center bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-sm border border-slate-100 min-w-[46px] translate-x-4">
           <span className="text-[11px] font-bold text-slate-400 uppercase leading-none mb-1">
-            Soon
+            Expiring
           </span>
           <span
             className={`text-[17px] font-black leading-none ${expiry > 0 ? "text-orange-500" : "text-slate-700"}`}
