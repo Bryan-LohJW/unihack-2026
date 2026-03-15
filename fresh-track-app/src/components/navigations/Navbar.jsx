@@ -74,18 +74,14 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
         className="flex justify-start items-center group cursor-pointer"
       >
         <div className="relative">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--color-blue)] to-white flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
-            <span className="text-[var(--color-black)] font-black text-xl tracking-tighter">
-              FT
-            </span>
-          </div>
+          <img src="/fridge_logo.png" alt="FreshTrack" className="h-12 w-auto object-contain" />
         </div>
       </div>
 
       {/* 2. Branding Center */}
       <div className="flex items-center justify-center pointer-events-none">
-        <h2 className="text-[var(--color-black)] font-semibold text-xl tracking-tight leading-none">
-          Fresh<span className="text-[var(--color-black)]">Track</span>
+        <h2 className="text-xl leading-none tracking-tight">
+          <span className="font-medium text-[var(--color-text-secondary)]">Digital </span><span className="font-black text-[var(--color-primary)]">Fridge</span>
         </h2>
       </div>
 
