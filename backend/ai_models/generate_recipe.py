@@ -19,7 +19,6 @@ def fetch_recipe_images(menu_names: list[str]) -> dict[str, str]:
                 params={"query": name, "per_page": 1, "client_id": UNSPLASH_ACCESS_KEY},
                 timeout=10,
             )
-            print(resp)
             resp.raise_for_status()
             results = resp.json().get("results", [])
             images[name] = results[0]["urls"]["regular"] if results else ""
@@ -46,6 +45,7 @@ RULES:
 - Where possible, use ingredients available in the inventory or suitable alternatives, but you may also suggest items to be bought to complete the recipe — place any ingredient not in the inventory in "ingredients_to_buy" instead of "ingredients". For ingredients taken from the inventory, copy their "_id" field exactly as shown in the inventory list.
 - Each recipe must align with the user's dietary restrictions and cuisine preference.
 - Prep time should be realistic and reflect the actual steps involved.
+- For each ingredient, always fill: quantity (e.g. 2, 100, 0.5), unit (e.g. g, ml, pcs, tbsp, cup), and emoji (a single food emoji, e.g. 🍅 for tomato, 🥚 for egg).
 
 Return only valid JSON with no explanation, no markdown, and no code fences. Use this exact structure:
 {{
@@ -65,14 +65,16 @@ Return only valid JSON with no explanation, no markdown, and no code fences. Use
           "_id": "",
           "name": "",
           "quantity": "",
-          "unit": ""
+          "unit": "",
+          "emoji": "",
         }}
       ],
       "ingredients_to_buy": [
         {{
           "name": "",
           "quantity": "",
-          "unit": ""
+          "unit": "",
+          "emoji": ""
         }}
       ],
       "instruction": [
