@@ -10,7 +10,7 @@ const sortByHealth = (items) =>
     return getExpiry(a) - getExpiry(b);
   });
 
-const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast }) => {
+const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast, onKarmaChange }) => {
   const [localItems, setLocalItems] = useState(items);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -39,6 +39,9 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
         prev.map((i) => (i._id === saved._id ? item : i))
       );
       const delta = saved?.karma_delta;
+      if (delta != null) {
+        onKarmaChange?.(delta);
+      }
       const karmaMsg = delta != null && delta > 0 ? ` Kitchen karma: +${delta}.` : "";
       onShowToast?.(`Item updated.${karmaMsg}`);
     } catch (err) {
@@ -53,6 +56,9 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
       const res = await deleteInventoryItem(itemToDelete._id);
       setLocalItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
       const delta = res?.karma_delta;
+      if (delta != null) {
+        onKarmaChange?.(delta);
+      }
       const karmaMsg = delta != null ? ` Kitchen karma: ${delta >= 0 ? "+" : ""}${delta}.` : "";
       onShowToast?.(`Item removed from inventory.${karmaMsg}`);
     } catch (err) {

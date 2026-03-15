@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* 1. Import the retro fonts from Google Fonts */
+/* Press Start 2P is a classic, blocky arcade font */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* VT323 is slightly taller, like a 90s PC/DOS game */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 @theme inline {
   /* Configure your theme variables here */
   --font-display: "Nunito", system-ui, sans-serif;

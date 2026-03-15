@@ -61,6 +61,7 @@ function App() {
 
   const [toastMessage, setToastMessage] = useState(null);
   const [karmaAnimationTrigger, setKarmaAnimationTrigger] = useState(0);
+  const [karmaDelta, setKarmaDelta] = useState(0);
   const [isCookPrefsOpen, setIsCookPrefsOpen] = useState(false);
   const [cookPrefsInitial, setCookPrefsInitial] = useState(null);
 
@@ -117,11 +118,24 @@ function App() {
   return (
     <Router>
       <div className="min-w-[375px] h-screen flex flex-col">
-        <Navbar onLogoClick={() => setCurrentView("home")} karmaAnimationTrigger={karmaAnimationTrigger} />
+        <Navbar
+          onLogoClick={() => setCurrentView("home")}
+          karmaAnimationTrigger={karmaAnimationTrigger}
+          karmaDelta={karmaDelta}
+        />
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 overflow-scroll pt-19">
           <div className="h-full">
-            {currentView === "home" && <HomePage key={refresh} onShowToast={setToastMessage} />}
+            {currentView === "home" && (
+              <HomePage
+                key={refresh}
+                onShowToast={setToastMessage}
+                onKarmaChange={(delta) => {
+                  setKarmaDelta(delta);
+                  setKarmaAnimationTrigger((t) => t + 1);
+                }}
+              />
+            )}
             {currentView === "freezer" && <div>Freezer - Coming Soon</div>}
             {currentView === "pantry" && <Pantry key={refresh} />}
             {currentView === "status" && <div>My Status - Coming Soon</div>}
