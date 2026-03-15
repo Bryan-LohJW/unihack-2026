@@ -28,6 +28,7 @@ export const NEW_INGREDIENT_TEMPLATE = {
   image_url: 'unknown.png',
   name: '',
   qty: 1,
+  unit: 'g',
   section: 'fridge',
 };
 

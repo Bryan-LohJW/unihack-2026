@@ -39,7 +39,7 @@ const IngredientCard = ({ item, index, onUpdate, onDelete }) => {
           <p className="font-semibold text-[var(--color-black)] truncate">{item.name || 'New Ingredient'}</p>
           <div className="flex items-center gap-3 mt-1">
             <span className="flex items-center gap-1 text-xs text-gray-500">
-              <Package size={12} /> {item.qty}g
+              <Package size={12} /> {item.qty} {item.unit || 'g'}
             </span>
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <Calendar size={12} /> {daysToDateString(item.expiry_days)}
