@@ -57,10 +57,12 @@ SEED_ITEMS = [
 
 def init_helper_routes(db):
     inventory_col = db["inventory"]
+    kitchen_karma = db["kitchen_karma"]
 
     @helper_bp.route("/reset/ingredients", methods=["GET"])
     def reset_ingredients():
         inventory_col.delete_many({})
+        kitchen_karma.delete_many({})
 
         docs = [InventorySchema(**item).to_document() for item in SEED_ITEMS]
         inventory_col.insert_many(docs)
