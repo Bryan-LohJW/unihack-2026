@@ -25,8 +25,14 @@ export default function RecipeCard({
     >
       {recipe.ingredients?.some((i) => !i.inInventory) && (
         <div className="absolute top-4 right-0 z-10 bg-amber-400 px-3 py-1.5 rounded-l-full flex items-center gap-2 shadow">
-          <img src="/shopping cart.png" alt="Items to buy" className="w-6 h-6 object-contain" />
-          <span className="text-[11px] font-bold text-white">{recipe.ingredients.filter((i) => !i.inInventory).length} missing</span>
+          <img
+            src="/shopping cart.png"
+            alt="Items to buy"
+            className="w-6 h-6 object-contain"
+          />
+          <span className="text-[11px] font-bold text-white">
+            {recipe.ingredients.filter((i) => !i.inInventory).length} missing
+          </span>
         </div>
       )}
       {/* ALWAYS VISIBLE: Image & Summary Header */}
@@ -91,10 +97,9 @@ export default function RecipeCard({
                           : `${value}g ${key}`;
                       const colors = [
                         "bg-rose-100 text-rose-700",
-                        "bg-amber-100 text-amber-700",
-                        "bg-emerald-100 text-emerald-700",
-                        "bg-sky-100 text-sky-700",
+                        "bg-teal-100 text-teal-700",
                         "bg-violet-100 text-violet-700",
+                        "bg-sky-100 text-sky-700",
                       ];
                       return (
                         <span
@@ -127,15 +132,13 @@ export default function RecipeCard({
                 {recipe.ingredients.map((item, idx) => (
                   <li key={idx} className="text-sm flex items-start gap-1.5">
                     <span className="text-gray-700">
-                      {item.emoji && (
-                        <span className="mr-1">{item.emoji}</span>
-                      )}
+                      {item.emoji && <span className="mr-1">{item.emoji}</span>}
                       <strong>{item.name}</strong>{" "}
                       {item.amount ?? item.quantity}
-                      {item.unit ? ` ${item.unit}` : ""} 
+                      {item.unit ? ` ${item.unit}` : ""}
                       {!item.inInventory && (
                         <span className="text-red-500 ml-1 font-medium">
-                          (-)
+                          (Missing)
                         </span>
                       )}
                     </span>
