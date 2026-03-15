@@ -105,7 +105,7 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                     <span className="text-gray-700">
                       <strong>{item.amount}</strong> {item.name}
                       {item.inInventory && (
-                        <span className="text-[#187A4F] ml-1 font-medium">(in inventory)</span>
+                        <span className="text-[var(--color-primary)] ml-1 font-medium">(in inventory)</span>
                       )}
                     </span>
                   </li>
@@ -159,7 +159,7 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                     onShowToast?.('Failed to consume items. Please try again.');
                   }
                 }}
-                className="w-full mt-6 py-3 border-2 border-[#187A4F] text-[#187A4F] rounded-xl font-bold hover:bg-[#E8F3ED] transition"
+                className="w-full mt-6 py-3 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded-xl font-bold hover:bg-[#E8F3ED] transition"
                 style={{ marginTop: '15px' }}
               >
                 Start Cooking

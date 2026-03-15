@@ -17,7 +17,7 @@ export default function Toast({ message, onDismiss }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-24 left-4 right-4 z-[60] mx-auto max-w-md rounded-xl bg-[#187A4F] px-4 py-3 text-center text-sm font-medium text-white shadow-lg"
+          className="fixed bottom-24 left-4 right-4 z-[60] mx-auto max-w-md rounded-xl bg-[var(--color-primary)] px-4 py-3 text-center text-sm font-medium text-white shadow-lg"
         >
           {message}
         </motion.div>

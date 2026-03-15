@@ -132,7 +132,7 @@ const MainInventory = ({ onShowToast }) => {
 	}
 
 	return (
-		<div className="min-h-screen bg-[#F4F7F9] flex flex-col font-sans overflow-hidden">
+		<div className="min-h-screen bg-[var(--color-bg,#FAFAF8)] flex flex-col font-sans overflow-hidden">
 			<main className="flex-1 pt-20 flex flex-col items-center">
 				<div className="relative w-full max-w-lg mt-4 px-4 flex flex-col items-center">
 					{/* Dialog box — above fridge, centered, no overlap, tail points down to fridge */}
