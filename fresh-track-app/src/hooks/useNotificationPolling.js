@@ -14,7 +14,7 @@ const POLL_INTERVAL_MS = Math.max(
 async function showBrowserNotification(suggestionId, onClickCallback) {
   const title = "FreshTrack";
   const body =
-    "Some items in your inventory are expiring soon. Use these recipe suggestions!";
+    "Some stuff in your fridge is expiring soon. Here is how to use them !!!";
 
   const notification = await sendNotification(title, body, suggestionId);
   if (notification) {

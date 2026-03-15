@@ -51,7 +51,6 @@ class PreferenceRepository:
             {"_id": self.DOC_ID},
             {
                 "$setOnInsert": {
-                    "default_serving": 1,
                     "cuisine": ["Chinese", "Thai", "Indonesian"],
                     "dietary": [],
                     "default_serving": 1,

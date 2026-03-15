@@ -6,7 +6,7 @@ helper_bp = Blueprint("helper", __name__, url_prefix="/helper")
 
 SEED_ITEMS = [
     # Fridge — varied expiry
-    {"name": "Chicken Breast",    "calories": 165, "section": "fridge",   "expiry_days": 2,   "qty": 500,  "unit": "g",   "image_url": "chicken.png"},
+    {"name": "Chicken Breast",    "calories": 165, "section": "fridge",   "expiry_days": -1,   "qty": 500,  "unit": "g",   "image_url": "chicken.png"},
     {"name": "Full Cream Milk",   "calories": 61,  "section": "fridge",   "expiry_days": 4,   "qty": 2,    "unit": "l",   "image_url": "milk.png"},
     {"name": "Barn Eggs",         "calories": 155, "section": "fridge",   "expiry_days": 14,  "qty": 12,   "unit": "pcs", "image_url": "eggs.png"},
     {"name": "Cheddar Cheese",    "calories": 402, "section": "fridge",   "expiry_days": 10,  "qty": 200,  "unit": "g",   "image_url": "cheese.png"},
@@ -57,10 +57,12 @@ SEED_ITEMS = [
 
 def init_helper_routes(db):
     inventory_col = db["inventory"]
+    kitchen_karma = db["kitchen_karma"]
 
     @helper_bp.route("/reset/ingredients", methods=["GET"])
     def reset_ingredients():
         inventory_col.delete_many({})
+        kitchen_karma.delete_many({})
 
         docs = [InventorySchema(**item).to_document() for item in SEED_ITEMS]
         inventory_col.insert_many(docs)
