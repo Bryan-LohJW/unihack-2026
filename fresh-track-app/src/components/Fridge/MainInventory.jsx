@@ -11,6 +11,7 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
   const [inventoryData, setInventoryData] = useState([]);
   const [allInventoryItems, setAllInventoryItems] = useState([]);
   const [selectedShelf, setSelectedShelf] = useState(null);
+  const [isFetchingItems, setIsFetchingItems] = useState(false);
 
   // 1. Fetch ONLY the overview counts on component mount
   useEffect(() => {
