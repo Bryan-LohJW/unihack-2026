@@ -13,8 +13,7 @@ import logging
 from dotenv import load_dotenv
 from google import genai
 
-from ai_models.receipt_scanner import parse_receipt
-from ai_models.icon_image_mapping import map_items_to_icons
+from ai_models.receipt_scanner_2 import parse_image_to_inventory_items as _parse_receipt_v2
 from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 from service.urgency import run_urgency_ranking
 from service.spoonacular import fetch_spoonacular_candidates
@@ -34,28 +33,9 @@ def parse_image_to_inventory_items(image_bytes: bytes, media_type: str = "image/
         media_type: MIME type of the image (e.g. "image/jpeg").
 
     Returns:
-        List of dicts with keys: name, calories, section, expiry_days, qty, image_url.
+        List of dicts with keys: name, calories, section, expiry_days, qty, unit, image_url.
     """
-    result = parse_receipt(image_bytes, media_type=media_type)
-
-    items = []
-    for item in result.get("recognised", []):
-        items.append({
-            "name": item.get("name", "Unknown"),
-            "calories": 0,
-            "section": item.get("location", "fridge"),
-            "expiry_days": item.get("expiry_days", 7),
-            "qty": item.get("quantity", 1),
-            "image_url": None,
-        })
-
-    if items:
-        icon_input = {item["name"]: None for item in items}
-        icon_mapping = map_items_to_icons(icon_input)
-        for item in items:
-            item["image_url"] = icon_mapping.get(item["name"], "unknown.png")
-
-    return items
+    return _parse_receipt_v2(image_bytes, media_type=media_type)
 
 
 def suggest_recipes_from_inventory(inventory_items: list[dict]) -> list:
