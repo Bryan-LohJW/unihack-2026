@@ -83,16 +83,18 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
       <main className="flex-1 pt-20 flex flex-col items-center">
         <div className="relative w-full max-w-lg mt-12 px-4 flex flex-col items-center">
           {/* Freddy Dialog Box */}
-          <div
+          <motion.div
             className="absolute left-1/2 z-50 max-w-[180px] px-4 py-3 bg-white text-sm text-slate-800 font-medium leading-snug"
+            initial={{ x: "-55%", y: "-135%", rotate: -12 }}
+            animate={{ y: ["-135%", "-145%", "-135%"] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
             style={{
               borderRadius: "50% 40% 50% 40% / 55% 45% 55% 45%",
               boxShadow: "3px 3px 0 0 rgba(30,41,59,0.2), 5px 5px 14px rgba(0,0,0,0.1)",
               border: "1px solid rgba(30,41,59,0.25)",
-              transform: "translate(-55%, -135%) rotate(-12deg)",
             }}
           >
-            Hi, I am <span className="font-bold text-[var(--color-brown)]">Freddy</span> your digital fridge.
+            Hi, I am <span className="font-bold text-[var(--color-primary)]">Freddy</span> your digital fridge.
             {/* The Tail */}
             <div
               className="absolute w-0 h-0"
@@ -120,7 +122,7 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
                 zIndex: 9,
               }}
             />
-          </div>
+          </motion.div>
 
           {/* Fridge Image and Interaction Wrapper */}
           <div className="relative w-full cursor-pointer overflow-hidden" onClick={() => !isOpen && setIsOpen(true)}>
@@ -160,19 +162,23 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
               <AnimatePresence>
                 {!isOpen && (
                   <motion.div
-                    initial={{ x: "-100%", opacity: 0 }}
+                    // 🌟 UPDATED: Now fades (opacity) along with sliding (x)
+                    initial={{ x: "100%", opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: "-100%", opacity: 0 }}
-                    // 🌟 UPDATED: Swapped easeInOut for a bouncy spring transition
-                    transition={{ 
-                      x: { type: "spring", bounce: 0.45, duration: 0.8 },
-                      opacity: { duration: 0.2 } 
+                    exit={{ x: "100%", opacity: 0 }}
+                    // 🌟 UPDATED: Changed from easeInOut to a spring transition for the bounce effect
+                    transition={{
+                      type: "spring",
+                      stiffness: 260, // How sudden the snap is
+                      damping: 15,    // Lower damping = more bouncing back and forth
                     }}
                     className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden"
                     style={{
                       zIndex: 15,
                       borderRadius: "6px",
                       backgroundImage: "url('/fridge_logo.png')",
+                      // 🌟 INCREASE THIS TO ZOOM PAST THE INVISIBLE BORDERS!
+                      // Try 250%, 300%, or 350% until the fridge touches the edges.
                       backgroundSize: "223% 134%",
                       translateX: "3%",
                       backgroundPosition: "center",
@@ -182,7 +188,7 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
                     }}
                   >
                     {/* Render Fridge Magnets */}
-                    {/*  {FRIDGE_MAGNETS.map((magnet) => (
+                    {/* {FRIDGE_MAGNETS.map((magnet) => (
                       <img
                         key={magnet.id}
                         src={magnet.src}
