@@ -28,9 +28,9 @@ function mapApiRecipeToCard(apiRecipe) {
     time: "—",
     servings: apiRecipe.headcount ?? 1,
     difficulty: "medium",
-    image: DEFAULT_IMAGE,
+    image: apiRecipe.image_url || DEFAULT_IMAGE,
     ingredients: allIngredients,
-    instructions: ["Follow the recipe using the listed ingredients."],
+    instructions: apiRecipe.instruction,
   };
 }
 

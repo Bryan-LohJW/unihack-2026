@@ -19,7 +19,6 @@ def fetch_recipe_images(menu_names: list[str]) -> dict[str, str]:
                 params={"query": name, "per_page": 1, "client_id": UNSPLASH_ACCESS_KEY},
                 timeout=10,
             )
-            print(resp)
             resp.raise_for_status()
             results = resp.json().get("results", [])
             images[name] = results[0]["urls"]["regular"] if results else ""
