@@ -45,7 +45,12 @@ const InventoryItem = ({ item, onClick }) => {
       className={`relative flex flex-col items-center p-3 bg-white/80 rounded-2xl shadow-sm border cursor-pointer ${isExpired ? "border-slate-100" : isExpiringSoon ? "border-red-400 border-2" : "border-slate-100"}`}
     >
       {isExpired && (
-        <div className="absolute inset-0 bg-slate-500/40 rounded-2xl z-10 pointer-events-none" />
+        <>
+          <div className="absolute inset-0 bg-slate-500/40 rounded-2xl z-10 pointer-events-none" />
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 bg-red-600 rounded-full border border-red-400 whitespace-nowrap">
+            <span className="text-[9px] font-bold text-white uppercase tracking-wide">Expired</span>
+          </div>
+        </>
       )}
       <span className="text-[11px] font-bold text-slate-700 text-center leading-tight mb-2 h-8 flex items-start justify-center line-clamp-2 overflow-hidden">{item.name}</span>
 
@@ -55,11 +60,18 @@ const InventoryItem = ({ item, onClick }) => {
 
       <span className="text-[10px] text-slate-500 font-medium mb-2">{item.qty} {item.unit}</span>
 
-      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+      <div className="relative w-full h-2 bg-slate-200 rounded-full overflow-visible">
         <div
-          className="h-full bg-linear-to-r from-rose-400 via-amber-400 to-emerald-400 transition-all duration-700"
+          className="h-full bg-linear-to-r from-rose-400 via-amber-400 to-emerald-400 transition-all duration-700 rounded-full"
           style={{ width: `${health}%` }}
         />
+        {isExpiringSoon && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="px-1.5 py-px bg-amber-400 border border-amber-500 rounded-full shadow-sm">
+              <span className="text-[7px] font-bold text-white uppercase tracking-wide whitespace-nowrap">Expiring</span>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

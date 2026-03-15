@@ -14,10 +14,16 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <motion.div 
+    <motion.div
       layout
-      className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6"
+      className="relative bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6"
     >
+      {recipe.ingredients?.some((i) => !i.inInventory) && (
+        <div className="absolute top-4 right-0 z-10 bg-amber-400 px-3 py-1.5 rounded-l-full flex items-center gap-2 shadow">
+          <img src="/shopping cart.png" alt="Items to buy" className="w-6 h-6 object-contain" />
+          <span className="text-[11px] font-bold text-white">{recipe.ingredients.filter((i) => !i.inInventory).length} missing</span>
+        </div>
+      )}
       {/* ALWAYS VISIBLE: Image & Summary Header */}
       <div 
         onClick={() => setIsExpanded(!isExpanded)}
@@ -99,7 +105,7 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                     <span className="text-gray-700">
                       <strong>{item.amount}</strong> {item.name}
                       {item.inInventory && (
-                        <span className="text-[#187A4F] ml-1 font-medium">(in inventory)</span>
+                        <span className="text-[var(--color-primary)] ml-1 font-medium">(in inventory)</span>
                       )}
                     </span>
                   </li>
@@ -146,14 +152,14 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                   }
                   try {
                     const res = await apiAxios.patch('/inventory/batch', { updates });
-                    const karma = res?.karma_delta ?? 30;
+                    const karma = res?.karma_delta ?? 0;
                     onStartCookingSuccess?.(karma);
                   } catch (err) {
                     console.error('Batch update failed', err);
                     onShowToast?.('Failed to consume items. Please try again.');
                   }
                 }}
-                className="w-full mt-6 py-3 border-2 border-[#187A4F] text-[#187A4F] rounded-xl font-bold hover:bg-[#E8F3ED] transition"
+                className="w-full mt-6 py-3 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded-xl font-bold hover:bg-[#E8F3ED] transition"
                 style={{ marginTop: '15px' }}
               >
                 Start Cooking

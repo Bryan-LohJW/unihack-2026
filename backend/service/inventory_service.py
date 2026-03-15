@@ -61,7 +61,7 @@ class InventoryService:
             new_qty = int(updates["qty"]) if updates["qty"] is not None else current_qty
             if new_qty < current_qty:
                 consumed_qty = current_qty - new_qty
-                unit = existing.get("unit").strip()
+                unit = (existing.get("unit") or "g").strip() or "g"
                 karma_delta = self.karma_service.add_karma(
                     consumed_qty, unit, DeleteReason.CONSUMED.value
                 )
@@ -96,7 +96,7 @@ class InventoryService:
             if consumed_qty <= 0:
                 continue
             total_consumed_qty += consumed_qty
-            unit = existing.get("unit").strip()
+            unit = (existing.get("unit") or "g").strip() or "g"
             total_karma_delta += self.karma_service.add_karma(
                 consumed_qty, unit, DeleteReason.CONSUMED.value
             )
@@ -133,7 +133,7 @@ class InventoryService:
         karma_delta = 0
         if reason_norm in (DeleteReason.WASTED.value, DeleteReason.CONSUMED.value):
             qty = int(existing.get("qty", 1)) or 1
-            unit = (existing.get("unit") or "pcs").strip() or "pcs"
+            unit = (existing.get("unit") or "g").strip() or "g"
             karma_delta = self.karma_service.add_karma(qty, unit, reason_norm)
 
         return {"item": existing, "reason": reason, "karma_delta": karma_delta}

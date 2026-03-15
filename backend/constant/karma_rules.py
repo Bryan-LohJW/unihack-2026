@@ -24,8 +24,15 @@ DEFAULT_KARMA = (10, 20)  # unknown unit: treat as 1 item
 def compute_karma_delta(amount: int | float, unit: str, is_consumed: bool) -> int:
     """Return karma points: positive for consumed, negative for wasted."""
     amount = max(0, float(amount))
-    unit = (unit or "pcs").strip().lower()
+    if amount <= 0:
+        return 0
+    unit = (unit or "g").strip().lower() or "g"
     consumed_per, wasted_per = KARMA_PER_UNIT.get(unit, DEFAULT_KARMA)
     rate = consumed_per if is_consumed else wasted_per
     points = int(round(amount * rate))
+    # Ensure any consumption gives at least 1 point (avoids +0 for small amounts)
+    if is_consumed and points < 1:
+        points = 1
+    elif not is_consumed and points < 1:
+        points = 1  # wasted: -1 minimum
     return points if is_consumed else -points

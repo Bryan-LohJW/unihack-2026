@@ -1,8 +1,8 @@
 /* app.css */
 .app {
   background-color: var(--color-white);
-  color: var(--color-brown);
-  font-family: Arial, sans-serif;
+  color: var(--color-text);
+  font-family: var(--font-family, "Nunito", system-ui, sans-serif);
 }
 
 button {
@@ -17,7 +17,7 @@ nav {
 }
 
 .app {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family, "Nunito", system-ui, sans-serif);
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -31,10 +31,10 @@ nav {
   width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: #F0EDE9;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #444;
+  background: #C4AFA6;
   border-radius: 10px;
 }
 

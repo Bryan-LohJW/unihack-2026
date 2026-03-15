@@ -14,20 +14,35 @@
   --spacing: 0.25rem;
 }
 
-/* globals.css */
+/* globals.css — Option C: Warm Pantry Theme */
 :root {
   --font-family: "Nunito", system-ui, sans-serif;
-  --color-blue: #E4F5FF;
-  --color-white: #fcfbff;
-  --color-brown: #8A6955;
-  --color-black: #16171D;
-  
-  /* You can also create functional names for easier updates later */
+
+  /* Core palette */
+  --color-primary: #187A4F;        /* Forest green — primary actions */
+  --color-primary-light: #ECFDF5;  /* Light mint — tints, badges */
+  --color-blue: #ECFDF5;           /* Alias kept for backward compatibility */
+
+  --color-white: #FAFAF8;          /* Warm off-white — app background */
+  --color-surface: #FFFFFF;        /* Pure white — cards, modals */
+  --color-brown: #8A6955;          /* Warm brown — borders, accents */
+  --color-black: #16171D;          /* Near-black — strong text */
+
+  /* Semantic tokens */
+  --color-text: #1C1917;           /* Warm near-black — body text */
+  --color-text-secondary: #78716C; /* Warm gray — secondary/muted text */
+  --color-warning: #D97706;        /* Warm amber — expiry warnings */
+  --color-danger: #DC2626;         /* Red — expired, errors */
+
+  /* Functional aliases */
   --bg-primary: var(--color-white);
-  --accent-blue: var(--color-blue);
+  --color-bg: var(--color-white);
+  --color-border: var(--color-brown);
+  --accent-blue: var(--color-primary-light);
   --text-main: var(--color-brown);
 }
 
 html, body {
   font-family: var(--font-family);
+  background-color: var(--color-bg);
 }
