@@ -42,10 +42,11 @@ USER PREFERENCES:
 RULES:
 - Generate exactly 3 distinct recipe options. Each must be meaningfully different from the others.
 - Prioritise ingredients expiring within 3 days — at least one of these must appear in every recipe where possible.
-- Where possible, use ingredients available in the inventory or suitable alternatives, but you may also suggest items to be bought to complete the recipe — place any ingredient not in the inventory in "ingredients_to_buy" instead of "ingredients". For ingredients taken from the inventory, copy their "_id" field exactly as shown in the inventory list.
+- Prioritise using ingredients available in the inventory or suitable alternatives, but you may also suggest items to be bought to complete the recipe — place any ingredient not in the inventory in "ingredients_to_buy" instead of "ingredients". For ingredients taken from the inventory, copy their "_id" field exactly as shown in the inventory list.
 - Each recipe must align with the user's dietary restrictions and cuisine preference.
 - Prep time should be realistic and reflect the actual steps involved.
 - For each ingredient, always fill: quantity (e.g. 2, 100, 0.5), unit (e.g. g, ml, pcs, tbsp, cup), and emoji (a single food emoji, e.g. 🍅 for tomato, 🥚 for egg).
+- One of the recipe must only contain items that are available in inventory, no buying needed
 
 Return only valid JSON with no explanation, no markdown, and no code fences. Use this exact structure:
 {{

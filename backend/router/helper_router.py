@@ -18,6 +18,7 @@ SEED_ITEMS = [
     {"name": "Carrot",            "calories": 41,  "section": "fridge",   "expiry_days": 14,  "qty": 4,    "unit": "pcs", "image_url": "carrot.png"},
     {"name": "Strawberries",      "calories": 32,  "section": "fridge",   "expiry_days": 2,   "qty": 250,  "unit": "g",   "image_url": "strawberry.png"},
     {"name": "Lemon",             "calories": 29,  "section": "fridge",   "expiry_days": 21,  "qty": 3,    "unit": "pcs", "image_url": "lemon.png"},
+    {"name": "Tofu",              "calories": 76,  "section": "fridge",   "expiry_days": 21,  "qty": 3,    "unit": "pcs", "image_url": "unknown.png"},
     {"name": "Shrimp",            "calories": 99,  "section": "fridge",   "expiry_days": 2,   "qty": 300,  "unit": "g",   "image_url": "shrimp.png"},
 
     # Freezer
