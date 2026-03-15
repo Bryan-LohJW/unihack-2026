@@ -160,28 +160,29 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
               <AnimatePresence>
                 {!isOpen && (
                   <motion.div
-                    // 🌟 UPDATED: Now fades (opacity) along with sliding (x)
                     initial={{ x: "-100%", opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: "-100%", opacity: 0 }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    // 🌟 UPDATED: Swapped easeInOut for a bouncy spring transition
+                    transition={{ 
+                      x: { type: "spring", bounce: 0.45, duration: 0.8 },
+                      opacity: { duration: 0.2 } 
+                    }}
                     className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden"
                     style={{
                       zIndex: 15,
                       borderRadius: "6px",
                       backgroundImage: "url('/fridge_logo.png')",
-                      // 🌟 INCREASE THIS TO ZOOM PAST THE INVISIBLE BORDERS!
-                      // Try 250%, 300%, or 350% until the fridge touches the edges.
                       backgroundSize: "223% 134%",
-                      translateX: "3%", 
+                      translateX: "3%",
                       backgroundPosition: "center",
                       backgroundRepeat: "no-repeat",
-                      imageRendering: "pixelated", 
+                      imageRendering: "pixelated",
                       backgroundColor: "transparent",
                     }}
                   >
                     {/* Render Fridge Magnets */}
-                   {/*  {FRIDGE_MAGNETS.map((magnet) => (
+                    {/*  {FRIDGE_MAGNETS.map((magnet) => (
                       <img
                         key={magnet.id}
                         src={magnet.src}
@@ -197,12 +198,17 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
                       />
                     ))} */}
 
-                    <motion.div animate={{ y: [0, -16, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} className="flex flex-col items-center text-slate-200">
+                    {/* <motion.div
+                      animate={{ y: [0, -16, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      // 🌟 Changed bg-black to bg-black/70
+                      className="z-10 flex flex-col items-center text-black bg-white/50 px-6 py-3 rounded-2xl shadow-lg backdrop-blur-[4px]"
+                    >
                       <span className="text-base font-bold tracking-wide mb-2">Tap to Open</span>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-7 h-7">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7 7-7" />
                       </svg>
-                    </motion.div>
+                    </motion.div> */}
                   </motion.div>
                 )}
               </AnimatePresence>
