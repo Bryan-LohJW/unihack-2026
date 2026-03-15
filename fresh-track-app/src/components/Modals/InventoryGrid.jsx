@@ -10,7 +10,7 @@ const sortByHealth = (items) =>
     return getExpiry(a) - getExpiry(b);
   });
 
-const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast, onItemSaved, onItemDeleted }) => {
+const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast, onKarmaChange, onItemSaved, onItemDeleted }) => {
   const [localItems, setLocalItems] = useState(items);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -40,6 +40,9 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
       );
       onItemSaved?.(item);
       const delta = saved?.karma_delta;
+      if (delta != null) {
+        onKarmaChange?.(delta);
+      }
       const karmaMsg = delta != null && delta > 0 ? ` Kitchen karma: +${delta}.` : "";
       onShowToast?.(`Item updated.${karmaMsg}`);
     } catch (err) {
@@ -55,6 +58,9 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
       setLocalItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
       onItemDeleted?.(itemToDelete._id);
       const delta = res?.karma_delta;
+      if (delta != null) {
+        onKarmaChange?.(delta);
+      }
       const karmaMsg = delta != null ? ` Kitchen karma: ${delta >= 0 ? "+" : ""}${delta}.` : "";
       onShowToast?.(`Item removed from inventory.${karmaMsg}`);
     } catch (err) {
