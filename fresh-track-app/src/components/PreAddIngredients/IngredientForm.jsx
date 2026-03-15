@@ -15,14 +15,23 @@ const IngredientForm = ({ values, onChange, namePlaceholder = '' }) => (
     </div>
 
     <div>
-      <label className="text-xs font-bold text-gray-500 mb-1 block">Quantity (g)</label>
-      <input
-        type="number"
-        min="0"
-        value={values.qty}
-        onChange={(e) => onChange('qty', Number(e.target.value))}
-        className={baseInputClasses}
-      />
+      <label className="text-xs font-bold text-gray-500 mb-1 block">Quantity</label>
+      <div className="flex gap-2">
+        <input
+          type="number"
+          min="0"
+          value={values.qty}
+          onChange={(e) => onChange('qty', Number(e.target.value))}
+          className={baseInputClasses}
+        />
+        <input
+          type="text"
+          value={values.unit ?? 'g'}
+          onChange={(e) => onChange('unit', e.target.value)}
+          className={`${baseInputClasses} w-16 shrink-0`}
+          placeholder="unit"
+        />
+      </div>
     </div>
 
     <div>

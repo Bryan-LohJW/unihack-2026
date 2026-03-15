@@ -84,6 +84,7 @@ def parse_image_to_inventory_items(image_bytes: bytes, media_type: str = "image/
             "section": item.get("section", "fridge"),
             "expiry_days": _expiry_date_to_days(item.get("expiry_date", "")),
             "qty": item.get("quantity", 1),
+            "unit": item.get("unit", "g"),
             "image_url": None,
         })
 
