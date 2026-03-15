@@ -10,7 +10,7 @@ const sortByHealth = (items) =>
     return getExpiry(a) - getExpiry(b);
   });
 
-const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast, onKarmaChange, onItemSaved, onItemDeleted }) => {
+const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast, onKarmaChange, onInventoryChange }) => {
   const [localItems, setLocalItems] = useState(items);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -38,7 +38,7 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
       setLocalItems((prev) =>
         prev.map((i) => (i._id === saved._id ? item : i))
       );
-      onItemSaved?.(item);
+      onInventoryChange?.();
       const delta = saved?.karma_delta;
       if (delta != null) {
         onKarmaChange?.(delta);
@@ -56,7 +56,7 @@ const InventoryGrid = ({ isOpen, onClose, categoryTitle, items = [], onShowToast
     try {
       const res = await deleteInventoryItem(itemToDelete._id);
       setLocalItems((prev) => prev.filter((i) => i._id !== itemToDelete._id));
-      onItemDeleted?.(itemToDelete._id);
+      onInventoryChange?.();
       const delta = res?.karma_delta;
       if (delta != null) {
         onKarmaChange?.(delta);

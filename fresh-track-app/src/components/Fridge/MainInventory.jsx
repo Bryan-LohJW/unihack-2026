@@ -13,92 +13,93 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
   const [selectedShelf, setSelectedShelf] = useState(null);
   const [isFetchingItems, setIsFetchingItems] = useState(false);
 
+  // Extract fetchOverview function
+  const fetchOverview = async () => {
+    try {
+      const overviewData = await getInventoryOverview();
+
+      // THE FIX: overviewData is already the array!
+      const fetchedSections = Array.isArray(overviewData) ? overviewData : [];
+
+      const getCounts = (targetSection) => {
+        return fetchedSections
+          .filter((s) => {
+            const secName = Array.isArray(s.section) ? s.section[0] : s.section;
+            return secName?.toLowerCase() === targetSection.toLowerCase();
+          })
+          .reduce(
+            (acc, curr) => ({
+              total: acc.total + (curr.total_count || 0),
+              expiry: acc.expiry + (curr.soon_to_expire_count || 0),
+            }),
+            { total: 0, expiry: 0 },
+          );
+      };
+
+      const pantryStats = getCounts("pantry");
+      const fridgeStats = getCounts("fridge");
+      const freezerStats = getCounts("freezer");
+
+      setInventoryData([
+        {
+          id: 1,
+          title: "Pantry",
+          total: pantryStats.total,
+          expiry: pantryStats.expiry,
+          display_img: canned_png,
+          bg_img: "/pantry_bg.png",
+        },
+        {
+          id: 2,
+          title: "Fridge",
+          total: fridgeStats.total,
+          expiry: fridgeStats.expiry,
+          display_img: canned_png,
+          bg_img: "/fridge_bg.png",
+        },
+        {
+          id: 3,
+          title: "Freezer",
+          total: freezerStats.total,
+          expiry: freezerStats.expiry,
+          display_img: canned_png,
+          bg_img: "/freezer_bg.png",
+        },
+      ]);
+    } catch (error) {
+      console.error("Failed to fetch inventory overview:", error);
+      // Fallback to dummy data if API fails
+      setInventoryData([
+        {
+          id: 1,
+          title: "Pantry",
+          total: 45,
+          expiry: 2,
+          display_img: canned_png,
+          bg_img: "/pantry_bg.png",
+        },
+        {
+          id: 2,
+          title: "Fridge",
+          total: 18,
+          expiry: 5,
+          display_img: canned_png,
+          bg_img: "/fridge_bg.png",
+        },
+        {
+          id: 3,
+          title: "Freezer",
+          total: 32,
+          expiry: 0,
+          display_img: canned_png,
+          bg_img: "/freezer_bg.png",
+        },
+      ]);
+    }
+  };
+
   // 1. Fetch ONLY the overview counts on component mount
   useEffect(() => {
-    const fetchOverview = async () => {
-      try {
-        const overviewData = await getInventoryOverview();
-
-        // THE FIX: overviewData is already the array!
-        const fetchedSections = Array.isArray(overviewData) ? overviewData : [];
-
-        const getCounts = (targetSection) => {
-          return fetchedSections
-            .filter((s) => {
-              const secName = Array.isArray(s.section) ? s.section[0] : s.section;
-              return secName?.toLowerCase() === targetSection.toLowerCase();
-            })
-            .reduce(
-              (acc, curr) => ({
-                total: acc.total + (curr.total_count || 0),
-                expiry: acc.expiry + (curr.soon_to_expire_count || 0),
-              }),
-              { total: 0, expiry: 0 },
-            );
-        };
-
-        const pantryStats = getCounts("pantry");
-        const fridgeStats = getCounts("fridge");
-        const freezerStats = getCounts("freezer");
-
-        setInventoryData([
-          {
-            id: 1,
-            title: "Pantry",
-            total: pantryStats.total,
-            expiry: pantryStats.expiry,
-            display_img: canned_png,
-            bg_img: "/pantry_bg.png",
-          },
-          {
-            id: 2,
-            title: "Fridge",
-            total: fridgeStats.total,
-            expiry: fridgeStats.expiry,
-            display_img: canned_png,
-            bg_img: "/fridge_bg.png",
-          },
-          {
-            id: 3,
-            title: "Freezer",
-            total: freezerStats.total,
-            expiry: freezerStats.expiry,
-            display_img: canned_png,
-            bg_img: "/freezer_bg.png",
-          },
-        ]);
-      } catch (error) {
-        console.error("Failed to fetch inventory overview:", error);
-        // Fallback to dummy data if API fails
-        setInventoryData([
-          {
-            id: 1,
-            title: "Pantry",
-            total: 45,
-            expiry: 2,
-            display_img: canned_png,
-            bg_img: "/pantry_bg.png",
-          },
-          {
-            id: 2,
-            title: "Fridge",
-            total: 18,
-            expiry: 5,
-            display_img: canned_png,
-            bg_img: "/fridge_bg.png",
-          },
-          {
-            id: 3,
-            title: "Freezer",
-            total: 32,
-            expiry: 0,
-            display_img: canned_png,
-            bg_img: "/freezer_bg.png",
-          },
-        ]);
-      }
-    };
-
     fetchOverview();
   }, []);
 
@@ -228,6 +229,7 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
           isLoading={isFetchingItems}
           onShowToast={onShowToast}
           onKarmaChange={onKarmaChange}
+          onInventoryChange={() => fetchOverview()}
         />
       </main>
     </div>
