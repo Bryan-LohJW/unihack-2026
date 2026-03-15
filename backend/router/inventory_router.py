@@ -48,7 +48,7 @@ def init_inventory_routes(db):
 
     @inventory_bp.route("/overview", methods=["GET"])
     def get_overview():
-        overview = service.get_overview(soon_expire_within_days=1.0)
+        overview = service.get_overview(soon_expire_within_days=3.0)
         return jsonify({"sections": overview}), 200
 
     @inventory_bp.route("", methods=["GET"])
