@@ -3,9 +3,10 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { getKitchenKarma } from "../../api/kitchen_karma";
 
-const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
+const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0, karmaDelta = 0 }) => {
   const [karmaScore, setKarmaScore] = useState(null);
   const [flyInTarget, setFlyInTarget] = useState(null);
+  const [flyInDelta, setFlyInDelta] = useState(0);
   const [triggerZoom, setTriggerZoom] = useState(0);
   const karmaRef = useRef(null);
 
@@ -37,6 +38,7 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
       const score = await fetchKarma();
       if (cancelled) return;
       setKarmaScore(score);
+      setFlyInDelta(karmaDelta);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (cancelled) return;
@@ -56,7 +58,7 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
     return () => {
       cancelled = true;
     };
-  }, [karmaAnimationTrigger]);
+  }, [karmaAnimationTrigger, karmaDelta]);
 
   const handleFlyInComplete = () => {
     setFlyInTarget(null);
@@ -64,7 +66,7 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
   };
 
   const centerX = typeof window !== "undefined" ? window.innerWidth / 2 : 0;
-  const centerY = typeof window !== "undefined" ? window.innerHeight / 2 : 0;
+  const bottomY = typeof window !== "undefined" ? window.innerHeight + 60 : 0;
 
   return (
     <nav className="fixed top-0 inset-x-0 z-[100] grid grid-cols-3 items-center px-6 h-20 bg-white/80 backdrop-blur-md border-b border-[var(--color-brown)]/10 shadow-md shadow-black/5">
@@ -112,7 +114,7 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
             <motion.div
               initial={{
                 x: centerX - 36,
-                y: centerY - 18,
+                y: bottomY,
                 scale: 1.2,
                 opacity: 1,
               }}
@@ -138,7 +140,7 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
                 className="w-6 h-6 object-contain"
               />
               <span className="font-bold text-sm text-[var(--color-brown)]">
-                {karmaScore ?? "—"}
+                {flyInDelta !== 0 ? (flyInDelta > 0 ? `+${flyInDelta}` : flyInDelta) : karmaScore ?? "—"}
               </span>
             </motion.div>
           )}
