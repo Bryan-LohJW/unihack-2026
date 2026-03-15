@@ -14,10 +14,16 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <motion.div 
+    <motion.div
       layout
-      className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6"
+      className="relative bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6"
     >
+      {recipe.ingredients?.some((i) => !i.inInventory) && (
+        <div className="absolute top-4 right-0 z-10 bg-amber-400 px-3 py-1.5 rounded-l-full flex items-center gap-2 shadow">
+          <img src="/shopping cart.png" alt="Items to buy" className="w-6 h-6 object-contain" />
+          <span className="text-[11px] font-bold text-white">{recipe.ingredients.filter((i) => !i.inInventory).length} missing</span>
+        </div>
+      )}
       {/* ALWAYS VISIBLE: Image & Summary Header */}
       <div 
         onClick={() => setIsExpanded(!isExpanded)}
