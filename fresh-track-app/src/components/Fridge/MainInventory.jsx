@@ -2,9 +2,17 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Shelf from "./Shelf";
 import canned_png from "../../assets/static/canned.png";
-import fresh_png from "../../assets/static/fresh.jpg"; // Re-add if used later
+// import fresh_png from "../../assets/static/fresh.jpg"; // (Unused in snippet, but kept if you need it)
 import InventoryGrid from "../Modals/InventoryGrid";
 import { getInventoryOverview, getAllInventory } from "../../api/inventory";
+
+// 🧲 EDIT YOUR MAGNETS HERE
+// You can change the 'src' to any other image link later.
+const FRIDGE_MAGNETS = [
+  { id: 1, src: "/fridge_logo.png", top: "15%", left: "20%", rotate: "-8deg", width: "70px" },
+  { id: 2, src: "icons/apple.png", top: "15%", left: "75%", rotate: "12deg", width: "70px" },
+  { id: 3, src: "icons/banana.png", top: "15%", left: "50%", rotate: "-4deg", width: "70px" },
+];
 
 const MainInventory = ({ onShowToast, onKarmaChange }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,12 +21,9 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
   const [selectedShelf, setSelectedShelf] = useState(null);
   const [isFetchingItems, setIsFetchingItems] = useState(false);
 
-  // Extract fetchOverview function
   const fetchOverview = async () => {
     try {
       const overviewData = await getInventoryOverview();
-
-      // THE FIX: overviewData is already the array!
       const fetchedSections = Array.isArray(overviewData) ? overviewData : [];
 
       const getCounts = (targetSection) => {
@@ -41,80 +46,29 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
       const freezerStats = getCounts("freezer");
 
       setInventoryData([
-        {
-          id: 1,
-          title: "Pantry",
-          total: pantryStats.total,
-          expiry: pantryStats.expiry,
-          display_img: canned_png,
-          bg_img: "/pantry_bg.png",
-        },
-        {
-          id: 2,
-          title: "Fridge",
-          total: fridgeStats.total,
-          expiry: fridgeStats.expiry,
-          display_img: canned_png,
-          bg_img: "/fridge_bg.png",
-        },
-        {
-          id: 3,
-          title: "Freezer",
-          total: freezerStats.total,
-          expiry: freezerStats.expiry,
-          display_img: canned_png,
-          bg_img: "/freezer_bg.png",
-        },
+        { id: 1, title: "Pantry", total: pantryStats.total, expiry: pantryStats.expiry, display_img: canned_png, bg_img: "/pantry_bg.png" },
+        { id: 2, title: "Fridge", total: fridgeStats.total, expiry: fridgeStats.expiry, display_img: canned_png, bg_img: "/fridge_bg.png" },
+        { id: 3, title: "Freezer", total: freezerStats.total, expiry: freezerStats.expiry, display_img: canned_png, bg_img: "/freezer_bg.png" },
       ]);
     } catch (error) {
       console.error("Failed to fetch inventory overview:", error);
-      // Fallback to dummy data if API fails
       setInventoryData([
-        {
-          id: 1,
-          title: "Pantry",
-          total: 45,
-          expiry: 2,
-          display_img: canned_png,
-          bg_img: "/pantry_bg.png",
-        },
-        {
-          id: 2,
-          title: "Fridge",
-          total: 18,
-          expiry: 5,
-          display_img: canned_png,
-          bg_img: "/fridge_bg.png",
-        },
-        {
-          id: 3,
-          title: "Freezer",
-          total: 32,
-          expiry: 0,
-          display_img: canned_png,
-          bg_img: "/freezer_bg.png",
-        },
+        { id: 1, title: "Pantry", total: 45, expiry: 2, display_img: canned_png, bg_img: "/pantry_bg.png" },
+        { id: 2, title: "Fridge", total: 18, expiry: 5, display_img: canned_png, bg_img: "/fridge_bg.png" },
+        { id: 3, title: "Freezer", total: 32, expiry: 0, display_img: canned_png, bg_img: "/freezer_bg.png" },
       ]);
     }
   };
 
-  // 1. Fetch ONLY the overview counts on component mount
   useEffect(() => {
     fetchOverview();
   }, []);
 
-  // 2. Fetch specific shelf items ONLY when a shelf is clicked
   const handleShelfClick = async (category) => {
     if (!isOpen) return;
-
     setIsFetchingItems(true);
     try {
-      // Fetch items for the specific section clicked
-      const itemsData = await getAllInventory({
-        section: category.title.toLowerCase(),
-      });
-
-      // Open the modal with the specific category data + fetched items
+      const itemsData = await getAllInventory({ section: category.title.toLowerCase() });
       setSelectedShelf({ ...category, items: itemsData || [] });
     } catch (error) {
       console.error(`Failed to fetch items for ${category.title}:`, error);
@@ -127,24 +81,49 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
   return (
     <div className="min-h-screen bg-[#F4F7F9] flex flex-col font-sans overflow-hidden">
       <main className="flex-1 pt-20 flex flex-col items-center">
-        <div className="relative w-full max-w-lg mt-4 px-4 flex flex-col items-center">
-          {/* Dialog box — above fridge, centered, no overlap, tail points down to fridge */}
+        <div className="relative w-full max-w-lg mt-12 px-4 flex flex-col items-center">
+          {/* Freddy Dialog Box */}
           <div
-            className="absolute top-0 left-1/2 z-30 max-w-[180px] px-4 py-3 bg-white text-sm text-slate-800 font-medium leading-snug"
+            className="absolute left-1/2 z-50 max-w-[180px] px-4 py-3 bg-white text-sm text-slate-800 font-medium leading-snug"
             style={{
               borderRadius: "50% 40% 50% 40% / 55% 45% 55% 45%",
               boxShadow: "3px 3px 0 0 rgba(30,41,59,0.2), 5px 5px 14px rgba(0,0,0,0.1)",
               border: "1px solid rgba(30,41,59,0.25)",
-              transform: "translate(-50%, calc(-100% - 0.75rem)) rotate(-12deg)",
+              transform: "translate(-55%, -135%) rotate(-12deg)",
             }}
           >
             Hi, I am <span className="font-bold text-[var(--color-brown)]">Freddy</span> your digital fridge.
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-l border-b border-slate-300 rotate-[-135deg]" aria-hidden />
+            {/* The Tail */}
+            <div
+              className="absolute w-0 h-0"
+              style={{
+                bottom: "-11px",
+                left: "60%",
+                transform: "translateX(-50%)",
+                borderLeft: "9px solid transparent",
+                borderRight: "9px solid transparent",
+                borderTop: "12px solid white",
+                filter: "drop-shadow(0px 1px 0px rgba(30,41,59,0.25)) drop-shadow(3px 3px 0px rgba(30,41,59,0.2))",
+                zIndex: 10,
+              }}
+              aria-hidden
+            />
+            {/* White Patch to hide border line */}
+            <div
+              className="absolute bg-white"
+              style={{
+                bottom: "-0.5px",
+                left: "60%",
+                transform: "translateX(-50%)",
+                width: "14px",
+                height: "3px",
+                zIndex: 9,
+              }}
+            />
           </div>
 
-          {/* FRIDGE WRAPPER — image sets height, content overlaid inside */}
+          {/* Fridge Image and Interaction Wrapper */}
           <div className="relative w-full cursor-pointer overflow-hidden" onClick={() => !isOpen && setIsOpen(true)}>
-            {/* Interior Container (Shelves + Light + Door) */}
             <div
               className="absolute flex flex-col gap-2"
               style={{
@@ -153,15 +132,14 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
                 top: "7%",
                 bottom: "8%",
                 zIndex: 5,
-                overflow: "hidden", // This clips everything inside, including the door animation!
+                overflow: "hidden",
               }}
             >
-              {/* 1. Shelves */}
               {inventoryData.map((category, idx) => (
                 <Shelf key={category.id} {...category} index={idx} isOpen={isOpen} onShelfClick={() => handleShelfClick(category)} />
               ))}
 
-              {/* 2. Light effect when open */}
+              {/* Inside Fridge Lighting Effect */}
               <AnimatePresence>
                 {isOpen && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 40 }}>
@@ -178,21 +156,47 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
                 )}
               </AnimatePresence>
 
-              {/* 3. Closed state (THE FIX) */}
+              {/* Fridge Door (Overlay) */}
               <AnimatePresence>
                 {!isOpen && (
                   <motion.div
-                    initial={{ x: "-100%" }}
-                    animate={{ x: 0 }}
-                    exit={{ x: "-100%" }}
+                    // 🌟 UPDATED: Now fades (opacity) along with sliding (x)
+                    initial={{ x: "-100%", opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: "-100%", opacity: 0 }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
-                    className="absolute inset-0 flex flex-col items-center justify-center" // Changed to inset-0
+                    className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden"
                     style={{
-                      zIndex: 15, // Keeps it above the shelves
-                      background: "rgba(15,23,42,0.55)",
+                      zIndex: 15,
                       borderRadius: "6px",
+                      backgroundImage: "url('/fridge_logo.png')",
+                      // 🌟 INCREASE THIS TO ZOOM PAST THE INVISIBLE BORDERS!
+                      // Try 250%, 300%, or 350% until the fridge touches the edges.
+                      backgroundSize: "223% 134%",
+                      translateX: "3%", 
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      imageRendering: "pixelated", 
+                      backgroundColor: "transparent",
                     }}
                   >
+                    {/* Render Fridge Magnets */}
+                   {/*  {FRIDGE_MAGNETS.map((magnet) => (
+                      <img
+                        key={magnet.id}
+                        src={magnet.src}
+                        alt={`magnet-${magnet.id}`}
+                        // UPDATED: Kept drop-shadow for some lift, but removed white border/bg
+                        className="absolute drop-shadow-md pointer-events-none h-auto"
+                        style={{
+                          top: magnet.top,
+                          left: magnet.left,
+                          width: magnet.width,
+                          transform: `rotate(${magnet.rotate})`,
+                        }}
+                      />
+                    ))} */}
+
                     <motion.div animate={{ y: [0, -16, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} className="flex flex-col items-center text-slate-200">
                       <span className="text-base font-bold tracking-wide mb-2">Tap to Open</span>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-7 h-7">
@@ -204,11 +208,10 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
               </AnimatePresence>
             </div>
 
-            {/* Fridge frame image */}
             <img src="/fridge_no_door.png" alt="fridge" className="relative w-full pointer-events-none select-none" style={{ zIndex: 20, display: "block" }} />
           </div>
 
-          {/* CLOSE BUTTON */}
+          {/* Close Button */}
           <div className="mt-4">
             <AnimatePresence>
               {isOpen && (
@@ -220,17 +223,7 @@ const MainInventory = ({ onShowToast, onKarmaChange }) => {
           </div>
         </div>
 
-        {/* Render the Modal */}
-        <InventoryGrid
-          isOpen={selectedShelf !== null}
-          onClose={() => setSelectedShelf(null)}
-          categoryTitle={selectedShelf?.title}
-          items={selectedShelf?.items || []}
-          isLoading={isFetchingItems}
-          onShowToast={onShowToast}
-          onKarmaChange={onKarmaChange}
-          onInventoryChange={() => fetchOverview()}
-        />
+        <InventoryGrid isOpen={selectedShelf !== null} onClose={() => setSelectedShelf(null)} categoryTitle={selectedShelf?.title} items={selectedShelf?.items || []} isLoading={isFetchingItems} onShowToast={onShowToast} onKarmaChange={onKarmaChange} onInventoryChange={() => fetchOverview()} />
       </main>
     </div>
   );

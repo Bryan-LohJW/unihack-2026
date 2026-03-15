@@ -69,39 +69,20 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0, karmaDelta = 0 }) => {
   const bottomY = typeof window !== "undefined" ? window.innerHeight + 60 : 0;
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-[100] grid grid-cols-3 items-center px-6 h-20 bg-white/80 backdrop-blur-md border-b border-[var(--color-brown)]/10 shadow-md shadow-black/5">
-      {/* 1. Logo Section */}
-      <div
-        onClick={onLogoClick}
-        className="flex justify-start items-center group cursor-pointer"
-      >
-        <div className="relative">
-          <img src="/fridge_logo.png" alt="FreshTrack" className="h-12 w-auto object-contain" />
-        </div>
-      </div>
-
-      {/* 2. Branding Center */}
-      <div className="flex items-center justify-center pointer-events-none">
-        <h2 className="text-xl leading-none tracking-tight">
-          <span className="font-medium text-[var(--color-text-secondary)]">Digital </span><span className="font-black text-[var(--color-primary)]">Fridge</span>
+    <nav className="fixed top-0 inset-x-0 z-[100] flex justify-between items-center pl-2 pr-4 h-20 bg-white/80 backdrop-blur-md border-b border-[var(--color-brown)]/10 shadow-md shadow-black/5">
+      {/* 1. Branding Left (Clickable) */}
+      <div onClick={onLogoClick} className="flex items-center cursor-pointer group">
+        <h2 className="text-xl leading-none tracking-tight group-hover:opacity-80 transition-opacity">
+          <span className="font-medium text-[var(--color-text-secondary)]">Digital </span>
+          <span className="font-black text-[var(--color-primary)]">Fridge</span>
         </h2>
       </div>
 
-      {/* 3. Actions End */}
-      <div ref={karmaRef} className="flex justify-end items-center gap-2">
-        <div className="flex items-center gap-2 px-3 py-1.5 text-[var(--color-brown)] bg-[var(--color-blue)]/10 rounded-full pointer-events-none">
-          <img
-            src="/icons/kitchen_karma.png"
-            alt="Kitchen Karma"
-            className="w-6 h-6 object-contain"
-          />
-          <motion.span
-            key={`${karmaScore ?? "init"}-${triggerZoom}`}
-            initial={{ scale: triggerZoom > 0 ? 1.4 : 1 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            className="font-bold text-sm inline-block"
-          >
+      {/* 2. Actions End (Karma) - Added -translate-y-[2px] here! */}
+      <div ref={karmaRef} className="flex justify-end items-center -translate-y-[2px]">
+        <div className="flex items-center gap-0.5 px-3 py-1.5 text-[var(--color-brown)] bg-[var(--color-blue)]/10 rounded-full pointer-events-none">
+          <img src="/icons/kitchen_karma.png" alt="Kitchen Karma" className="w-6 h-6 object-contain" />
+          <motion.span key={`${karmaScore ?? "init"}-${triggerZoom}`} initial={{ scale: triggerZoom > 0 ? 1.4 : 1 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 15 }} className="font-bold text-sm leading-none inline-block flex-shrink-0 pt-[2px]">
             {karmaScore ?? "—"}
           </motion.span>
         </div>
@@ -131,17 +112,11 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0, karmaDelta = 0 }) => {
                 damping: 25,
               }}
               onAnimationComplete={handleFlyInComplete}
-              className="fixed z-[200] w-[72px] h-9 flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-blue)]/20 shadow-xl pointer-events-none border border-[var(--color-brown)]/10"
+              className="fixed z-[200] w-[72px] h-9 flex items-center justify-center gap-0.5 px-3 py-1.5 rounded-full bg-[var(--color-blue)]/20 shadow-xl pointer-events-none border border-[var(--color-brown)]/10"
               style={{ left: 0, top: 0 }}
             >
-              <img
-                src="/icons/kitchen_karma.png"
-                alt=""
-                className="w-6 h-6 object-contain"
-              />
-              <span className="font-bold text-sm text-[var(--color-brown)]">
-                {flyInDelta !== 0 ? (flyInDelta > 0 ? `+${flyInDelta}` : flyInDelta) : karmaScore ?? "—"}
-              </span>
+              <img src="/icons/kitchen_karma.png" alt="" className="w-6 h-6 object-contain" />
+              <span className="font-bold text-sm leading-none pt-[2px] text-[var(--color-brown)]">{flyInDelta !== 0 ? (flyInDelta > 0 ? `+${flyInDelta}` : flyInDelta) : (karmaScore ?? "—")}</span>
             </motion.div>
           )}
         </AnimatePresence>,
