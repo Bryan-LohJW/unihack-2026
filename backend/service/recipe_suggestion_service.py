@@ -5,7 +5,6 @@ from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSch
 from mongo_collection.repository.recipe_suggestion_repository import RecipeSuggestionRepository
 from mongo_collection.repository.inventory_repository import InventoryRepository
 from mongo_collection.repository.preference_repository import PreferenceRepository
-from service.llm_client import suggest_recipes_from_inventory
 
 
 class RecipeSuggestionService:
@@ -56,56 +55,3 @@ class RecipeSuggestionService:
             docs.append(schema.to_json_friendly())
 
         return ({"suggestion_id": suggestion_id, "recipes": docs}, 200)
-
-
-
-def _map_llm_recipe_to_schema(raw: dict) -> dict:
-    """Map suggest_recipes_from_inventory recipe format to RecipeSuggestionSchema format.
-    Handles both: (1) schema format (menu, ingredients, etc.) and
-    (2) LLM/Spoonacular format (name, ingredients_used, missing_ingredients, steps).
-    """
-    # Already in schema format (e.g. from dummy or future unified output)
-    if "ingredients" in raw and "menu" in raw:
-        return {
-            "menu": raw.get("menu", ""),
-            "headcount": raw.get("headcount", 1),
-            "cuisine_type": raw.get("cuisine_type", ""),
-            "nutrition_per_person": raw.get("nutrition_per_person") or {},
-            "ingredients": raw.get("ingredients", []),
-            "ingredients_to_buy": raw.get("ingredients_to_buy", []),
-            "instruction": raw.get("instruction", []),
-            "image_url": raw.get("image_url", ""),
-        }
-
-    # LLM/Spoonacular format
-    ingredients_used = raw.get("ingredients_used") or []
-    ingredients = [
-        {"name": ing.get("item", ""), "qty": ing.get("qty_used", 1)}
-        for ing in ingredients_used
-    ]
-    missing = raw.get("missing_ingredients") or []
-    ingredients_to_buy = [{"name": m, "qty": ""} for m in missing]
-    instruction = raw.get("steps") or raw.get("instruction") or []
-    if isinstance(instruction, str):
-        instruction = [instruction] if instruction else []
-    image_url = raw.get("image_url") or ""
-
-    return {
-        "menu": raw.get("name") or raw.get("menu", ""),
-        "headcount": raw.get("servings") or raw.get("headcount", 1),
-        "cuisine_type": raw.get("cuisine_type", ""),
-        "nutrition_per_person": raw.get("nutrition_per_person") or {},
-        "ingredients": ingredients,
-        "ingredients_to_buy": ingredients_to_buy,
-        "instruction": instruction,
-        "image_url": image_url,
-    }
-
-
-def _serialize_suggestion_doc(doc: dict) -> dict:
-    out = dict(doc)
-    if "_id" in out:
-        out["_id"] = str(out["_id"])
-    if "created_at" in out and hasattr(out["created_at"], "isoformat"):
-        out["created_at"] = out["created_at"].isoformat()
-    return out

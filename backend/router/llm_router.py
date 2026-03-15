@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 
-from mongo_collection.schema.recipe_suggestion_schema import RecipeSuggestionSchema
 from service.llm_client import parse_image_to_inventory_items
 
 
