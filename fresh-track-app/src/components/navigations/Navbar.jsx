@@ -84,7 +84,7 @@ const Navbar = ({ onLogoClick, karmaAnimationTrigger = 0 }) => {
 
       {/* 2. Branding Center */}
       <div className="flex items-center justify-center pointer-events-none">
-        <h2 className="text-[var(--color-black)] font-semibold text-xl tracking-tight leading-none" style={{ fontFamily: '"Outfit", sans-serif' }}>
+        <h2 className="text-[var(--color-black)] font-semibold text-xl tracking-tight leading-none">
           Fresh<span className="text-[var(--color-black)]">Track</span>
         </h2>
       </div>
