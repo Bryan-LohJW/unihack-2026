@@ -24,6 +24,7 @@ Rules:
 - Each meal must use at least one inventory item
 - Mark each ingredient as available (in inventory) or needs_buying
 - Return only valid JSON, no explanation, no markdown
+- One of the recipe must only contain items that are available in inventory, no buying needed
 
 Schema:
 {{"days": [{{"day": 1, "meals": [{{"name": "", "type": "dinner", "uses_expiring": true, "ingredients": [{{"name": "", "quantity": "", "available": true}}], "steps": [], "macros": {{"protein": 0, "carbs": 0, "fat": 0, "calories": 0}}}}]}}]}}"""
