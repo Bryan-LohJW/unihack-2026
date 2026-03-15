@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Users, ChevronDown } from 'lucide-react';
-import { apiAxios } from '../../api';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, Users, ChevronDown } from "lucide-react";
+import { apiAxios } from "../../api";
 
 function parseAmountUsed(amount) {
   if (amount == null) return 1;
@@ -10,7 +10,12 @@ function parseAmountUsed(amount) {
   return Math.max(1, Math.ceil(num));
 }
 
-export default function RecipeCard({ recipe, inventory = [], onStartCookingSuccess, onShowToast }) {
+export default function RecipeCard({
+  recipe,
+  inventory = [],
+  onStartCookingSuccess,
+  onShowToast,
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -25,15 +30,15 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
         </div>
       )}
       {/* ALWAYS VISIBLE: Image & Summary Header */}
-      <div 
+      <div
         onClick={() => setIsExpanded(!isExpanded)}
         className="cursor-pointer group"
       >
         {/* --- IMAGE SECTION --- */}
         <div className="relative h-48 w-full overflow-hidden bg-gray-100">
-          <img 
-            src={recipe.image} 
-            alt={recipe.title} 
+          <img
+            src={recipe.image}
+            alt={recipe.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent pointer-events-none" />
@@ -42,17 +47,16 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
         {/* --- TEXT SECTION --- */}
         {/* This wrapper gives an even padding of 24px (p-6) around all the text */}
         <div className="p-4 hover:bg-gray-50 transition-colors">
-          
           {/* HEADER ROW: Relative container allows perfect centering while button floats right */}
           <div className="relative flex justify-center items-center mb-4 min-h-[32px]">
-            <motion.h3 
-              layout="position" 
+            <motion.h3
+              layout="position"
               className="text-xl font-bold text-gray-900 text-center px-12 leading-tight"
             >
               {recipe.title}
             </motion.h3>
-            
-            <motion.button 
+
+            <motion.button
               layout
               animate={{ rotate: isExpanded ? 180 : 0 }}
               className="absolute right-0 top-0 p-1.5 bg-white border border-gray-600 text-gray-900 rounded-full shrink-0"
@@ -61,28 +65,48 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
             </motion.button>
           </div>
 
-          {/* DESCRIPTION: Centered */}
-          <motion.p 
-            layout="position" 
-            className="text-[15px] text-gray-800 text-center mb-6 leading-relaxed"
+          {/* INFO TAGS: Servings centered on its row, nutrition in one row below */}
+          <motion.div
+            layout="position"
+            className="flex flex-col gap-2 text-[13px]"
           >
-            {recipe.description}
-          </motion.p>
-
-          {/* INFO TAGS: Left aligned matching your image */}
-          <motion.div 
-            layout="position" 
-            className="flex items-center gap-4 text-[13px] font-bold text-gray-500"
-          >
-            <div className="flex items-center gap-1.5">
-              <Clock size={16} /> {recipe.time}
+            <div className="flex justify-center">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold">
+                <Users size={14} /> {recipe.servings} serving
+              </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Users size={16} /> {recipe.servings} servings
-            </div>
-            <div className="uppercase tracking-wider text-gray-500 ml-1">
-              {recipe.difficulty}
-            </div>
+            {recipe.nutrition_per_person &&
+              Object.keys(recipe.nutrition_per_person).some(
+                (k) =>
+                  recipe.nutrition_per_person[k] != null &&
+                  recipe.nutrition_per_person[k] !== "",
+              ) && (
+                <div className="flex flex-wrap justify-center items-center gap-2">
+                  {Object.entries(recipe.nutrition_per_person)
+                    .filter(([, v]) => v != null && v !== "")
+                    .map(([key, value], idx) => {
+                      const text =
+                        key === "calories" || key === "cal"
+                          ? `${value} cal`
+                          : `${value}g ${key}`;
+                      const colors = [
+                        "bg-rose-100 text-rose-700",
+                        "bg-amber-100 text-amber-700",
+                        "bg-emerald-100 text-emerald-700",
+                        "bg-sky-100 text-sky-700",
+                        "bg-violet-100 text-violet-700",
+                      ];
+                      return (
+                        <span
+                          key={key}
+                          className={`px-2.5 py-1 rounded-full font-semibold ${colors[idx % colors.length]}`}
+                        >
+                          {text}
+                        </span>
+                      );
+                    })}
+                </div>
+              )}
           </motion.div>
         </div>
       </div>
@@ -99,13 +123,20 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
           >
             <div className="pt-5 text-left">
               <h4 className="font-bold text-gray-900 mb-1">Ingredients</h4>
-              <ul className="mb-4" style={{textAlign: "left"}}>
+              <ul className="mb-4" style={{ textAlign: "left" }}>
                 {recipe.ingredients.map((item, idx) => (
-                  <li key={idx} className="text-sm flex items-start">
+                  <li key={idx} className="text-sm flex items-start gap-1.5">
                     <span className="text-gray-700">
-                      <strong>{item.amount}</strong> {item.name}
-                      {item.inInventory && (
-                        <span className="text-[var(--color-primary)] ml-1 font-medium">(in inventory)</span>
+                      {item.emoji && (
+                        <span className="mr-1">{item.emoji}</span>
+                      )}
+                      <strong>{item.name}</strong>{" "}
+                      {item.amount ?? item.quantity}
+                      {item.unit ? ` ${item.unit}` : ""} 
+                      {!item.inInventory && (
+                        <span className="text-red-500 ml-1 font-medium">
+                          (-)
+                        </span>
                       )}
                     </span>
                   </li>
@@ -113,10 +144,12 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
               </ul>
 
               <h4 className="font-bold text-gray-900 mb-1">Instructions</h4>
-              <ol className="" style={{textAlign: "left"}}>
+              <ol className="" style={{ textAlign: "left" }}>
                 {recipe.instructions.map((step, idx) => (
                   <li key={idx} className="text-sm flex items-start gap-3">
-                    <span className="text-gray-700 leading-relaxed">{idx + 1}. {step}</span>
+                    <span className="text-gray-700 leading-relaxed">
+                      {idx + 1}. {step}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -125,42 +158,51 @@ export default function RecipeCard({ recipe, inventory = [], onStartCookingSucce
                 type="button"
                 onClick={async (e) => {
                   e.stopPropagation();
-                  const inInventory = recipe.ingredients.filter((i) => i.inInventory);
+                  const inInventory = recipe.ingredients.filter(
+                    (i) => i.inInventory,
+                  );
                   if (!inInventory.length) {
-                    onShowToast?.('No ingredients in inventory for this recipe.');
+                    onShowToast?.(
+                      "No ingredients in inventory for this recipe.",
+                    );
                     return;
                   }
                   const invList = inventory || [];
                   const invById = Object.fromEntries(
-                    invList.filter((i) => i._id).map((i) => [String(i._id), i])
+                    invList.filter((i) => i._id).map((i) => [String(i._id), i]),
                   );
                   const invByName = Object.fromEntries(
-                    invList.map((i) => [i.name?.toLowerCase()?.trim(), i])
+                    invList.map((i) => [i.name?.toLowerCase()?.trim(), i]),
                   );
 
                   const updates = [];
                   for (const ing of inInventory) {
-                    const invItem =
-                      ing.item_id ? invById[String(ing.item_id)] : invByName[ing.name?.toLowerCase()?.trim()];
+                    const invItem = ing.item_id
+                      ? invById[String(ing.item_id)]
+                      : invByName[ing.name?.toLowerCase()?.trim()];
                     if (!invItem?._id) continue;
                     const toConsume = parseAmountUsed(ing.amount);
                     updates.push({ item_id: invItem._id, qty: toConsume });
                   }
                   if (!updates.length) {
-                    onShowToast?.('No matching items in your inventory. Add ingredients first.');
+                    onShowToast?.(
+                      "No matching items in your inventory. Add ingredients first.",
+                    );
                     return;
                   }
                   try {
-                    const res = await apiAxios.patch('/inventory/batch', { updates });
+                    const res = await apiAxios.patch("/inventory/batch", {
+                      updates,
+                    });
                     const karma = res?.karma_delta ?? 0;
                     onStartCookingSuccess?.(karma);
                   } catch (err) {
-                    console.error('Batch update failed', err);
-                    onShowToast?.('Failed to consume items. Please try again.');
+                    console.error("Batch update failed", err);
+                    onShowToast?.("Failed to consume items. Please try again.");
                   }
                 }}
-                className="w-full mt-6 py-3 border-2 border-[var(--color-primary)] text-[var(--color-primary)] rounded-xl font-bold hover:bg-[#E8F3ED] transition"
-                style={{ marginTop: '15px' }}
+                className="w-full mt-6 py-3 border-2 border-[#187A4F] text-[#187A4F] rounded-xl font-bold hover:bg-[#E8F3ED] transition"
+                style={{ marginTop: "15px" }}
               >
                 Start Cooking
               </button>

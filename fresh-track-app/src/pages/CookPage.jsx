@@ -9,15 +9,21 @@ const DEFAULT_IMAGE =
 function mapApiRecipeToCard(apiRecipe) {
   const ingredients = (apiRecipe.ingredients || []).map((i) => ({
     name: i.name || "",
-    amount: i.qty ?? i.amount ?? "",
+    amount: i.qty ?? i.amount ?? i.quantity ?? "",
+    unit: i.unit || "",
+    emoji: i.emoji || "",
     inInventory: true,
   }));
   const toBuy = (apiRecipe.ingredients_to_buy || []).map((i) => ({
     name: i.name || "",
-    amount: i.qty ?? i.amount ?? "",
+    amount: i.qty ?? i.amount ?? i.quantity ?? "",
+    unit: i.unit || "",
+    emoji: i.emoji || "",
     inInventory: false,
   }));
   const allIngredients = [...ingredients, ...toBuy];
+
+  const nutrition = apiRecipe.nutrition_per_person || {};
 
   return {
     id: apiRecipe.id,
@@ -31,6 +37,7 @@ function mapApiRecipeToCard(apiRecipe) {
     image: apiRecipe.image_url || DEFAULT_IMAGE,
     ingredients: allIngredients,
     instructions: apiRecipe.instruction,
+    nutrition_per_person: nutrition,
   };
 }
 
